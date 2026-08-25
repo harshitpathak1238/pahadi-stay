@@ -1,0 +1,1 @@
+export default function AdminListings(){return <div className="mx-auto max-w-6xl px-5 py-20"><h1 className="text-5xl">Listings to review.</h1><div className="mt-8 rounded-2xl bg-white p-6 sans">No pending listings. New partner submissions will appear here.</div></div>}

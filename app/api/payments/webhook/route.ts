@@ -1,0 +1,1 @@
+import { NextResponse } from 'next/server'; export async function POST(request:Request){const signature=request.headers.get('x-razorpay-signature'); if(!signature)return NextResponse.json({error:'Missing signature'},{status:400}); return NextResponse.json({received:true,queued:true})}

@@ -1,0 +1,2 @@
+import Razorpay from 'razorpay'; export function razorpay(){ const key_id=process.env.RAZORPAY_KEY_ID; const key_secret=process.env.RAZORPAY_KEY_SECRET; if(!key_id||!key_secret) throw new Error('Razorpay environment variables are not configured'); return new Razorpay({key_id,key_secret}); }
+export function paymentIntegrations(){ return { cardDataStored:false, whatsappProvider:process.env.WHATSAPP_PROVIDER ?? 'not-configured', emailProvider:process.env.RESEND_API_KEY?'resend':'not-configured' }; }

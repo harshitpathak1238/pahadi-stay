@@ -1,0 +1,1 @@
+export const metadata={title:'Partner login',description:'Manage your Pahadi Stay listing.'}; export default function PartnerLogin(){return <div className="mx-auto max-w-md px-5 py-20"><h1 className="text-5xl">Welcome, partner.</h1><p className="sans mt-4 text-[#6c7770]">Sign in to manage availability, bookings, and payouts.</p></div>}

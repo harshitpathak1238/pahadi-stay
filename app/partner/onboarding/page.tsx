@@ -1,0 +1,1 @@
+export default function Onboarding(){return <div className="mx-auto max-w-3xl px-5 py-20"><h1 className="text-5xl">Share your place with thoughtful travellers.</h1><p className="sans mt-5 text-[#6c7770]">Tell us about your stay, vehicle, or experience. Every listing is reviewed before it goes live.</p></div>}

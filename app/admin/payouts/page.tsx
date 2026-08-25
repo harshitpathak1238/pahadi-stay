@@ -1,0 +1,1 @@
+export default function AdminPayouts(){return <div className="mx-auto max-w-6xl px-5 py-20"><h1 className="text-5xl">Payouts.</h1><div className="mt-8 rounded-2xl bg-white p-6 sans">Payout reports will appear after bookings are captured.</div></div>}

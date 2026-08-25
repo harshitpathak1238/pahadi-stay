@@ -1,0 +1,1 @@
+export const metadata={title:'Create account',description:'Create your Pahadi Stay account.'}; export default function Signup(){return <div className="mx-auto max-w-md px-5 py-20"><h1 className="text-5xl">Make room for more trips.</h1><p className="sans mt-4 text-[#6c7770]">Create an account, or continue as a guest at checkout.</p></div>}
