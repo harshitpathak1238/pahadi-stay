@@ -13,6 +13,9 @@ button, input, select { font:inherit; }
 .auth-input:focus { border-color:var(--forest); box-shadow:0 0 0 3px rgba(36,88,74,.12); }
 @media (min-width:768px) { .auth-panel { padding:2.25rem; } }
 .site-header { position:absolute; inset:0 0 auto; z-index:20; color:#f7f4ec; border-bottom:1px solid rgba(255,255,255,.18); background:linear-gradient(180deg, rgba(12,38,31,.56), transparent); }
+.brand { position:relative; display:inline-flex; align-items:center; gap:.55rem; font-size:0; }
+.brand::before { content:'⌃'; display:inline-flex; height:2rem; width:2rem; align-items:center; justify-content:center; border:1px solid rgba(214,160,109,.7); border-radius:50%; color:#d6a06d; font-size:1.15rem; line-height:1; transform:rotate(180deg); }
+.brand::after { content:'KainchiDarshan'; color:#f7f4ec; font-size:1.35rem; font-weight:600; letter-spacing:-.04em; }
 .brand span { color:#d6a06d; }
 .site-header a { transition:opacity .2s ease; }
 .site-header a:hover { opacity:.7; }

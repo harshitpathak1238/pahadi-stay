@@ -1,0 +1,32 @@
+export const bhimtalPackage = {
+  slug: 'bhimtal-3-nights-4-days',
+  eyebrow: 'Bhimtal, Kumaon',
+  title: '3 Nights / 4 Days Bhimtal Holiday Package',
+  shortTitle: 'Lake days, thoughtfully arranged.',
+  description: 'A relaxed lake-country escape with a homestay, private cab, and the best of Bhimtal, Sattal, Naukuchiatal, Kainchi Dham, and Nainital.',
+  image: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1800&q=88',
+  duration: '3 Nights / 4 Days',
+  guests: '6 Adults',
+  route: 'Ex-Haldwani',
+  meals: 'EP Plan',
+  transport: 'Private cab',
+  price: '₹24,000',
+  perPerson: '₹4,000 per person',
+  itinerary: [
+    { day: 'Day 1', title: 'Haldwani pickup & Bhimtal arrival', text: 'Pick-up from Haldwani Railway Station or Bus Stand in a private cab. Take the scenic drive to Bhimtal, check in at the homestay, then spend the evening relaxing or exploring Bhimtal Lake and local cafes.' },
+    { day: 'Day 2', title: 'Sattal & Naukuchiatal nature tour', text: 'Spend the day discovering Sattal and Naukuchiatal. Make time for nature walks, kayaking, boating, or paragliding, with activities available at your own cost. Return to the homestay by evening.' },
+    { day: 'Day 3', title: 'Kainchi Dham & Nainital excursion', text: 'Visit Kainchi Dham Ashram in the morning, then continue to Nainital for Naini Lake, Naina Devi Temple, and Mall Road shopping before returning to Bhimtal.' },
+    { day: 'Day 4', title: 'Check-out & Haldwani drop', text: 'Enjoy a relaxed morning check-out, followed by a private transfer to Haldwani Railway Station or Bus Stand.' },
+  ],
+  inclusions: [
+    '3 nights stay at the homestay for 6 adults (room only)',
+    'Dedicated private cab for 3 full days of transfers and sightseeing',
+    'Driver allowance, fuel, toll taxes, and parking fees',
+    'Complimentary Wi-Fi at the homestay',
+  ],
+  exclusions: [
+    'All meals: breakfast, lunch, and dinner',
+    'Entry tickets, boating, kayaking, and adventure activity fees',
+    'Personal expenses and anything not mentioned in the inclusions',
+  ],
+};
