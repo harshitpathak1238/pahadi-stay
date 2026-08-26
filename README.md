@@ -1,4 +1,4 @@
-# Pahadi Stay
+# KainchiDarshan
 
 Premium stays, rides, rentals, and slow adventures around Bhimtal and Kainchi Dham.
 
