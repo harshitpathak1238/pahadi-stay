@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import Link from 'next/link';
-import { Cormorant_Garamond, DM_Sans } from 'next/font/google';
 import { Mountain } from 'lucide-react';
 
-const display = Cormorant_Garamond({ subsets: ['latin'], variable: '--font-display', weight: ['400', '500', '600', '700'] });
-const sans = DM_Sans({ subsets: ['latin'], variable: '--font-sans', weight: ['400', '500', '600', '700'] });
+const display = { variable: '' };
+const sans = { variable: '' };
+
 
 export const metadata: Metadata = { title: { default: 'KainchiDarshan | See Kumaon differently', template: '%s | KainchiDarshan' }, description: 'Thoughtfully chosen stays, rides and experiences around Bhimtal and Kainchi Dham.', metadataBase: new URL('http://localhost:3000') };
 

@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-:root { --cream:#f7f4ec; --pine:#173f35; --forest:#24584a; --ink:#23332e; --clay:#b66b45; --line:#e4e3da; }
+:root { --cream:#f7f4ec; --pine:#173f35; --forest:#24584a; --ink:#23332e; --clay:#b66b45; --line:#e4e3da; --font-display:Georgia, serif; --font-sans:Arial, Helvetica, sans-serif; }
 * { box-sizing:border-box; }
 body { margin:0; background:var(--cream); color:var(--ink); font-family:var(--font-display), Georgia, serif; }
 button, input, select { font:inherit; }
