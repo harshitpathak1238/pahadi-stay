@@ -33,6 +33,12 @@ enum ListingStatus {
 	PENDING_REVIEW
 }
 
+enum BlogStatus {
+	DRAFT
+	PUBLISHED
+	ARCHIVED
+}
+
 enum BookingStatus {
 	PENDING
 	CONFIRMED
@@ -171,4 +177,27 @@ model Package {
 	listingIds Json
 	price      Decimal  @db.Decimal(10, 2)
 	createdAt  DateTime @default(now())
+}
+
+model BlogPost {
+	id              String     @id @default(cuid())
+	slug            String     @unique
+	title           String
+	metaTitle       String
+	metaDescription String     @db.Text
+	excerpt         String     @db.Text
+	body            String     @db.LongText
+	authorName      String
+	category        String
+	primaryKeyword  String
+	tags            Json
+	featuredImage   String?
+	imageAltText    String?
+	status          BlogStatus @default(DRAFT)
+	publishedAt     DateTime?
+	createdAt       DateTime   @default(now())
+	updatedAt       DateTime   @updatedAt
+
+	@@index([status, publishedAt])
+	@@index([category])
 }
