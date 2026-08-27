@@ -2,7 +2,7 @@
   "name": "pahadi-stay",
   "version": "1.0.0",
   "private": true,
-  "scripts": {"dev": "next dev", "build": "next build", "start": "next start", "lint": "next lint", "prisma:generate": "prisma generate", "prisma:migrate": "prisma migrate dev"},
+  "scripts": {"dev": "next dev", "build": "prisma generate && next build", "start": "next start", "lint": "next lint", "prisma:generate": "prisma generate", "prisma:migrate": "prisma migrate dev"},
   "dependencies": {"@auth/prisma-adapter":"latest","@prisma/client":"^6.19.0","@radix-ui/react-dialog":"latest","next":"^14.2.0","next-auth":"^4.24.11","react":"^18.3.1","react-dom":"^18.3.1","react-day-picker":"latest","react-hook-form":"latest","zod":"latest","@hookform/resolvers":"latest","lucide-react":"latest","razorpay":"latest","bcryptjs":"latest","cloudinary":"latest"},
   "devDependencies": {"@types/node":"latest","@types/react":"latest","@types/react-dom":"latest","autoprefixer":"latest","eslint":"latest","eslint-config-next":"^14.2.0","postcss":"latest","prisma":"^6.19.0","tailwindcss":"^3.4.17","typescript":"latest"}
 }

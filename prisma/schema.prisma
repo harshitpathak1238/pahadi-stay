@@ -1,19 +1,174 @@
-generator client { provider = "prisma-client-js" }
-datasource db { provider = "postgresql" url = env("DATABASE_URL") }
+generator client {
+	provider = "prisma-client-js"
+}
 
-enum Role { CUSTOMER PARTNER ADMIN }
-enum ListingCategory { STAY RIDE RENTAL ACTIVITY }
-enum VerificationStatus { PENDING VERIFIED REJECTED }
-enum ListingStatus { DRAFT LIVE PAUSED PENDING_REVIEW }
-enum BookingStatus { PENDING CONFIRMED CANCELLED COMPLETED }
-enum PaymentStatus { CREATED AUTHORIZED CAPTURED FAILED REFUNDED }
+datasource db {
+	provider = "postgresql"
+	url      = env("DATABASE_URL")
+}
 
-model User { id String @id @default(cuid()) name String? email String? @unique passwordHash String? phone String? @unique role Role @default(CUSTOMER) createdAt DateTime @default(now()) partner Partner? bookings Booking[] reviews Review[] passwordResetTokens PasswordResetToken[] }
-model PasswordResetToken { id String @id @default(cuid()) tokenHash String @unique userId String expiresAt DateTime usedAt DateTime? createdAt DateTime @default(now()) user User @relation(fields:[userId], references:[id], onDelete:Cascade) @@index([userId, expiresAt]) }
-model Partner { id String @id @default(cuid()) userId String @unique businessName String category ListingCategory verificationStatus VerificationStatus @default(PENDING) payoutDetails Json? user User @relation(fields:[userId], references:[id]) listings Listing[] }
-model Listing { id String @id @default(cuid()) slug String @unique partnerId String category ListingCategory title String description String location String basePrice Decimal @db.Decimal(10,2) sellPrice Decimal @db.Decimal(10,2) images String[] amenities String[] status ListingStatus @default(DRAFT) partner Partner @relation(fields:[partnerId], references:[id]) availability Availability[] bookings Booking[] reviews Review[] createdAt DateTime @default(now()) @@index([category,status]) }
-model Availability { id String @id @default(cuid()) listingId String date DateTime isAvailable Boolean @default(true) priceOverride Decimal? @db.Decimal(10,2) listing Listing @relation(fields:[listingId], references:[id], onDelete:Cascade) @@unique([listingId,date]) @@index([date]) }
-model Booking { id String @id @default(cuid()) userId String? listingId String checkIn DateTime checkOut DateTime? guests Int status BookingStatus @default(PENDING) totalPrice Decimal @db.Decimal(10,2) commissionAmount Decimal @db.Decimal(10,2) guestName String guestEmail String guestPhone String user User? @relation(fields:[userId], references:[id]) listing Listing @relation(fields:[listingId], references:[id]) payment Payment? createdAt DateTime @default(now()) @@index([status]) @@index([listingId,checkIn,checkOut]) }
-model Payment { id String @id @default(cuid()) bookingId String @unique razorpayOrderId String? razorpayPaymentId String? status PaymentStatus @default(CREATED) amount Decimal @db.Decimal(10,2) booking Booking @relation(fields:[bookingId], references:[id], onDelete:Cascade) }
-model Review { id String @id @default(cuid()) listingId String userId String rating Int comment String createdAt DateTime @default(now()) listing Listing @relation(fields:[listingId], references:[id], onDelete:Cascade) user User @relation(fields:[userId], references:[id]) @@index([listingId]) }
-model Package { id String @id @default(cuid()) title String description String listingIds String[] price Decimal @db.Decimal(10,2) createdAt DateTime @default(now()) }
+enum Role {
+	CUSTOMER
+	PARTNER
+	ADMIN
+}
+
+enum ListingCategory {
+	STAY
+	RIDE
+	RENTAL
+	ACTIVITY
+}
+
+enum VerificationStatus {
+	PENDING
+	VERIFIED
+	REJECTED
+}
+
+enum ListingStatus {
+	DRAFT
+	LIVE
+	PAUSED
+	PENDING_REVIEW
+}
+
+enum BookingStatus {
+	PENDING
+	CONFIRMED
+	CANCELLED
+	COMPLETED
+}
+
+enum PaymentStatus {
+	CREATED
+	AUTHORIZED
+	CAPTURED
+	FAILED
+	REFUNDED
+}
+
+model User {
+	id                  String             @id @default(cuid())
+	name                String?
+	email               String?            @unique
+	passwordHash        String?
+	phone               String?            @unique
+	role                Role               @default(CUSTOMER)
+	createdAt           DateTime           @default(now())
+	partner             Partner?
+	bookings            Booking[]
+	reviews             Review[]
+	passwordResetTokens PasswordResetToken[]
+}
+
+model PasswordResetToken {
+	id        String   @id @default(cuid())
+	tokenHash String   @unique
+	userId    String
+	expiresAt DateTime
+	usedAt    DateTime?
+	createdAt DateTime @default(now())
+	user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+	@@index([userId, expiresAt])
+}
+
+model Partner {
+	id                 String             @id @default(cuid())
+	userId             String             @unique
+	businessName       String
+	category           ListingCategory
+	verificationStatus VerificationStatus @default(PENDING)
+	payoutDetails      Json?
+	user               User               @relation(fields: [userId], references: [id])
+	listings           Listing[]
+}
+
+model Listing {
+	id           String           @id @default(cuid())
+	slug         String           @unique
+	partnerId    String
+	category     ListingCategory
+	title        String
+	description  String
+	location     String
+	basePrice    Decimal          @db.Decimal(10, 2)
+	sellPrice    Decimal          @db.Decimal(10, 2)
+	images       String[]
+	amenities    String[]
+	status       ListingStatus    @default(DRAFT)
+	partner      Partner          @relation(fields: [partnerId], references: [id])
+	availability Availability[]
+	bookings     Booking[]
+	reviews      Review[]
+	createdAt    DateTime         @default(now())
+
+	@@index([category, status])
+}
+
+model Availability {
+	id            String   @id @default(cuid())
+	listingId     String
+	date          DateTime
+	isAvailable   Boolean  @default(true)
+	priceOverride Decimal? @db.Decimal(10, 2)
+	listing       Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+	@@unique([listingId, date])
+	@@index([date])
+}
+
+model Booking {
+	id               String        @id @default(cuid())
+	userId           String?
+	listingId        String
+	checkIn          DateTime
+	checkOut         DateTime?
+	guests           Int
+	status           BookingStatus @default(PENDING)
+	totalPrice       Decimal       @db.Decimal(10, 2)
+	commissionAmount Decimal       @db.Decimal(10, 2)
+	guestName        String
+	guestEmail       String
+	guestPhone       String
+	user             User?         @relation(fields: [userId], references: [id])
+	listing          Listing       @relation(fields: [listingId], references: [id])
+	payment          Payment?
+	createdAt        DateTime      @default(now())
+
+	@@index([status])
+	@@index([listingId, checkIn, checkOut])
+}
+
+model Payment {
+	id               String        @id @default(cuid())
+	bookingId        String        @unique
+	razorpayOrderId  String?
+	razorpayPaymentId String?
+	status           PaymentStatus @default(CREATED)
+	amount           Decimal       @db.Decimal(10, 2)
+	booking          Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+	id        String   @id @default(cuid())
+	listingId String
+	userId    String
+	rating    Int
+	comment   String
+	createdAt DateTime @default(now())
+	listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+	user      User     @relation(fields: [userId], references: [id])
+
+	@@index([listingId])
+}
+
+model Package {
+	id         String   @id @default(cuid())
+	title      String
+	description String
+	listingIds String[]
+	price      Decimal  @db.Decimal(10, 2)
+	createdAt  DateTime @default(now())
+}
