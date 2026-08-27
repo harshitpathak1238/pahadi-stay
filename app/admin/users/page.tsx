@@ -1,1 +1,1 @@
-export default function AdminUsers(){return <div className="mx-auto max-w-6xl px-5 py-20"><h1 className="text-5xl">Users and partners.</h1></div>}
+export default function AdminUsers(){return <div className="mx-auto max-w-6xl px-5 py-20"><p className="sans text-xs font-bold uppercase tracking-[.2em] text-[#b66b45]">Community</p><h1 className="mt-3 text-5xl text-[#173f35]">Users and partners.</h1><div className="mt-8 rounded-2xl border border-[#dfe3d8] bg-white p-6 sans">User and partner management will appear here.</div></div>}
