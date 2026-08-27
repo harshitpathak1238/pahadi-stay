@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-	provider = "postgresql"
+	provider = "mysql"
 	url      = env("DATABASE_URL")
 }
 
@@ -95,8 +95,8 @@ model Listing {
 	location     String
 	basePrice    Decimal          @db.Decimal(10, 2)
 	sellPrice    Decimal          @db.Decimal(10, 2)
-	images       String[]
-	amenities    String[]
+	images       Json
+	amenities    Json
 	status       ListingStatus    @default(DRAFT)
 	partner      Partner          @relation(fields: [partnerId], references: [id])
 	availability Availability[]
@@ -168,7 +168,7 @@ model Package {
 	id         String   @id @default(cuid())
 	title      String
 	description String
-	listingIds String[]
+	listingIds Json
 	price      Decimal  @db.Decimal(10, 2)
 	createdAt  DateTime @default(now())
 }
