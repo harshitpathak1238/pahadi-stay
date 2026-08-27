@@ -31,27 +31,34 @@ button, input, select { font:inherit; }
 .auth-divider span { height:1px; flex:1; background:var(--line); }
 @media (min-width:768px) { .auth-panel { padding:2.25rem; } }
 @media (min-width:900px) { .login-shell { grid-template-columns:minmax(28rem, .92fr) minmax(28rem, 1.08fr); padding-top:0; } .login-form-side { padding:7rem 4rem 4rem; } .login-visual { display:block; } }
-.site-header { position:absolute; inset:0 0 auto; z-index:20; color:#f7f4ec; border-bottom:1px solid rgba(255,255,255,.18); background:linear-gradient(180deg, rgba(12,38,31,.56), transparent); }
+.site-header { position:sticky; top:0; z-index:40; color:var(--ink); border-bottom:1px solid #e7e9e3; background:rgba(255,255,255,.96); backdrop-filter:blur(14px); }
 .brand { position:relative; display:inline-flex; align-items:center; gap:.55rem; font-size:0; }
 .brand::before { content:'⌃'; display:inline-flex; height:2rem; width:2rem; align-items:center; justify-content:center; border:1px solid rgba(214,160,109,.7); border-radius:50%; color:#d6a06d; font-size:1.15rem; line-height:1; transform:rotate(180deg); }
 .brand::after { content:'KainchiDarshan'; color:#f7f4ec; font-size:1.35rem; font-weight:600; letter-spacing:-.04em; }
 .brand span { color:#d6a06d; }
-.site-header a { transition:opacity .2s ease; }
+.site-header a { transition:color .2s ease, opacity .2s ease; }
+.nav-link { position:relative; padding:1.65rem .1rem 1.45rem; }
+.nav-link:hover { color:var(--pine); opacity:1; }
+.nav-link-active { color:var(--pine); }
+.nav-shell { position:relative; }
+.nav-indicator { position:absolute; bottom:0; height:2px; background:var(--clay); transition:left .32s cubic-bezier(.22,1,.36,1), width .32s ease; }
 .site-header a:hover { opacity:.7; }
 .mobile-menu summary::-webkit-details-marker { display:none; }
-.mobile-menu nav a::before { display:inline-flex; width:1.25rem; justify-content:center; margin-right:.35rem; color:#d6a06d; font-size:1rem; }
+.mobile-menu nav a::before { display:inline-flex; width:1.25rem; justify-content:center; margin-right:.35rem; color:#b66b45; font-size:1rem; }
 .mobile-menu nav a:nth-child(1)::before { content:"⌂"; }
 .mobile-menu nav a:nth-child(2)::before { content:"⌁"; }
 .mobile-menu nav a:nth-child(3)::before { content:"◈"; }
 .mobile-menu nav a:nth-child(4)::before { content:"✦"; }
 .mobile-menu nav a:nth-child(5)::before { content:"＋"; }
 .mobile-menu nav a { display:block; border-radius:12px; padding:10px 12px; }
-.mobile-menu nav a:hover { background:rgba(255,255,255,.1); opacity:1; }
+.mobile-menu nav a:hover { background:#f1f3ed; opacity:1; }
 .grain { background-image: radial-gradient(rgba(23,63,53,.08) .7px, transparent .7px); background-size:12px 12px; }
 .hero-wash + section > div > div:last-child { scroll-snap-type:x mandatory; }
+.category-tabs { scrollbar-width:none; }
+.category-tabs::-webkit-scrollbar { display:none; }
 @media (max-width:767px) { .hero-wash + section > div > div:last-child { display:flex; overflow-x:auto; gap:1.5rem; margin-left:-1.25rem; margin-right:-1.25rem; padding-left:1.25rem; padding-right:1.25rem; padding-bottom:1rem; } .hero-wash + section > div > div:last-child > a { min-width:82vw; scroll-snap-align:start; } }
-.hero-wash { position:relative; isolation:isolate; overflow:hidden; min-height:760px; background: linear-gradient(105deg, rgba(11,39,31,.9), rgba(23,63,53,.43) 55%, rgba(23,63,53,.08)), url('https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=2000&q=90') center/cover; }
-.hero-wash { display:flex; align-items:flex-end; padding-top:9rem; padding-bottom:3rem; }
+.hero-wash { position:relative; isolation:isolate; overflow:hidden; min-height:650px; background: linear-gradient(90deg, rgba(12,43,37,.84), rgba(12,43,37,.28) 62%, rgba(12,43,37,.08)), url('https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=2000&q=90') center/cover; }
+.hero-wash { display:flex; align-items:center; padding-top:4rem; padding-bottom:4rem; }
 .hero-wash > div:not(.hero-depth) { position:relative; z-index:2; width:100%; }
 .hero-depth { position:absolute; inset:0; z-index:0; pointer-events:none; background:linear-gradient(165deg, transparent 54%, rgba(7,31,25,.36) 54.3%, rgba(7,31,25,.36) 61%, transparent 61.3%), linear-gradient(175deg, transparent 66%, rgba(9,44,35,.72) 66.3%, rgba(9,44,35,.72) 74%, transparent 74.3%); animation:hero-drift 12s ease-in-out infinite alternate; }
 .hero-wash::after { content:""; position:absolute; inset:auto 0 0; z-index:1; height:28%; pointer-events:none; background:linear-gradient(170deg, transparent 0 20%, rgba(8,38,30,.82) 20.5% 40%, transparent 40.5%), linear-gradient(10deg, rgba(8,38,30,.7) 0 38%, transparent 38.5%); transform:translateY(0); }
@@ -69,5 +76,5 @@ button, input, select { font:inherit; }
 @keyframes rise { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
 .rise { animation:rise .7s ease both; }
 @keyframes hero-drift { from { transform:translate3d(0,0,0) scale(1.01); } to { transform:translate3d(0,-10px,0) scale(1.03); } }
-@media (prefers-reduced-motion:reduce) { .image-card, .hero-depth, .rise { animation:none; transition:none; } }
+@media (prefers-reduced-motion:reduce) { .image-card, .hero-depth, .rise, .nav-indicator { animation:none; transition:none; } }
 @supports (animation-timeline:scroll()) { .gallery-depth img, div[class*="min-h-[360px]"] img, div[class*="min-h-[520px]"] img { animation:gallery-parallax linear both; animation-timeline:scroll(root block); animation-range:25vh 90vh; } @keyframes gallery-parallax { from { transform:translateZ(-20px) scale(1.05) translateY(18px); } to { transform:translateZ(-20px) scale(1.05) translateY(-18px); } } }

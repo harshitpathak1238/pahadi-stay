@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import Link from 'next/link';
 import Image from 'next/image';
+import { SiteNavigation } from '@/components/ui/SiteNavigation';
 
 const display = { variable: '' };
 const sans = { variable: '' };
@@ -14,17 +15,15 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en" className={`${display.variable} ${sans.variable}`}>
       <body>
         <header className="site-header sans">
-          <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 md:py-5">
-            <Link href="/" aria-label="KainchiDarshan home"><Image src="/images/Logo.png" alt="Kainchi Darshan" width={210} height={80} priority className="h-14 w-auto object-contain" /></Link>
-            <nav className="hidden items-center gap-8 text-sm text-white/85 md:flex">
-              <Link href="/stays">Stays</Link><Link href="/rides">Rides</Link><Link href="/rentals">Rentals</Link><Link href="/packages">Packages</Link><Link href="/activities">Experiences</Link>
-            </nav>
-            <div className="flex items-center gap-3 text-sm">
-              <Link href="/partner/login" className="hidden text-white/85 md:block">List your place</Link>
-              <Link href="/login" className="rounded-full border border-white/35 px-3 py-2 text-white md:px-4">Sign in</Link>
+          <div className="mx-auto flex min-h-[72px] max-w-7xl items-center justify-between gap-4 px-4 py-2 md:min-h-[82px] md:px-5">
+            <Link href="/" aria-label="KainchiDarshan home" className="shrink-0"><Image src="/images/Logo.png" alt="Kainchi Darshan" width={210} height={80} priority className="h-12 w-auto object-contain md:h-14" /></Link>
+            <SiteNavigation />
+            <div className="flex items-center gap-2 text-sm md:gap-3">
+              <Link href="/partner/login" className="hidden font-semibold text-[#526057] md:block">List your place</Link>
+              <Link href="/login" className="shrink-0 rounded-full border border-[#d6d9d1] px-3 py-2 font-semibold text-[#173f35] transition hover:bg-[#f1f3ed] md:px-4">Sign in</Link>
               <details className="mobile-menu relative md:hidden">
-                <summary className="flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-full border border-white/35 text-lg" aria-label="Open navigation"><span aria-hidden="true">☰</span></summary>
-                <nav className="absolute right-0 top-12 z-30 grid min-w-48 gap-1 rounded-2xl border border-white/20 bg-[#173f35]/95 p-2 text-sm text-white shadow-2xl backdrop-blur">
+                <summary className="flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-full border border-[#d6d9d1] text-lg text-[#173f35]" aria-label="Open navigation"><span aria-hidden="true">☰</span></summary>
+                <nav className="absolute right-0 top-12 z-30 grid min-w-48 gap-1 rounded-2xl border border-[#dfe3d8] bg-white p-2 text-sm text-[#173f35] shadow-2xl">
                   <Link href="/stays">Stays</Link><Link href="/rides">Rides</Link><Link href="/rentals">Rentals</Link><Link href="/packages">Packages</Link><Link href="/activities">Experiences</Link><Link href="/partner/login">List your place</Link>
                 </nav>
               </details>
