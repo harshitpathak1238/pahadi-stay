@@ -1,1 +1,7 @@
-export const metadata={title:'Your account',description:'Manage your Pahadi Stay trips.'}; export default function Account(){return <div className="mx-auto max-w-5xl px-5 py-20"><h1 className="text-5xl">Your trips.</h1><div className="mt-8 rounded-2xl bg-white p-8"><p className="sans text-[#6c7770]">Your bookings will appear here. Guest bookings can be found from the confirmation link in your email.</p></div></div>}
+import { AccountWorkspace } from '@/components/account/AccountWorkspace';
+
+export const metadata = { title: 'Your account', description: 'Manage your KainchiDarshan profile and bookings.' };
+
+export default function Account() {
+	return <AccountWorkspace />;
+}

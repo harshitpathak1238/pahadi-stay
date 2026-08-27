@@ -1,3 +1,3 @@
-import { AdminWorkspace } from '@/components/admin/AdminWorkspace';
+import { ContentManager } from '@/components/admin/ContentManager';
 export const metadata={title:'Admin dashboard',description:'Pahadi Stay operations dashboard.'};
-export default function Admin(){return <AdminWorkspace/>}
+export default function Admin(){return <div className="min-h-screen bg-[#f2f4ed] px-5 py-10 md:px-8 md:py-14"><div className="mx-auto max-w-7xl"><p className="sans text-xs font-bold uppercase tracking-[.2em] text-[#b66b45]">Admin workspace</p><h1 className="mt-3 text-4xl text-[#173f35] md:text-5xl">Manage your travel inventory.</h1><p className="sans mt-3 max-w-2xl text-sm leading-6 text-[#6c7770]">Add, update, publish, pause, and remove stays, rides, rentals, and packages. Changes are saved to the database.</p><div className="mt-8"><ContentManager /></div></div></div>}

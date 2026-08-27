@@ -3,6 +3,8 @@ import './globals.css';
 import Link from 'next/link';
 import Image from 'next/image';
 import { SiteNavigation } from '@/components/ui/SiteNavigation';
+import { AccountMenu } from '@/components/auth/AccountMenu';
+import { auth } from '@/lib/auth';
 
 const display = { variable: '' };
 const sans = { variable: '' };
@@ -10,7 +12,8 @@ const sans = { variable: '' };
 
 export const metadata: Metadata = { title: { default: 'KainchiDarshan | See Kumaon differently', template: '%s | KainchiDarshan' }, description: 'Thoughtfully chosen stays, rides and experiences around Bhimtal and Kainchi Dham.', metadataBase: new URL('http://localhost:3000'), icons: { icon: '/images/Logo.png', shortcut: '/images/Logo.png' } };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const session = await auth();
   return (
     <html lang="en" className={`${display.variable} ${sans.variable}`}>
       <body>
@@ -20,7 +23,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <SiteNavigation />
             <div className="flex items-center gap-2 text-sm md:gap-3">
               <Link href="/partner/login" className="hidden font-semibold text-[#526057] md:block">List your place</Link>
-              <Link href="/login" className="shrink-0 rounded-full border border-[#d6d9d1] px-3 py-2 font-semibold text-[#173f35] transition hover:bg-[#f1f3ed] md:px-4">Sign in</Link>
+              {session?.user ? <AccountMenu name={session.user.name} email={session.user.email} /> : <Link href="/login" className="shrink-0 rounded-full border border-[#d6d9d1] px-3 py-2 font-semibold text-[#173f35] transition hover:bg-[#f1f3ed] md:px-4">Sign in</Link>}
               <details className="mobile-menu relative md:hidden">
                 <summary className="flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-full border border-[#d6d9d1] text-lg text-[#173f35]" aria-label="Open navigation"><span aria-hidden="true">☰</span></summary>
                 <nav className="absolute right-0 top-12 z-30 grid min-w-48 gap-1 rounded-2xl border border-[#dfe3d8] bg-white p-2 text-sm text-[#173f35] shadow-2xl">
