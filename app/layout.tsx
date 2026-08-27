@@ -25,6 +25,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
             <SiteNavigation />
             <div className="flex items-center gap-2 text-sm md:gap-3">
               <Link href="/partner/login" className="hidden font-semibold text-[#526057] md:block">List your place</Link>
+              {isAdmin && <Link href="/admin/dashboard" className="hidden rounded-full bg-[#173f35] px-3 py-2 font-bold text-white transition hover:bg-[#24584a] md:block">Admin</Link>}
               {session?.user ? <AccountMenu name={session.user.name} email={session.user.email} isAdmin={isAdmin} /> : <Link href="/login" className="shrink-0 rounded-full border border-[#d6d9d1] px-3 py-2 font-semibold text-[#173f35] transition hover:bg-[#f1f3ed] md:px-4">Sign in</Link>}
               <details className="mobile-menu relative md:hidden">
                 <summary className="flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-full border border-[#d6d9d1] text-lg text-[#173f35]" aria-label="Open navigation"><span aria-hidden="true">☰</span></summary>
