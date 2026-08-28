@@ -1,22 +1,22 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { stays } from "@/lib/mock-data";
+import { getPublicListing, getPublicListings } from "@/lib/listings";
 import { Button } from "@/components/ui/Button";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
-export function generateStaticParams() {
-  return stays.map((stay) => ({ slug: stay.slug }));
+export async function generateStaticParams() {
+  return (await getPublicListings('STAY')).map((stay) => ({ slug: stay.slug }));
 }
 export async function generateMetadata({
   params,
 }: {
   params: { slug: string };
 }): Promise<Metadata> {
-  const stay = stays.find((item) => item.slug === params.slug);
+  const stay = await getPublicListing(params.slug);
   return { title: stay?.title ?? "Stay", description: stay?.description };
 }
-export default function StayDetail({ params }: { params: { slug: string } }) {
-  const stay = stays.find((item) => item.slug === params.slug);
+export default async function StayDetail({ params }: { params: { slug: string } }) {
+  const stay = await getPublicListing(params.slug);
   if (!stay) notFound();
   const whatsappMessage = `Hello KainchiDarshan, I want to know more about the stay “${stay.title}” in ${stay.location}. Please share availability, amenities, and booking details.`;
   return (

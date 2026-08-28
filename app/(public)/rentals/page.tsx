@@ -1,11 +1,12 @@
 import { RentalCard } from "@/components/ui/RentalCard";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
-import { rentals } from "@/lib/mock-data";
+import { getPublicRentals } from "@/lib/listings";
 export const metadata = {
   title: "Scooty and bike rentals",
   description: "Book a scooty or bike for your Bhimtal and Kainchi Dham trip.",
 };
-export default function Rentals() {
+export default async function Rentals() {
+  const rentals = await getPublicRentals();
   return (
     <div className="mx-auto max-w-6xl px-5 pb-28 pt-10 md:py-20">
       <section className="py-6 md:py-10">
