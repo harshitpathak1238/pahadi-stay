@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { SiteNavigation } from '@/components/ui/SiteNavigation';
 import { AccountMenu } from '@/components/auth/AccountMenu';
 import { auth } from '@/lib/auth';
+import { WhatsAppButton, defaultWhatsAppMessage } from '@/components/ui/WhatsAppButton';
 
 const display = { variable: '' };
 const sans = { variable: '' };
@@ -37,6 +38,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           </div>
         </header>
         <main>{children}</main>
+        <WhatsAppButton message={defaultWhatsAppMessage} children={<span className="hidden sm:inline">Chat with us on WhatsApp</span>} className="whatsapp-float fixed bottom-5 right-5 z-50 h-14 w-14 rounded-full border-0 bg-[#25D366] p-0 text-white shadow-[0_10px_28px_rgba(18,120,64,.3)] hover:bg-[#1fba59] sm:h-auto sm:w-auto sm:px-4 sm:py-3" />
         <footer className="sans mt-20 bg-[#173f35] px-5 py-14 text-[#f7f4ec]">
           <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-3">
             <div><Image src="/images/Logo.png" alt="Kainchi Darshan" width={210} height={80} className="h-14 w-auto object-contain" /><p className="mt-3 max-w-xs text-sm leading-6 text-white/60">A slower, more thoughtful way to see Kumaon.</p></div>
