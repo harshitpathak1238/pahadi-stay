@@ -24,5 +24,9 @@ export async function getPublicListing(slug: string): Promise<Listing | null> {
 }
 
 export async function getPublicRentals(): Promise<Rental[]> {
-  return (await getPublicListings('RENTAL')).map((record) => ({ slug: record.slug, title: record.title, type: 'Local rental', price: record.price, image: record.image, description: record.description, features: record.amenities, pickup: record.location }));
+  try {
+    const records = await db.listing.findMany({ where: { category: 'RENTAL', status: 'LIVE' }, orderBy: { createdAt: 'desc' } });
+    if (records.length) return records.map((record) => ({ slug: record.slug, title: record.title, type: record.scootyQuantity > 0 ? 'Scooty rent' : 'Bike rent', price: Number(record.sellPrice), image: strings(record.images)[0] || '/images/Logo.png', description: record.description, features: strings(record.amenities), pickup: record.location, bikeQuantity: record.bikeQuantity, scootyQuantity: record.scootyQuantity }));
+  } catch { /* Fall back to the catalog while the database is unavailable. */ }
+  return rentals;
 }

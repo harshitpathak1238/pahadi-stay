@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { db } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin';
 
-const updateSchema = z.object({ slug: z.string().trim().min(2).regex(/^[a-z0-9-]+$/).optional(), category: z.enum(['STAY', 'RIDE', 'RENTAL', 'ACTIVITY']).optional(), title: z.string().trim().min(2).max(120).optional(), description: z.string().trim().min(10).optional(), location: z.string().trim().min(2).optional(), basePrice: z.coerce.number().nonnegative().optional(), sellPrice: z.coerce.number().nonnegative().optional(), images: z.array(z.string().url()).optional(), amenities: z.array(z.string().trim().min(1)).optional(), status: z.enum(['DRAFT', 'LIVE', 'PAUSED', 'PENDING_REVIEW']).optional() });
+const updateSchema = z.object({ slug: z.string().trim().min(2).regex(/^[a-z0-9-]+$/).optional(), category: z.enum(['STAY', 'RIDE', 'RENTAL', 'ACTIVITY']).optional(), title: z.string().trim().min(2).max(120).optional(), description: z.string().trim().min(10).optional(), location: z.string().trim().min(2).optional(), basePrice: z.coerce.number().nonnegative().optional(), sellPrice: z.coerce.number().nonnegative().optional(), bikeQuantity: z.coerce.number().int().nonnegative().optional(), scootyQuantity: z.coerce.number().int().nonnegative().optional(), images: z.array(z.string().url()).optional(), amenities: z.array(z.string().trim().min(1)).optional(), status: z.enum(['DRAFT', 'LIVE', 'PAUSED', 'PENDING_REVIEW']).optional() });
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });

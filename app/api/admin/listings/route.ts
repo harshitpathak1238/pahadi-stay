@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { db } from '@/lib/db';
 import { getAdminPartner, requireAdmin } from '@/lib/admin';
 
-const listingSchema = z.object({ slug: z.string().trim().min(2).regex(/^[a-z0-9-]+$/), category: z.enum(['STAY', 'RIDE', 'RENTAL', 'ACTIVITY']), title: z.string().trim().min(2).max(120), description: z.string().trim().min(10), location: z.string().trim().min(2), basePrice: z.coerce.number().nonnegative(), sellPrice: z.coerce.number().nonnegative(), images: z.array(z.string().url()).default([]), amenities: z.array(z.string().trim().min(1)).default([]), status: z.enum(['DRAFT', 'LIVE', 'PAUSED', 'PENDING_REVIEW']).default('DRAFT') });
+const listingSchema = z.object({ slug: z.string().trim().min(2).regex(/^[a-z0-9-]+$/), category: z.enum(['STAY', 'RIDE', 'RENTAL', 'ACTIVITY']), title: z.string().trim().min(2).max(120), description: z.string().trim().min(10), location: z.string().trim().min(2), basePrice: z.coerce.number().nonnegative(), sellPrice: z.coerce.number().nonnegative(), bikeQuantity: z.coerce.number().int().nonnegative().default(0), scootyQuantity: z.coerce.number().int().nonnegative().default(0), images: z.array(z.string().url()).default([]), amenities: z.array(z.string().trim().min(1)).default([]), status: z.enum(['DRAFT', 'LIVE', 'PAUSED', 'PENDING_REVIEW']).default('DRAFT') });
 
 export async function GET(request: Request) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });

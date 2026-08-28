@@ -58,8 +58,17 @@ button, input, select { font:inherit; }
 .mobile-menu nav a:hover { background:#f1f3ed; opacity:1; }
 .grain { background-image: radial-gradient(rgba(23,63,53,.08) .7px, transparent .7px); background-size:12px 12px; }
 .hero-wash + section > div > div:last-child { scroll-snap-type:x mandatory; }
+.category-tabs-shell { width:fit-content; max-width:100%; padding:.3rem; border:1px solid rgba(255,255,255,.2); border-radius:999px; background:rgba(9,38,32,.42); box-shadow:0 12px 30px rgba(3,24,20,.2), inset 0 1px rgba(255,255,255,.12); backdrop-filter:blur(12px); }
 .category-tabs { scrollbar-width:none; }
 .category-tabs::-webkit-scrollbar { display:none; }
+.category-tab { position:relative; color:rgba(255,255,255,.82); transition:color .2s ease, background .2s ease, transform .2s ease, box-shadow .2s ease; }
+.category-tab:hover { color:#fff; background:rgba(255,255,255,.12); transform:translateY(-1px); }
+.category-tab:focus-visible { outline:2px solid #f0c28f; outline-offset:3px; }
+.category-tab-active { color:var(--pine); background:#f0c28f; box-shadow:0 5px 12px rgba(3,24,20,.2), inset 0 1px rgba(255,255,255,.55); }
+.category-tab-active:hover { color:var(--pine); background:#f0c28f; }
+.category-tab-icon { display:grid; height:1.65rem; width:1.65rem; place-items:center; border-radius:50%; background:rgba(255,255,255,.14); }
+.category-tab-active .category-tab-icon { background:rgba(23,63,53,.12); }
+.category-tab-dot { height:.3rem; width:.3rem; margin-left:.15rem; border-radius:50%; background:var(--pine); }
 @media (max-width:767px) { .hero-wash + section > div > div:last-child { display:flex; overflow-x:auto; gap:1.5rem; margin-left:-1.25rem; margin-right:-1.25rem; padding-left:1.25rem; padding-right:1.25rem; padding-bottom:1rem; } .hero-wash + section > div > div:last-child > a { min-width:82vw; scroll-snap-align:start; } }
 .hero-wash { position:relative; isolation:isolate; overflow:hidden; min-height:650px; background: linear-gradient(90deg, rgba(12,43,37,.84), rgba(12,43,37,.28) 62%, rgba(12,43,37,.08)), url('https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=2000&q=90') center/cover; }
 .hero-wash { display:flex; align-items:center; padding-top:4rem; padding-bottom:4rem; }
