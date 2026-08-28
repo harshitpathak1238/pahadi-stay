@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getPublicListing, getPublicListings } from "@/lib/listings";
 import { Button } from "@/components/ui/Button";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
+import { StayTripPanel } from "@/components/trip/StayTripPanel";
 export async function generateStaticParams() {
   return (await getPublicListings('STAY')).map((stay) => ({ slug: stay.slug }));
 }
@@ -52,6 +53,7 @@ export default async function StayDetail({ params }: { params: { slug: string } 
             <p className="mt-6 max-w-2xl text-base leading-7 text-[#526057] md:mt-7 md:text-lg md:leading-8">
               {stay.description}
             </p>
+            <StayTripPanel slug={stay.slug} title={stay.title} price={stay.price} />
             <h2 className="mt-10 text-2xl md:mt-12">What you will find</h2>
             <div className="mt-5 grid grid-cols-1 gap-2 sans text-sm sm:grid-cols-2">
               {stay.amenities.map((item) => (
@@ -97,9 +99,7 @@ export default async function StayDetail({ params }: { params: { slug: string } 
                 )}
               </strong>
             </div>
-            <Button href={`/checkout?listing=${stay.slug}`}>
-              <span className="w-full text-center">Book this stay</span>
-            </Button>
+            <Button href="#trip-builder"><span className="w-full text-center">Add this stay to your trip</span></Button>
           </aside>
         </div>
       </div>
@@ -115,7 +115,7 @@ export default async function StayDetail({ params }: { params: { slug: string } 
         </div>
         <div className="flex gap-2">
           <WhatsAppButton message={whatsappMessage} className="px-3 py-2.5" />
-          <Button href={`/checkout?listing=${stay.slug}`}>Book now</Button>
+          <Button href="#trip-builder">Build trip</Button>
         </div>
       </div>
     </div>
