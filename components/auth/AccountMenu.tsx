@@ -3,11 +3,21 @@
 import Link from 'next/link';
 import { signOut } from 'next-auth/react';
 import { LayoutDashboard, UserRound, LogOut } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 
 export function AccountMenu({ name, email, isAdmin = false }: { name?: string | null; email?: string | null; isAdmin?: boolean }) {
   const initials = (name || email || 'A').split(/\s+/).map((part) => part[0]).slice(0, 2).join('').toUpperCase();
+  const menuRef = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    const closeWhenOutside = (event: PointerEvent) => {
+      const menu = menuRef.current;
+      if (menu?.open && event.target instanceof Node && !menu.contains(event.target)) menu.removeAttribute('open');
+    };
+    document.addEventListener('pointerdown', closeWhenOutside);
+    return () => document.removeEventListener('pointerdown', closeWhenOutside);
+  }, []);
 
-  return <details className="account-menu relative">
+  return <details ref={menuRef} className="account-menu relative">
     <summary className="flex h-10 cursor-pointer list-none items-center gap-2 rounded-full border border-[#d6d9d1] bg-white px-2 text-[#173f35] shadow-sm" aria-label="Open account menu">
       <span className="grid h-7 w-7 place-items-center rounded-full bg-[#e7eadf] text-xs font-bold text-[#24584a]">{initials}</span>
       <span className="hidden max-w-24 truncate text-xs font-bold sm:block">{name || 'Account'}</span>

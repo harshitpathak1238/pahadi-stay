@@ -6,6 +6,7 @@ import { SiteNavigation } from '@/components/ui/SiteNavigation';
 import { AccountMenu } from '@/components/auth/AccountMenu';
 import { auth } from '@/lib/auth';
 import { WhatsAppButton, defaultWhatsAppMessage } from '@/components/ui/WhatsAppButton';
+import { MobileMenu } from '@/components/ui/MobileMenu';
 import { TripCartProvider, TripSummary } from '@/components/trip/TripCart';
 
 const display = { variable: '' };
@@ -29,12 +30,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
               <Link href="/partner/login" className="hidden font-semibold text-[#526057] md:block">List your place</Link>
               {isAdmin && <Link href="/admin" className="hidden rounded-full bg-[#173f35] px-3 py-2 font-bold text-white transition hover:bg-[#24584a] md:block">Admin</Link>}
               {session?.user ? <AccountMenu name={session.user.name} email={session.user.email} isAdmin={isAdmin} /> : <Link href="/login" className="shrink-0 rounded-full border border-[#d6d9d1] px-3 py-2 font-semibold text-[#173f35] transition hover:bg-[#f1f3ed] md:px-4">Sign in</Link>}
-              <details className="mobile-menu relative md:hidden">
-                <summary className="flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-full border border-[#d6d9d1] text-lg text-[#173f35]" aria-label="Open navigation"><span aria-hidden="true">☰</span></summary>
-                <nav className="absolute right-0 top-12 z-30 grid min-w-48 gap-1 rounded-2xl border border-[#dfe3d8] bg-white p-2 text-sm text-[#173f35] shadow-2xl">
-                  <Link href="/stays">Stays</Link><Link href="/rides">Rides</Link><Link href="/rentals">Rentals</Link><Link href="/packages">Packages</Link><Link href="/activities">Experiences</Link><Link href="/partner/login">List your place</Link>{isAdmin && <Link href="/admin">Admin workspace</Link>}
-                </nav>
-              </details>
+              <MobileMenu isAdmin={isAdmin} />
             </div>
           </div>
         </header>
