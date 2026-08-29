@@ -1,0 +1,5 @@
+'use client';
+
+export function AdminSettingsPage() {
+  return <div className="admin-shell min-h-screen bg-[#f6f6f7] p-4 text-[#303030] md:p-8"><div className="mx-auto max-w-3xl"><p className="text-[11px] font-semibold uppercase tracking-[.08em] text-[#777]">Operations</p><h1 className="mt-2 text-[26px] font-semibold">Settings</h1><p className="mt-1 text-[13px] text-[#777]">Configure business rules used by listings and payouts.</p><section className="mt-6 rounded-[4px] border border-[#e1e1e3] bg-white p-5"><div className="grid gap-4 sm:grid-cols-2"><label className="text-[12px] font-semibold">Default commission (%)<input defaultValue="10" type="number" min="0" max="100" className="mt-1 h-9 w-full rounded-[4px] border border-[#c9c9cc] px-2 text-[12px] font-normal" /></label><label className="text-[12px] font-semibold">Business name<input defaultValue="Pahadi Stay" className="mt-1 h-9 w-full rounded-[4px] border border-[#c9c9cc] px-2 text-[12px] font-normal" /></label></div><button className="mt-5 h-9 rounded-[4px] bg-[#303030] px-4 text-[12px] font-semibold text-white">Save settings</button></section></div></div>;
+}

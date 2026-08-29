@@ -1,5 +1,5 @@
 import { AdminResourcePage } from '@/components/admin/AdminResourcePage';
 
-export default function AdminUsers() {
+export default function AdminCustomers() {
   return <AdminResourcePage resource="customers" />;
 }

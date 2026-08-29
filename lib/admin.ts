@@ -1,18 +1,21 @@
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 
+const adminEmails = () => (process.env.ADMIN_EMAILS ?? '').split(',').map((email) => email.trim().toLowerCase()).filter(Boolean);
+
 export async function requireAdmin() {
   const session = await auth();
   const email = session?.user?.email?.toLowerCase();
-  const allowed = (process.env.ADMIN_EMAILS ?? '').split(',').map((item) => item.trim().toLowerCase()).filter(Boolean);
-  if (!email || !allowed.includes(email)) return null;
+  if (!email) return null;
+  const user = await db.user.findUnique({ where: { email }, select: { role: true } });
+  if (!user || !['OWNER', 'STAFF', 'ADMIN'].includes(user.role)) return null;
+  if (user.role === 'ADMIN' && !adminEmails().includes(email)) return null;
   return session;
 }
 
 export async function getAdminPartner() {
   const session = await auth();
   const user = session?.user?.email ? await db.user.findUnique({ where: { email: session.user.email.toLowerCase() } }) : null;
-  if (!user) throw new Error('Create an ADMIN user before adding content.');
-  const partner = await db.partner.upsert({ where: { userId: user.id }, update: {}, create: { userId: user.id, businessName: 'KainchiDarshan', category: 'STAY', verificationStatus: 'VERIFIED' } });
-  return partner;
+  if (!user) throw new Error('Create an admin user before adding content.');
+  return db.partner.upsert({ where: { userId: user.id }, update: {}, create: { userId: user.id, businessName: 'Pahadi Stay', category: 'STAY', verificationStatus: 'VERIFIED' } });
 }

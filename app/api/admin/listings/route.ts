@@ -7,8 +7,12 @@ const listingSchema = z.object({ slug: z.string().trim().min(2).regex(/^[a-z0-9-
 
 export async function GET(request: Request) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
-  const category = new URL(request.url).searchParams.get('category');
-  const listings = await db.listing.findMany({ where: category ? { category: category as 'STAY' | 'RIDE' | 'RENTAL' | 'ACTIVITY' } : undefined, orderBy: { createdAt: 'desc' } });
+  const params = new URL(request.url).searchParams;
+  const category = params.get('category');
+  const search = params.get('search')?.trim();
+  const status = params.get('status');
+  const sort = params.get('sort') || 'newest';
+  const listings = await db.listing.findMany({ where: { ...(category ? { category: category as 'STAY' | 'RIDE' | 'RENTAL' | 'ACTIVITY' } : {}), ...(status ? { status: status as 'DRAFT' | 'LIVE' | 'PAUSED' | 'PENDING_REVIEW' } : {}), ...(search ? { OR: [{ title: { contains: search } }, { location: { contains: search } }, { partner: { businessName: { contains: search } } }] } : {}) }, include: { partner: { select: { businessName: true } }, _count: { select: { bookings: true } } }, orderBy: sort === 'price' ? { sellPrice: 'desc' } : sort === 'alphabetical' ? { title: 'asc' } : { createdAt: 'desc' } });
   return NextResponse.json(listings);
 }
 

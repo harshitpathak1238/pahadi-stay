@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import './globals.css';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -8,28 +9,36 @@ import { auth } from '@/lib/auth';
 import { WhatsAppButton, defaultWhatsAppMessage } from '@/components/ui/WhatsAppButton';
 import { MobileMenu } from '@/components/ui/MobileMenu';
 import { TripCartProvider, TripSummary } from '@/components/trip/TripCart';
+import { ThemeProvider } from '@/components/ui/ThemeProvider';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 const display = { variable: '' };
 const sans = { variable: '' };
 
+export const dynamic = 'force-dynamic';
 
-export const metadata: Metadata = { title: { default: 'KainchiDarshan | See Kumaon differently', template: '%s | KainchiDarshan' }, description: 'Thoughtfully chosen stays, rides and experiences around Bhimtal and Kainchi Dham.', metadataBase: new URL('http://localhost:3000'), icons: { icon: '/images/Logo.png', shortcut: '/images/Logo.png' } };
+export const metadata: Metadata = { title: { default: 'KainchiDarshan | See Kumaon differently', template: '%s | KainchiDarshan' }, description: 'Thoughtfully chosen stays, rides and experiences around Bhimtal and Kainchi Dham.', metadataBase: new URL('http://localhost:3000'), icons: { icon: [{ url: '/images/Logo.png', type: 'image/png' }], shortcut: [{ url: '/images/Logo.png', type: 'image/png' }], apple: [{ url: '/images/Logo.png', type: 'image/png' }] } };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const pathname = headers().get('x-pathname') || '';
+  if (pathname.startsWith('/admin')) {
+    return <html lang="en"><body>{children}</body></html>;
+  }
   const session = await auth();
   const adminEmails = (process.env.ADMIN_EMAILS ?? '').split(',').map((email) => email.trim().toLowerCase()).filter(Boolean);
   const isAdmin = Boolean(session?.user?.email && adminEmails.includes(session.user.email.toLowerCase()));
   return (
-    <html lang="en" className={`${display.variable} ${sans.variable}`}>
-      <body><TripCartProvider>
+    <html lang="en" suppressHydrationWarning className={`${display.variable} ${sans.variable}`}>
+      <body><ThemeProvider><TripCartProvider>
         <header className="site-header sans">
           <div className="mx-auto flex min-h-[72px] max-w-7xl items-center justify-between gap-4 px-4 py-2 md:min-h-[82px] md:px-5">
             <Link href="/" aria-label="KainchiDarshan home" className="shrink-0"><Image src="/images/Logo.png" alt="Kainchi Darshan" width={210} height={80} priority className="h-12 w-auto object-contain md:h-14" /></Link>
             <SiteNavigation />
             <div className="flex items-center gap-2 text-sm md:gap-3">
-              <Link href="/partner/login" className="hidden font-semibold text-[#526057] md:block">List your place</Link>
+              <ThemeToggle />
+              <Link href="/partner/login" className="hidden font-semibold text-[#526057] dark:text-[#b8c8bd] md:block">List your place</Link>
               {isAdmin && <Link href="/admin" className="hidden rounded-full bg-[#173f35] px-3 py-2 font-bold text-white transition hover:bg-[#24584a] md:block">Admin</Link>}
-              {session?.user ? <AccountMenu name={session.user.name} email={session.user.email} isAdmin={isAdmin} /> : <Link href="/login" className="shrink-0 rounded-full border border-[#d6d9d1] px-3 py-2 font-semibold text-[#173f35] transition hover:bg-[#f1f3ed] md:px-4">Sign in</Link>}
+              {session?.user ? <AccountMenu name={session.user.name} email={session.user.email} isAdmin={isAdmin} /> : <Link href="/login" className="shrink-0 rounded-full border border-[#d6d9d1] px-3 py-2 font-semibold text-[#173f35] transition hover:bg-[#f1f3ed] dark:border-white/15 dark:text-[#e8e8e8] dark:hover:bg-white/10 md:px-4">Sign in</Link>}
               <MobileMenu isAdmin={isAdmin} />
             </div>
           </div>
@@ -43,7 +52,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
             <div><p className="mb-3 text-[10px] font-bold uppercase tracking-[.24em] text-[#d6a06d]">Need a hand?</p><p className="text-sm leading-6 text-white/75">hello@pahadi.stay<br/>+91 98765 43210</p></div>
           </div>
         </footer>
-      </TripCartProvider></body>
+      </TripCartProvider></ThemeProvider></body>
     </html>
   );
 }

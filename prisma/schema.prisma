@@ -11,6 +11,8 @@ enum Role {
 	CUSTOMER
 	PARTNER
 	ADMIN
+	OWNER
+	STAFF
 }
 
 enum ListingCategory {

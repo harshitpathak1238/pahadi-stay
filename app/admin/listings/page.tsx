@@ -1,3 +1,5 @@
-import { ContentManager } from '@/components/admin/ContentManager';
-type Section = 'STAY' | 'RIDE' | 'RENTAL' | 'ACTIVITY' | 'PACKAGE';
-export default function AdminListings({ searchParams }: { searchParams: { section?: string } }) { const requested = searchParams.section?.toUpperCase(); const section: Section = ['STAY', 'RIDE', 'RENTAL', 'ACTIVITY', 'PACKAGE'].includes(requested || '') ? requested as Section : 'STAY'; return <div className="min-h-screen bg-[#f2f4ed] px-5 py-20 md:px-8"><div className="mx-auto max-w-7xl"><p className="sans text-xs font-bold uppercase tracking-[.2em] text-[#b66b45]">Marketplace inventory</p><h1 className="mt-3 text-4xl text-[#173f35] md:text-5xl">Review and manage listings.</h1><p className="mt-3 max-w-2xl sans text-sm leading-6 text-[#6c7770]">Choose a section below to manage every guest-facing listing.</p><div className="mt-8"><ContentManager initialSection={section} /></div></div></div>; }
+import { AdminListingsPage } from '@/components/admin/AdminListingsPage';
+
+export default function AdminListings() {
+	return <AdminListingsPage />;
+}
