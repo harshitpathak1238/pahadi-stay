@@ -1,10 +1,11 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, Compass, HeartHandshake, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowRight, BookOpenText, Compass, HeartHandshake, ShieldCheck, Sparkles } from 'lucide-react';
 import { SearchBox } from '@/components/SearchBox';
 import { ListingCard } from '@/components/ui/ListingCard';
 import { Button } from '@/components/ui/Button';
 import { stays, destinations } from '@/lib/mock-data';
+import { getPublishedBlogs } from '@/lib/blog';
 
 const values = [
   { icon: Sparkles, title: 'Thoughtfully chosen', text: 'Stays and experiences we would recommend to friends.' },
@@ -12,7 +13,9 @@ const values = [
   { icon: HeartHandshake, title: 'Local when it matters', text: 'A real person to help before and during your trip.' },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const blogs = (await getPublishedBlogs()).slice(0, 3);
+
   return (
     <>
       <section className="hero-wash px-5 text-[#f7f4ec]">
@@ -66,6 +69,46 @@ export default function Home() {
             ))}
           </div>
         </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-5 py-16 md:py-24">
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="sans text-xs font-bold uppercase tracking-[.2em] text-[#b66b45]">Travel journal</p>
+            <h2 className="mt-3 text-3xl leading-tight md:text-5xl">Stories for slower mornings and better plans.</h2>
+          </div>
+          <Link href="/blog" className="inline-flex items-center gap-2 text-sm font-bold text-[#173f35] underline decoration-[#b66b45]/50 underline-offset-8">Browse all stories <ArrowRight size={16} /></Link>
+        </div>
+
+        {blogs.length > 0 ? (
+          <div className="mt-9 grid gap-6 md:grid-cols-3">
+            {blogs.map((blog) => (
+              <Link key={blog.slug} href={`/blog/${blog.slug}`} className="group overflow-hidden rounded-[1.75rem] border border-[#e3e7df] bg-white shadow-[0_20px_50px_rgba(23,63,53,.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_26px_60px_rgba(23,63,53,.10)]">
+                <div className="relative aspect-[4/3] overflow-hidden">
+                  {blog.featuredImage ? (
+                    <Image src={blog.featuredImage} alt={blog.imageAltText || blog.title} fill sizes="(max-width: 768px) 90vw, 33vw" className="object-cover transition duration-500 group-hover:scale-105" />
+                  ) : (
+                    <div className="flex h-full items-center justify-center bg-[#edf0ea] text-[#173f35]">
+                      <BookOpenText size={36} strokeWidth={1.5} />
+                    </div>
+                  )}
+                </div>
+                <div className="p-5">
+                  <div className="sans flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.18em] text-[#b66b45]">
+                    <span>{blog.category}</span>
+                    <span>•</span>
+                    <span>{new Date(blog.publishedAt ?? new Date()).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                  </div>
+                  <h3 className="mt-3 text-2xl leading-tight text-[#173f35]">{blog.title}</h3>
+                  <p className="sans mt-3 line-clamp-3 text-sm leading-6 text-[#607067]">{blog.excerpt}</p>
+                  <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#24584a]">Read story <ArrowRight size={15} /></span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-9 rounded-[1.5rem] border border-dashed border-[#d3d8d1] bg-[#f6f7f3] p-8 text-center text-[#607067] sans">No journal stories are published yet. Check back soon for fresh travel notes from Kumaon.</div>
+        )}
       </section>
 
     </>

@@ -17,6 +17,7 @@ body { margin:0; background:var(--cream); color:var(--ink); font-family:var(--fo
 button, input, select { font:inherit; }
 .sans { font-family:var(--font-sans), Arial, Helvetica, sans-serif; }
 .admin-shell { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+.admin-soft-workspace { background:linear-gradient(135deg,#f8faf9 0%,#f3f6f4 52%,#edf3ef 100%); }
 .auth-panel { border:1px solid var(--line); border-radius:1.75rem; background:#fff; padding:1.5rem; box-shadow:0 18px 50px rgba(23,63,53,.08); }
 .login-shell { display:grid; min-height:calc(100vh - 1px); grid-template-columns:minmax(0,1fr); overflow:hidden; background:#f6f7f2; padding-top:5.5rem; }
 .login-form-side { display:flex; align-items:center; justify-content:center; padding:1.5rem 1.25rem 4rem; }
@@ -123,3 +124,17 @@ button, input, select { font:inherit; }
 @keyframes hero-drift { from { transform:translate3d(0,0,0) scale(1.01); } to { transform:translate3d(0,-10px,0) scale(1.03); } }
 @media (prefers-reduced-motion:reduce) { .image-card, .hero-depth, .rise, .nav-indicator { animation:none; transition:none; } }
 @supports (animation-timeline:scroll()) { .gallery-depth img, div[class*="min-h-[360px]"] img, div[class*="min-h-[520px]"] img { animation:gallery-parallax linear both; animation-timeline:scroll(root block); animation-range:25vh 90vh; } @keyframes gallery-parallax { from { transform:translateZ(-20px) scale(1.05) translateY(18px); } to { transform:translateZ(-20px) scale(1.05) translateY(-18px); } } }
+.admin-blog-list > div:first-child button,
+.admin-blog-list > div:nth-child(3),
+.admin-blog-list > div:nth-child(4),
+.admin-blog-list > div:nth-child(3) label,
+.admin-blog-list > div:nth-child(3) select,
+.admin-blog-list > div:nth-child(4) table,
+.admin-blog-list > div:nth-child(4) img,
+.admin-blog-list > div:nth-child(4) > div { border-radius:8px; }
+.admin-blog-list > div:nth-child(3), .admin-blog-list > div:nth-child(4) { overflow:hidden; }
+.admin-blog-list > div:has(input[placeholder="Search posts"]),
+.admin-blog-list > div:has(table) { border-radius:8px; overflow:hidden; }
+.admin-blog-list > div:has(input[placeholder="Search posts"]) label,
+.admin-blog-list > div:has(input[placeholder="Search posts"]) select,
+.admin-blog-list > div:has(table) img { border-radius:8px; }

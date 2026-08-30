@@ -10,6 +10,7 @@ const links = [
   ['/rides', 'Rides'],
   ['/rentals', 'Rentals'],
   ['/packages', 'Packages'],
+  ['/blog', 'Journal'],
   ['/activities', 'Experiences'],
 ] as const;
 

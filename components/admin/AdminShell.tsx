@@ -29,7 +29,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   if (pathname === '/admin') return <>{children}</>;
   const active = (href: string) => href === '/admin' ? pathname === href : pathname.startsWith(href);
-  return <div className="admin-shell min-h-screen bg-[#f6f6f7] text-[#303030]">
+  return <div className="admin-shell admin-soft-workspace min-h-screen text-[#27302d]">
     <aside className={`fixed inset-y-0 left-0 z-40 w-[252px] border-r border-[#e1e1e3] bg-white p-3 transition-transform lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
       <div className="flex h-12 items-center gap-2 px-3 text-[17px] font-bold"><span className="grid h-7 w-7 place-items-center rounded-[4px] bg-[#303030] text-xs text-white">K</span> Operations</div>
       <nav className="mt-5 grid gap-1">{navigation.map(([label, Icon, href]) => <Link key={href} href={href} onClick={() => setOpen(false)} className={`flex h-9 items-center gap-3 rounded-[4px] px-3 text-[13px] ${active(href) ? 'bg-[#e9e9eb] font-semibold text-[#303030]' : 'text-[#616161] hover:bg-[#f5f5f5]'}`}><Icon size={17} />{label}</Link>)}</nav>
