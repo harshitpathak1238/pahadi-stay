@@ -4,6 +4,8 @@ import { db } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin';
 import { blogSchema } from '@/lib/validations/blog';
 
+function imageUrls(body: string, featuredImage?: string | null) { return [...new Set([featuredImage, ...[...body.matchAll(/<img[^>]+src=["']([^"']+)["']/gi)].map((match) => match[1])].filter((url): url is string => Boolean(url)))]; }
+
 export async function GET(request: Request) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
   const params = new URL(request.url).searchParams;
@@ -24,7 +26,7 @@ export async function POST(request: Request) {
   if (parsed.data.status === 'SCHEDULED' && (!parsed.data.scheduledAt || parsed.data.scheduledAt <= new Date())) return NextResponse.json({ error: 'Scheduled posts need a future publish time.' }, { status: 400 });
   if (parsed.data.status === 'PUBLISHED' && (!parsed.data.featuredImage || !parsed.data.imageAltText)) return NextResponse.json({ error: 'Published blogs need a featured image and image alt text.' }, { status: 400 });
   try {
-    const blog = await db.blogPost.create({ data: { ...parsed.data, publishedAt: parsed.data.status === 'PUBLISHED' ? new Date() : null, scheduledAt: parsed.data.status === 'SCHEDULED' ? parsed.data.scheduledAt : null } });
+    const blog = await db.blogPost.create({ data: { ...parsed.data, imageUrls: imageUrls(parsed.data.body, parsed.data.featuredImage), publishedAt: parsed.data.status === 'PUBLISHED' ? new Date() : null, scheduledAt: parsed.data.status === 'SCHEDULED' ? parsed.data.scheduledAt : null } });
     revalidatePath('/blog'); revalidatePath(`/blog/${blog.slug}`);
     return NextResponse.json(blog, { status: 201 });
   } catch (error) {

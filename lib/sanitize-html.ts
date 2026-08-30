@@ -6,6 +6,5 @@ export function sanitizeBlogHtml(html: string) {
     allowedAttributes: { a: ['href', 'target', 'rel'], img: ['src', 'alt', 'title'] },
     allowedSchemes: ['http', 'https'],
     allowedSchemesByTag: { img: ['http', 'https'] },
-    allowRelativeUrls: true,
   });
 }

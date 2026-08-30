@@ -1,3 +1,15 @@
+# KainchiDarshan workspace
+
+## Blog image storage
+
+Blog images are written by the server to Hostinger filesystem storage. By default the app uses `public/uploads/blog`, which is served at `/uploads/blog`. For a Hostinger deployment, set these environment variables:
+
+```dotenv
+HOSTINGER_UPLOAD_DIR="/home/USER/domains/example.com/public_html/uploads/blog"
+HOSTINGER_UPLOAD_URL="https://example.com/uploads/blog"
+```
+
+`HOSTINGER_UPLOAD_DIR` is the absolute writable directory on the Hostinger server. `HOSTINGER_UPLOAD_URL` is the browser-accessible URL prefix for that directory. Do not use a CDN value. The upload route validates image MIME type and size, and the public blog sanitizes HTML before rendering.
 # KainchiDarshan
 
 Premium stays, rides, rentals, and slow adventures around Bhimtal and Kainchi Dham.

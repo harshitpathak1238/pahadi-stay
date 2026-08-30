@@ -270,6 +270,7 @@ model BlogPost {
 	primaryKeyword  String
 	tags            Json
 	featuredImage   String?
+	imageUrls       Json       @default("[]")
 	imageAltText    String?
 	status          BlogStatus @default(DRAFT)
 	scheduledAt     DateTime?

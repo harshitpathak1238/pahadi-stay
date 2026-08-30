@@ -14,9 +14,10 @@ export async function POST(request: Request) {
   const extension = allowedTypes[file.type];
   if (!extension) return NextResponse.json({ error: 'Only JPG, PNG, and WebP images are supported.' }, { status: 400 });
   if (file.size > 5 * 1024 * 1024) return NextResponse.json({ error: 'Images must be smaller than 5 MB.' }, { status: 400 });
-  const directory = path.join(process.cwd(), 'public', 'uploads', 'blog');
+  const directory = process.env.HOSTINGER_UPLOAD_DIR || path.join(process.cwd(), 'public', 'uploads', 'blog');
   await mkdir(directory, { recursive: true });
   const filename = `${randomUUID()}.${extension}`;
   await writeFile(path.join(directory, filename), Buffer.from(await file.arrayBuffer()));
-  return NextResponse.json({ url: `/uploads/blog/${filename}` }, { status: 201 });
+  const publicUrl = (process.env.HOSTINGER_UPLOAD_URL || '/uploads/blog').replace(/\/$/, '');
+  return NextResponse.json({ url: `${publicUrl}/${filename}` }, { status: 201 });
 }
