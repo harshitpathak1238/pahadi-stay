@@ -21,7 +21,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
-  const parsed = blogSchema.safeParse(await request.json());
+  let body: unknown;
+  try { body = await request.json(); } catch { return NextResponse.json({ error: 'The blog request was not valid JSON.' }, { status: 400 }); }
+  const parsed = blogSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: 'Please complete all blog fields correctly.', details: parsed.error.flatten() }, { status: 400 });
   if (parsed.data.status === 'SCHEDULED' && (!parsed.data.scheduledAt || parsed.data.scheduledAt <= new Date())) return NextResponse.json({ error: 'Scheduled posts need a future publish time.' }, { status: 400 });
   if (parsed.data.status === 'PUBLISHED' && (!parsed.data.featuredImage || !parsed.data.imageAltText)) return NextResponse.json({ error: 'Published blogs need a featured image and image alt text.' }, { status: 400 });
