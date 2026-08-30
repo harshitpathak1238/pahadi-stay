@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { db } from '@/lib/db';
 import { razorpay } from '@/lib/payments';
 import { sendTripNotification } from '@/lib/notifications';
+import { getPickupPrice } from '@/lib/pickup-pricing';
 
 const itemSchema = z.object({ slug: z.string().min(1), category: z.enum(['STAY', 'RIDE', 'RENTAL', 'ACTIVITY']), startDate: z.coerce.date(), endDate: z.coerce.date().optional(), addons: z.array(z.enum(['PICKUP', 'RENTAL', 'ACTIVITY'])).default([]), rentalType: z.enum(['BIKE', 'SCOOTY']).optional(), quantity: z.coerce.number().int().min(1).max(100).default(1), pickup: z.object({ location: z.string().min(2), detail: z.string().trim().min(2).max(300), requestedTime: z.coerce.date(), lat: z.coerce.number().min(-90).max(90).nullable().optional(), lng: z.coerce.number().min(-180).max(180).nullable().optional() }).optional() }).superRefine((item, context) => { if (item.addons.includes('PICKUP') && !item.pickup) context.addIssue({ code: z.ZodIssueCode.custom, message: 'Add pickup details before continuing.', path: ['pickup'] }); if (item.category === 'RENTAL' && !item.rentalType) context.addIssue({ code: z.ZodIssueCode.custom, message: 'Choose bike or scooty.', path: ['rentalType'] }); });
 const tripSchema = z.object({ guestName: z.string().trim().min(2), guestEmail: z.string().email(), guestPhone: z.string().trim().min(10), guests: z.coerce.number().int().min(1).max(20), items: z.array(itemSchema).min(1) });
@@ -38,7 +39,8 @@ export async function POST(request: Request) {
       let total = 0;
       for (const item of data.items) {
         const listing = listings.find((record) => record.slug === item.slug)!;
-        const addonPrice = item.addons.reduce((sum, addon) => sum + ({ PICKUP: 800, RENTAL: 500, ACTIVITY: 750 }[addon] || 0), 0);
+        const pickupFee = item.addons.includes('PICKUP') && item.pickup ? getPickupPrice(item.pickup.location) : 0;
+        const addonPrice = item.addons.reduce((sum, addon) => sum + ({ PICKUP: pickupFee, RENTAL: 500, ACTIVITY: 750 }[addon] || 0), 0);
         const price = (Number(listing.sellPrice) + addonPrice) * item.quantity;
         total += price;
         const booking = await transaction.booking.create({ data: { tripId: trip.id, listingId: listing.id, category: listing.category, startDate: item.startDate, endDate: item.endDate || (listing.category === 'RENTAL' ? new Date(item.startDate.getTime() + 24 * 60 * 60 * 1000) : null), checkIn: item.startDate, checkOut: item.endDate || null, guests: data.guests, quantity: item.quantity, rentalType: item.rentalType, status: 'PENDING', priceAtBooking: price, totalPrice: price, commissionAmount: 0, guestName: data.guestName, guestEmail: data.guestEmail, guestPhone: data.guestPhone, metadata: { addons: item.addons } } });

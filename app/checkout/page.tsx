@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Loader2, ShoppingBag, Trash2 } from 'lucide-react';
 import { useTripCart, type TripCartItem } from '@/components/trip/TripCart';
+import { PICKUP_LOCATION_OPTIONS } from '@/lib/pickup-pricing';
 
 declare global { interface Window { Razorpay?: new (options: Record<string, unknown>) => { open: () => void }; } }
 
@@ -22,6 +23,12 @@ export default function Checkout() {
   const [pickupLat, setPickupLat] = useState('');
   const [pickupLng, setPickupLng] = useState('');
   const total = items.reduce((sum, item) => sum + item.price, 0);
+  const pickupCharge = items.reduce((sum, item) => sum + Number(item.pickup?.price || 0), 0);
+  const itemBreakdown = items.flatMap((item) => {
+    const lines = [{ id: `${item.key}-base`, label: `${item.title} (${item.quantity || 1})`, amount: item.price }];
+    const addOns = item.addonBreakdown || [];
+    return [...lines, ...addOns.map((addon) => ({ id: `${item.key}-${addon.id}`, label: addon.label, amount: addon.amount }))];
+  });
 
   useEffect(() => { setError(''); }, [items]);
   const hasPickup = items.some((item) => item.addons?.includes('PICKUP'));
