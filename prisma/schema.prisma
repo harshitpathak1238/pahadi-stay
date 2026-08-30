@@ -37,6 +37,7 @@ enum ListingStatus {
 
 enum BlogStatus {
 	DRAFT
+	SCHEDULED
 	PUBLISHED
 	ARCHIVED
 }
@@ -77,6 +78,7 @@ model User {
 	trips               Trip[]
 	reviews             Review[]
 	passwordResetTokens PasswordResetToken[]
+	blogPosts           BlogPost[]
 }
 
 model PasswordResetToken {
@@ -263,16 +265,20 @@ model BlogPost {
 	excerpt         String     @db.Text
 	body            String     @db.LongText
 	authorName      String
+	authorId        String?
 	category        String
 	primaryKeyword  String
 	tags            Json
 	featuredImage   String?
 	imageAltText    String?
 	status          BlogStatus @default(DRAFT)
+	scheduledAt     DateTime?
 	publishedAt     DateTime?
 	createdAt       DateTime   @default(now())
 	updatedAt       DateTime   @updatedAt
+	author          User?      @relation(fields: [authorId], references: [id], onDelete: SetNull)
 
 	@@index([status, publishedAt])
+	@@index([status, scheduledAt])
 	@@index([category])
 }

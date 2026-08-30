@@ -8,5 +8,5 @@ export function generateStaticParams() { return Object.keys(sections).map((secti
 export default function AdminSection({ params }: { params: { section: string } }) {
   const section = sections[params.section as keyof typeof sections];
   if (!section) notFound();
-  return <AdminOperationsWorkspace initialView="Listings" />;
+  return <AdminOperationsWorkspace initialView={params.section === 'blog' ? 'Blog' : 'Listings'} />;
 }

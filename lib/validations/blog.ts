@@ -8,12 +8,14 @@ export const blogSchema = z.object({
   excerpt: z.string().trim().min(20).max(320),
   body: z.string().trim().min(50),
   authorName: z.string().trim().min(2).max(100),
+  authorId: z.string().cuid().nullable().optional(),
   category: z.string().trim().min(2).max(60),
   primaryKeyword: z.string().trim().min(2).max(100),
   tags: z.array(z.string().trim().min(1).max(40)).max(20),
   featuredImage: z.string().max(500).nullable().optional(),
   imageAltText: z.string().trim().max(200).nullable().optional(),
-  status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).default('DRAFT'),
+  status: z.enum(['DRAFT', 'SCHEDULED', 'PUBLISHED', 'ARCHIVED']).default('DRAFT'),
+  scheduledAt: z.coerce.date().nullable().optional(),
 });
 
 export const blogUpdateSchema = blogSchema.partial();

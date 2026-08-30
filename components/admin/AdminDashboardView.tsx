@@ -2,12 +2,12 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { AlertTriangle, BarChart3, Bell, CalendarDays, CheckCircle2, ClipboardList, DollarSign, LayoutDashboard, Menu, Settings, Truck, UserRound, Users, WalletCards, X } from 'lucide-react';
+import { AlertTriangle, BarChart3, Bell, BookOpen, CalendarDays, CheckCircle2, ClipboardList, DollarSign, LayoutDashboard, Menu, Settings, Truck, UserRound, Users, WalletCards, X } from 'lucide-react';
 
 type Stats = { bookings: number; revenue: number; previousRevenue: number; pendingPickups: number; pendingPartners: number; failedPayments: number };
 type DashboardData = { degraded?: boolean; stats: Stats; categoryBreakdown: { category: string; count: number }[]; recentOrders: { id: string; reference: string; status: string; amount: number; guestName: string }[] };
 const empty: DashboardData = { stats: { bookings: 0, revenue: 0, previousRevenue: 0, pendingPickups: 0, pendingPartners: 0, failedPayments: 0 }, categoryBreakdown: [], recentOrders: [] };
-const nav = [['Dashboard', LayoutDashboard, '/admin'], ['Orders', ClipboardList, '/admin/orders'], ['Listings', ClipboardList, '/admin/listings'], ['Customers', Users, '/admin/customers'], ['Partners', UserRound, '/admin/partners'], ['Pickups & Vehicles', Truck, '/admin/pickups'], ['Payouts', WalletCards, '/admin/payouts'], ['Analytics', BarChart3, '/admin/analytics'], ['Settings', Settings, '/admin/settings']] as const;
+const nav = [['Dashboard', LayoutDashboard, '/admin'], ['Orders', ClipboardList, '/admin/orders'], ['Listings', ClipboardList, '/admin/listings'], ['Blog', BookOpen, '/admin/blog'], ['Customers', Users, '/admin/customers'], ['Partners', UserRound, '/admin/partners'], ['Pickups & Vehicles', Truck, '/admin/pickups'], ['Payouts', WalletCards, '/admin/payouts'], ['Analytics', BarChart3, '/admin/analytics'], ['Settings', Settings, '/admin/settings']] as const;
 const money = (value: number) => `₹${Math.round(value).toLocaleString('en-IN')}`;
 
 export function AdminDashboardView() {
