@@ -12,8 +12,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   if (!await requireAdmin()) return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
   const parsed = blogUpdateSchema.safeParse(await request.json());
   if (!parsed.success) return NextResponse.json({ error: 'Please complete all blog fields correctly.' }, { status: 400 });
-  if (parsed.data.status === 'SCHEDULED' && (!parsed.data.scheduledAt || parsed.data.scheduledAt <= new Date())) return NextResponse.json({ error: 'Scheduled posts need a future publish time.' }, { status: 400 });
-  if (parsed.data.status === 'PUBLISHED' && (!parsed.data.featuredImage || parsed.data.imageAltText === '')) return NextResponse.json({ error: 'Published blogs need a featured image and image alt text.' }, { status: 400 });
+  if (parsed.data.status === 'SCHEDULED' && parsed.data.scheduledAt && parsed.data.scheduledAt <= new Date()) return NextResponse.json({ error: 'Scheduled posts need a future publish time.' }, { status: 400 });
   try {
     const existing = await db.blogPost.findUnique({ where: { id: params.id }, select: { slug: true, publishedAt: true, body: true, featuredImage: true } });
     if (!existing) return NextResponse.json({ error: 'Blog not found.' }, { status: 404 });

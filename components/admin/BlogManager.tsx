@@ -53,6 +53,7 @@ export function BlogManager() {
       const result = await response.json().catch(() => ({}));
       if (!response.ok) { setMessage(result.error || `Image upload failed (${response.status}).`); return null; }
       if (typeof result.asset?.url !== 'string') { setMessage('Image upload returned no usable URL.'); return null; }
+      setMessage('Image uploaded successfully and added to the editor.');
       return result.asset.url;
     } catch { setMessage('Could not reach the image upload service.'); return null; }
     finally { setBusy(false); }
@@ -78,13 +79,8 @@ export function BlogManager() {
     event.preventDefault();
     if (!form) return;
     const localErrors = [
-      form.slug.trim().length < 2 ? 'URL slug needs at least 2 characters.' : '',
       form.metaTitle.trim().length > 160 ? 'SEO title must be 160 characters or fewer.' : '',
       form.metaDescription.trim().length > 320 ? 'SEO meta description must be 320 characters or fewer.' : '',
-      form.excerpt.trim().length < 20 ? 'Excerpt needs at least 20 characters.' : '',
-      form.body.trim().length < 50 ? 'Blog content needs at least 50 characters.' : '',
-      form.authorName.trim().length < 2 ? 'Choose an author.' : '',
-      form.category.trim().length < 2 ? 'Category is required.' : '',
       form.primaryKeyword.trim().length > 100 ? 'Primary keyword must be 100 characters or fewer.' : '',
     ].filter(Boolean);
     if (localErrors.length) { setMessage(localErrors.join(' ')); return; }
@@ -131,7 +127,7 @@ function Editor({ form, change, authors, save, upload, removeUploadedImage, busy
   const toggleSource = () => { if (source && editor) editor.commands.setContent(form.body || '<p></p>', { emitUpdate: false }); setSource((value) => !value); };
   const fullDocument = /<!doctype\s+html|<html[\s>]/i.test(form.body);
   const inlineUpload = async (file: File) => { const url = await upload(file); if (url) editor?.chain().focus().setImage({ src: url }).run(); };
-  const field = (key: keyof Form, label: string, required = false, minLength?: number, maxLength?: number) => { const optionalMeta = ['metaTitle', 'metaDescription', 'primaryKeyword'].includes(String(key)); return <label className="grid gap-1 text-[12px] font-semibold">{label}<input required={required && !optionalMeta} minLength={optionalMeta ? undefined : minLength} maxLength={maxLength} value={String(form[key] ?? '')} onChange={(event) => { const value = event.target.value; change(key, value); if (key === 'title' && !form.id) change('slug', slugify(value)); setDirty(true); }} className="h-9 border border-[#d9d9dc] bg-white px-2 text-[13px] font-normal" /></label>; };
+  const field = (key: keyof Form, label: string, required = false, minLength?: number, maxLength?: number) => { const optionalMeta = ['metaTitle', 'metaDescription', 'primaryKeyword'].includes(String(key)); return <label className="grid gap-1 text-[12px] font-semibold">{label}<input required={false} minLength={optionalMeta ? undefined : minLength} maxLength={maxLength} value={String(form[key] ?? '')} onChange={(event) => { const value = event.target.value; change(key, value); if (key === 'title' && !form.id) change('slug', slugify(value)); setDirty(true); }} className="h-9 border border-[#d9d9dc] bg-white px-2 text-[13px] font-normal" /></label>; };
   const tools: [LucideIcon, string, string, () => void][] = [[Bold, 'Bold', 'bold', () => editor?.chain().focus().toggleBold().run()], [Italic, 'Italic', 'italic', () => editor?.chain().focus().toggleItalic().run()], [List, 'Bulleted list', 'bulletList', () => editor?.chain().focus().toggleBulletList().run()], [ListOrdered, 'Numbered list', 'orderedList', () => editor?.chain().focus().toggleOrderedList().run()], [Quote, 'Quote', 'blockquote', () => editor?.chain().focus().toggleBlockquote().run()], [LinkIcon, 'Link', 'link', () => { const url = window.prompt('Link URL'); if (url) editor?.chain().focus().setLink({ href: url }).run(); }]];
   return <form onSubmit={save}>{message && <p className="mb-5 rounded-[4px] border border-[#e7b5a6] bg-[#fff3ef] p-3 text-[13px] text-[#9f3d3d]">{message}</p>}
     <div className="mb-5 flex items-center gap-3 text-[12px] text-[#616161]"><button type="button" onClick={cancel} className="inline-flex items-center gap-2 border border-[#d9d9dc] bg-white px-3 py-2 font-semibold"><ArrowLeft size={14} /> Posts</button><span>/ Blog editor</span></div>

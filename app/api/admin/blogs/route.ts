@@ -27,7 +27,7 @@ export async function POST(request: Request) {
   try { body = await request.json(); } catch { return NextResponse.json({ error: 'The blog request was not valid JSON.' }, { status: 400 }); }
   const parsed = blogSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: 'Please complete all blog fields correctly.', details: parsed.error.flatten() }, { status: 422 });
-  if (parsed.data.status === 'SCHEDULED' && (!parsed.data.scheduledAt || parsed.data.scheduledAt <= new Date())) return NextResponse.json({ error: 'Scheduled posts need a future publish time.' }, { status: 422 });
+  if (parsed.data.status === 'SCHEDULED' && parsed.data.scheduledAt && parsed.data.scheduledAt <= new Date()) return NextResponse.json({ error: 'Scheduled posts need a future publish time.' }, { status: 422 });
   try {
     const body = isFullDocument(parsed.data.body) ? parsed.data.body : sanitizeBlogHtml(parsed.data.body);
     const blog = await db.blogPost.create({ data: { ...parsed.data, body, imageUrls: imageUrls(body, parsed.data.featuredImage), publishedAt: parsed.data.status === 'PUBLISHED' ? new Date() : null, scheduledAt: parsed.data.status === 'SCHEDULED' ? parsed.data.scheduledAt : null } });
