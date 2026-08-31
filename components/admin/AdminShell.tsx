@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { BarChart3, BookOpen, ClipboardList, ExternalLink, LayoutDashboard, Menu, Settings, Truck, UserRound, Users, WalletCards, X } from 'lucide-react';
+import { BarChart3, BookOpen, ClipboardList, ExternalLink, FileImage, LayoutDashboard, Menu, Settings, Truck, UserRound, Users, WalletCards, X } from 'lucide-react';
 
 const navigation = [
   ['Dashboard', LayoutDashboard, '/admin'],
@@ -15,6 +15,7 @@ const navigation = [
   ['Activities', ClipboardList, '/admin/activities'],
   ['Packages', ClipboardList, '/admin/packages'],
   ['Blog', BookOpen, '/admin/blog'],
+  ['Media Library', FileImage, '/admin/media'],
   ['Customers', Users, '/admin/customers'],
   ['Users', Users, '/admin/users'],
   ['Partners', UserRound, '/admin/partners'],

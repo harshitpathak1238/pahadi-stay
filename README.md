@@ -2,14 +2,16 @@
 
 ## Blog image storage
 
-Blog images are written by the server to Hostinger filesystem storage. By default the app uses `public/uploads/blog`, which is served at `/uploads/blog`. For a Hostinger deployment, set these environment variables:
+Blog posts are stored in PostgreSQL. Uploaded media is written to the separate Hostinger images directory. For a Hostinger deployment, set these environment variables and deploy the Next.js app on Hostinger (a Vercel function cannot access Hostinger's filesystem):
 
 ```dotenv
-HOSTINGER_UPLOAD_DIR="/home/USER/domains/example.com/public_html/uploads/blog"
-HOSTINGER_UPLOAD_URL="https://example.com/uploads/blog"
+HOSTINGER_BLOG_UPLOAD_DIR="/home/USER/domains/example.com/public_html/uploads/blog"
+HOSTINGER_BLOG_UPLOAD_URL="https://example.com/uploads/blog"
+HOSTINGER_IMAGE_UPLOAD_DIR="/home/USER/domains/example.com/public_html/uploads/images"
+HOSTINGER_IMAGE_UPLOAD_URL="https://example.com/uploads/images"
 ```
 
-`HOSTINGER_UPLOAD_DIR` is the absolute writable directory on the Hostinger server. `HOSTINGER_UPLOAD_URL` is the browser-accessible URL prefix for that directory. Do not use a CDN value. The upload route validates image MIME type and size, and the public blog sanitizes HTML before rendering.
+`HOSTINGER_BLOG_UPLOAD_DIR` and `HOSTINGER_BLOG_UPLOAD_URL` reserve the blog upload location. `HOSTINGER_IMAGE_UPLOAD_DIR` and `HOSTINGER_IMAGE_UPLOAD_URL` control uploaded images and videos. These are absolute Hostinger filesystem paths and browser-accessible URL prefixes; do not use CDN values. The upload route validates media type and size, and the public blog sanitizes normal article HTML before rendering.
 # KainchiDarshan
 
 Premium stays, rides, rentals, and slow adventures around Bhimtal and Kainchi Dham.

@@ -283,3 +283,20 @@ model BlogPost {
 	@@index([status, scheduledAt])
 	@@index([category])
 }
+
+model MediaAsset {
+	id          String   @id @default(cuid())
+	filename    String
+	url         String   @unique
+	mimeType    String
+	size        Int
+	width       Int?
+	height      Int?
+	altText     String?
+	thumbnailUrl String?
+	createdAt   DateTime @default(now())
+	updatedAt   DateTime @updatedAt
+
+	@@index([mimeType])
+	@@index([createdAt])
+}
