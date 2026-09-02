@@ -75,7 +75,7 @@ export async function GET(request: Request) {
   const page = Math.max(1, Number(params.get('page') || 1));
   const pageSize = 40;
   const { assets } = await assetsFromStorage();
-  const filtered = assets.filter((asset) => (!search || asset.filename.toLowerCase().includes(search)) && (type === 'all' || type === 'images' && asset.mimeType.startsWith('image/') || type === 'videos' && asset.mimeType.startsWith('video/')));
+  const filtered = assets.filter((asset) => (!search || asset.filename.toLowerCase().includes(search) || asset.url.toLowerCase().includes(search)) && (type === 'all' || type === 'images' && asset.mimeType.startsWith('image/') || type === 'videos' && asset.mimeType.startsWith('video/')));
   filtered.sort((left, right) => sort === 'oldest' ? left.createdAt.localeCompare(right.createdAt) : sort === 'name' ? left.filename.localeCompare(right.filename) : sort === 'size' ? right.size - left.size : right.createdAt.localeCompare(left.createdAt));
   const pageItems = filtered.slice((page - 1) * pageSize, page * pageSize);
   return NextResponse.json({ assets: pageItems.map((item) => ({ ...item, kind: item.mimeType.startsWith('video/') ? 'VIDEO' : 'IMAGE' })), total: filtered.length, page, pageSize, pages: Math.ceil(filtered.length / pageSize) });
