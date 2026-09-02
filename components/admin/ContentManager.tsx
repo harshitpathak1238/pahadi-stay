@@ -62,7 +62,7 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
   const load = async () => {
     const response = await fetch(section === 'PACKAGE' ? '/api/admin/packages' : `/api/admin/listings?category=${section}`, { cache: 'no-store' });
     if (!response.ok) {
-      setMessage('Could not load this section. Check admin access and database connection.');
+      setMessage(response.status === 403 ? 'Admin access required. Sign in with an approved admin account.' : 'Could not load this section. Check the database connection.');
       return;
     }
     if (section === 'PACKAGE') setPackages(await response.json());

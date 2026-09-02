@@ -17,6 +17,7 @@ export async function requireAdmin() {
   const email = session?.user?.email?.toLowerCase();
   if (!email) return null;
   const user = await db.user.findUnique({ where: { email }, select: { role: true } });
+  if (!user && isAllowedAdminEmail(email)) return session;
   if (!user || !isAllowedAdminRole(user.role)) return null;
   if (user.role === 'ADMIN' && !isAllowedAdminEmail(email)) return null;
   return session;
