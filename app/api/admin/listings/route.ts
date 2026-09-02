@@ -3,7 +3,9 @@ import { z } from 'zod';
 import { db } from '@/lib/db';
 import { getAdminPartner, requireAdmin } from '@/lib/admin';
 
-const listingSchema = z.object({ slug: z.string().trim().min(2).regex(/^[a-z0-9-]+$/), category: z.enum(['STAY', 'RIDE', 'RENTAL', 'ACTIVITY']), title: z.string().trim().min(2).max(120), description: z.string().trim().min(10), location: z.string().trim().min(2), basePrice: z.coerce.number().nonnegative(), sellPrice: z.coerce.number().nonnegative(), bikeQuantity: z.coerce.number().int().nonnegative().default(0), scootyQuantity: z.coerce.number().int().nonnegative().default(0), images: z.array(z.string().url()).default([]), amenities: z.array(z.string().trim().min(1)).default([]), status: z.enum(['DRAFT', 'LIVE', 'PAUSED', 'PENDING_REVIEW']).default('DRAFT') });
+const listingStatus = z.preprocess((value) => typeof value === 'string' ? value.trim().toUpperCase() : value, z.enum(['DRAFT', 'LIVE', 'PAUSED', 'PENDING_REVIEW']).default('DRAFT'));
+const optionalStringList = z.array(z.string().trim().max(500)).default([]).transform((items) => items.map((item) => item.trim()).filter(Boolean));
+const listingSchema = z.object({ slug: z.string().trim().max(160).default(''), category: z.string().trim().max(20).default('STAY'), title: z.string().trim().max(120).default('Untitled listing'), description: z.string().trim().max(2000).default(''), location: z.string().trim().max(160).default(''), basePrice: z.coerce.number().nonnegative().default(0), sellPrice: z.coerce.number().nonnegative().default(0), bikeQuantity: z.coerce.number().int().nonnegative().default(0), scootyQuantity: z.coerce.number().int().nonnegative().default(0), images: optionalStringList, amenities: optionalStringList, status: listingStatus });
 
 export async function GET(request: Request) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
@@ -22,7 +24,9 @@ export async function POST(request: Request) {
   if (!parsed.success) return NextResponse.json({ error: 'Check the listing fields and try again.', details: parsed.error.flatten() }, { status: 400 });
   try {
     const partner = await getAdminPartner();
-    const listing = await db.listing.create({ data: { ...parsed.data, partnerId: partner.id, basePrice: parsed.data.basePrice, sellPrice: parsed.data.sellPrice } });
+    const title = parsed.data.title || 'Untitled listing';
+    const slug = parsed.data.slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || `listing-${Date.now()}`;
+    const listing = await db.listing.create({ data: { ...parsed.data, slug, title, partnerId: partner.id, basePrice: parsed.data.basePrice, sellPrice: parsed.data.sellPrice, category: (parsed.data.category || 'STAY') as 'STAY' | 'RIDE' | 'RENTAL' | 'ACTIVITY' } });
     return NextResponse.json(listing, { status: 201 });
   } catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : 'Could not create listing.' }, { status: 500 }); }
 }

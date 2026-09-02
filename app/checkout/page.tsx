@@ -25,8 +25,9 @@ export default function Checkout() {
   const total = items.reduce((sum, item) => sum + item.price, 0);
   const pickupCharge = items.reduce((sum, item) => sum + Number(item.pickup?.price || 0), 0);
   const itemBreakdown = items.flatMap((item) => {
-    const lines = [{ id: `${item.key}-base`, label: `${item.title} (${item.quantity || 1})`, amount: item.price }];
     const addOns = item.addonBreakdown || [];
+    const addonTotal = addOns.reduce((sum, addon) => sum + addon.amount, 0);
+    const lines = [{ id: `${item.key}-base`, label: `${item.title} (${item.quantity || 1})`, amount: item.price - addonTotal }];
     return [...lines, ...addOns.map((addon) => ({ id: `${item.key}-${addon.id}`, label: addon.label, amount: addon.amount }))];
   });
 

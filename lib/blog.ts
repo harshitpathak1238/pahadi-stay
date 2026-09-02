@@ -9,10 +9,25 @@ function normalizeBlog(post: BlogPost): PublishedBlog {
 }
 
 export async function getPublishedBlogs(): Promise<PublishedBlog[]> {
-  return (await db.blogPost.findMany({ where: { status: 'PUBLISHED', publishedAt: { lte: new Date() } }, orderBy: { publishedAt: 'desc' } })).map(normalizeBlog);
+  try {
+    const query = db.blogPost.findMany({ where: { status: 'PUBLISHED', publishedAt: { lte: new Date() } }, orderBy: { publishedAt: 'desc' } });
+    const posts = await Promise.race([
+      query,
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Published blogs query timed out')), 5000)),
+    ]);
+    return posts.map(normalizeBlog);
+  } catch (error) {
+    console.error('Published blogs unavailable:', error);
+    return [];
+  }
 }
 
 export async function getPublishedBlog(slug: string): Promise<PublishedBlog | null> {
-  const post = await db.blogPost.findFirst({ where: { slug, status: 'PUBLISHED', publishedAt: { lte: new Date() } } });
-  return post ? normalizeBlog(post) : null;
+  try {
+    const post = await db.blogPost.findFirst({ where: { slug, status: 'PUBLISHED', publishedAt: { lte: new Date() } } });
+    return post ? normalizeBlog(post) : null;
+  } catch (error) {
+    console.error(`Published blog unavailable for ${slug}:`, error);
+    return null;
+  }
 }

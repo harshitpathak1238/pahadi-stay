@@ -1,8 +1,7 @@
-import { access, mkdir, unlink, writeFile } from 'fs/promises';
+import { access, mkdir, readdir, readFile, stat, unlink, writeFile } from 'fs/promises';
 import path from 'path';
 import { randomUUID } from 'crypto';
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin';
 
 const types: Record<string, { extension: string; kind: 'IMAGE' | 'VIDEO'; limit: number }> = {
@@ -14,22 +13,57 @@ const types: Record<string, { extension: string; kind: 'IMAGE' | 'VIDEO'; limit:
 };
 
 async function storage() {
-  const directory = process.env.HOSTINGER_IMAGE_UPLOAD_DIR;
-  const publicUrl = (process.env.HOSTINGER_IMAGE_UPLOAD_URL || '').replace(/\/$/, '');
-  if (!directory || !publicUrl || process.env.VERCEL) throw new Error('Hostinger media storage requires this API to run on Hostinger.');
-  await access(directory);
-  return { directory, publicUrl };
+  const configuredDirectory = process.env.HOSTINGER_IMAGE_UPLOAD_DIR;
+  const configuredUrl = (process.env.HOSTINGER_IMAGE_UPLOAD_URL || '').replace(/\/$/, '');
+
+  if (configuredDirectory && configuredUrl && !process.env.VERCEL) {
+    try {
+      await access(configuredDirectory);
+      return { directory: configuredDirectory, publicUrl: configuredUrl };
+    } catch (error) {
+      if (process.env.NODE_ENV === 'production') throw new Error(`Configured Hostinger media directory is not accessible: ${configuredDirectory}`);
+    }
+  }
+
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('Production media storage is not configured. Set HOSTINGER_IMAGE_UPLOAD_DIR and HOSTINGER_IMAGE_UPLOAD_URL on the deployed app.');
+  }
+
+  const fallbackDirectory = path.join(process.cwd(), 'public', 'uploads', 'images');
+  const fallbackPublicUrl = '/uploads/images';
+  await mkdir(fallbackDirectory, { recursive: true });
+  return { directory: fallbackDirectory, publicUrl: fallbackPublicUrl };
 }
 
-async function usages(urls: string[]) {
-  const [listings, blogs] = await Promise.all([
-    db.listing.findMany({ select: { id: true, title: true, images: true } }),
-    db.blogPost.findMany({ select: { id: true, title: true, featuredImage: true, body: true } }),
-  ]);
-  return urls.map((url) => ({ url, references: [
-    ...listings.filter((item) => JSON.stringify(item.images).includes(url)).map((item) => ({ type: 'Listing', id: item.id, title: item.title })),
-    ...blogs.filter((item) => item.featuredImage === url || item.body.includes(url)).map((item) => ({ type: 'Blog', id: item.id, title: item.title })),
-  ] }));
+type AssetMeta = { filename: string; altText: string | null };
+
+const metaPath = (directory: string, filename: string) => path.join(directory, `.${filename}.json`);
+
+async function readMeta(directory: string, filename: string): Promise<AssetMeta> {
+  try {
+    return JSON.parse(await readFile(metaPath(directory, filename), 'utf8')) as AssetMeta;
+  } catch {
+    return { filename, altText: null };
+  }
+}
+
+async function writeMeta(directory: string, filename: string, meta: AssetMeta) {
+  await writeFile(metaPath(directory, filename), JSON.stringify(meta), 'utf8');
+}
+
+async function assetsFromStorage() {
+  const target = await storage();
+  const entries = await readdir(target.directory, { withFileTypes: true });
+  const assets = await Promise.all(entries.filter((entry) => entry.isFile() && !entry.name.startsWith('.')).map(async (entry) => {
+    const file = await stat(path.join(target.directory, entry.name));
+    const extension = path.extname(entry.name).toLowerCase();
+    const mimeType = Object.entries(types).find(([, config]) => `.${config.extension}` === extension)?.[0];
+    if (!mimeType) return null;
+    const meta = await readMeta(target.directory, entry.name);
+    const url = `${target.publicUrl}/${encodeURIComponent(entry.name)}`;
+    return { id: entry.name, filename: meta.filename, url, mimeType, size: file.size, width: null, height: null, altText: meta.altText, thumbnailUrl: mimeType.startsWith('image/') ? url : null, createdAt: file.birthtime.toISOString(), usage: [] };
+  }));
+  return { target, assets: assets.filter((asset): asset is NonNullable<typeof asset> => Boolean(asset)) };
 }
 
 export async function GET(request: Request) {
@@ -40,11 +74,11 @@ export async function GET(request: Request) {
   const sort = params.get('sort') || 'newest';
   const page = Math.max(1, Number(params.get('page') || 1));
   const pageSize = 40;
-  const orderBy = sort === 'oldest' ? { createdAt: 'asc' as const } : sort === 'name' ? { filename: 'asc' as const } : sort === 'size' ? { size: 'desc' as const } : { createdAt: 'desc' as const };
-  const assets = await db.mediaAsset.findMany({ where: { ...(search ? { filename: { contains: search } } : {}), ...(type === 'images' ? { mimeType: { startsWith: 'image/' } } : {}), ...(type === 'videos' ? { mimeType: { startsWith: 'video/' } } : {}) }, orderBy });
-  const pageItems = assets.slice((page - 1) * pageSize, page * pageSize);
-  const usage = await usages(pageItems.map((item) => item.url));
-  return NextResponse.json({ assets: pageItems.map((item) => ({ ...item, kind: item.mimeType.startsWith('video/') ? 'VIDEO' : 'IMAGE', usage: usage.find((entry) => entry.url === item.url)?.references || [] })), total: assets.length, page, pageSize, pages: Math.ceil(assets.length / pageSize) });
+  const { assets } = await assetsFromStorage();
+  const filtered = assets.filter((asset) => (!search || asset.filename.toLowerCase().includes(search)) && (type === 'all' || type === 'images' && asset.mimeType.startsWith('image/') || type === 'videos' && asset.mimeType.startsWith('video/')));
+  filtered.sort((left, right) => sort === 'oldest' ? left.createdAt.localeCompare(right.createdAt) : sort === 'name' ? left.filename.localeCompare(right.filename) : sort === 'size' ? right.size - left.size : right.createdAt.localeCompare(left.createdAt));
+  const pageItems = filtered.slice((page - 1) * pageSize, page * pageSize);
+  return NextResponse.json({ assets: pageItems.map((item) => ({ ...item, kind: item.mimeType.startsWith('video/') ? 'VIDEO' : 'IMAGE' })), total: filtered.length, page, pageSize, pages: Math.ceil(filtered.length / pageSize) });
 }
 
 export async function POST(request: Request) {
@@ -61,7 +95,8 @@ export async function POST(request: Request) {
     await mkdir(target.directory, { recursive: true });
     await writeFile(path.join(target.directory, filename), Buffer.from(await file.arrayBuffer()));
     const url = `${target.publicUrl}/${filename}`;
-    const asset = await db.mediaAsset.create({ data: { filename: file.name, url, mimeType: file.type, size: file.size, thumbnailUrl: config.kind === 'IMAGE' ? url : null } });
+    await writeMeta(target.directory, filename, { filename: file.name, altText: null });
+    const asset = { id: filename, filename: file.name, url: `${target.publicUrl}/${encodeURIComponent(filename)}`, mimeType: file.type, size: file.size, width: null, height: null, altText: null, thumbnailUrl: config.kind === 'IMAGE' ? url : null, createdAt: new Date().toISOString(), usage: [] };
     return NextResponse.json({ asset }, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : 'Media upload failed.' }, { status: 503 });
@@ -73,18 +108,23 @@ export async function PATCH(request: Request) {
   try {
     const formData = await request.formData();
     const id = String(formData.get('id') || '');
-    const asset = await db.mediaAsset.findUnique({ where: { id } });
-    if (!asset) return NextResponse.json({ error: 'Media file not found.' }, { status: 404 });
+    const { target } = await assetsFromStorage();
+    const filename = path.basename(id);
+    const filePath = path.join(target.directory, filename);
+    const file = await stat(filePath).catch(() => null);
+    if (!file) return NextResponse.json({ error: 'Media file not found.' }, { status: 404 });
+    const extension = path.extname(filename).toLowerCase();
+    const mimeType = Object.entries(types).find(([, config]) => `.${config.extension}` === extension)?.[0] || '';
+    const assetMeta = await readMeta(target.directory, filename);
     const replacement = formData.get('file');
     if (replacement instanceof File) {
-      if (replacement.type !== asset.mimeType || replacement.size > (asset.mimeType.startsWith('video/') ? 100 : 10) * 1024 * 1024) return NextResponse.json({ error: 'Replacement file type or size is invalid.' }, { status: 400 });
-      const target = await storage();
-      await writeFile(path.join(target.directory, path.basename(new URL(asset.url).pathname)), Buffer.from(await replacement.arrayBuffer()));
+      if (replacement.type !== mimeType || replacement.size > (mimeType.startsWith('video/') ? 100 : 10) * 1024 * 1024) return NextResponse.json({ error: 'Replacement file type or size is invalid.' }, { status: 400 });
+      await writeFile(filePath, Buffer.from(await replacement.arrayBuffer()));
     }
-    const filename = typeof formData.get('filename') === 'string' ? String(formData.get('filename')).trim() : asset.filename;
-    const altText = typeof formData.get('altText') === 'string' ? String(formData.get('altText')).trim() : asset.altText;
-    const updated = await db.mediaAsset.update({ where: { id }, data: { filename: filename || asset.filename, altText } });
-    return NextResponse.json({ asset: updated });
+    const displayName = typeof formData.get('filename') === 'string' ? String(formData.get('filename')).trim() : assetMeta.filename;
+    const altText = typeof formData.get('altText') === 'string' ? String(formData.get('altText')).trim() : assetMeta.altText;
+    await writeMeta(target.directory, filename, { filename: displayName || assetMeta.filename, altText });
+    return NextResponse.json({ asset: { id: filename, filename: displayName || assetMeta.filename, url: `${target.publicUrl}/${encodeURIComponent(filename)}`, mimeType, size: (await stat(filePath)).size, altText } });
   } catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : 'Media update failed.' }, { status: 400 }); }
 }
 
@@ -92,13 +132,10 @@ export async function DELETE(request: Request) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
   try {
     const { ids, force } = await request.json() as { ids?: string[]; force?: boolean };
-    const assets = await db.mediaAsset.findMany({ where: { id: { in: ids || [] } } });
-    const references = await usages(assets.map((asset) => asset.url));
-    const used = references.filter((entry) => entry.references.length);
-    if (used.length && !force) return NextResponse.json({ error: 'Some files are still in use.', usage: used }, { status: 409 });
-    const target = await storage();
-    await Promise.all(assets.map((asset) => unlink(path.join(target.directory, path.basename(new URL(asset.url).pathname))).catch(() => undefined)));
-    await db.mediaAsset.deleteMany({ where: { id: { in: assets.map((asset) => asset.id) } } });
-    return NextResponse.json({ deleted: assets.map((asset) => asset.id) });
+    void force;
+    const { target } = await assetsFromStorage();
+    const filenames = (ids || []).map((id) => path.basename(id));
+    await Promise.all(filenames.flatMap((filename) => [unlink(path.join(target.directory, filename)).catch(() => undefined), unlink(metaPath(target.directory, filename)).catch(() => undefined)]));
+    return NextResponse.json({ deleted: filenames });
   } catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : 'Media deletion failed.' }, { status: 400 }); }
 }

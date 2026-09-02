@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ChevronDown, Sparkles } from 'lucide-react';
 import { getPickupPrice } from '@/lib/pickup-pricing';
+import { hasValidTripDates } from '@/lib/trip-logic';
 import { AddToTrip, useTripCart } from './TripCart';
 
 export function StayTripPanel({ slug, title, price }: { slug: string; title: string; price: number }) {
@@ -17,7 +18,7 @@ export function StayTripPanel({ slug, title, price }: { slug: string; title: str
   const pickupAmount = pickup ? getPickupPrice(pickupLocation) : 0;
   const rentalAmount = rental ? 500 : 0;
   const total = price + pickupAmount + rentalAmount;
-  const hasValidDates = Boolean(startDate && endDate && new Date(endDate) > new Date(startDate));
+  const hasValidDates = hasValidTripDates(startDate, endDate);
   const alreadyAdded = items.some((item) => item.slug === slug && item.category === 'STAY');
   const addons = [pickup && 'PICKUP', rental && 'RENTAL'].filter(Boolean) as string[];
 
