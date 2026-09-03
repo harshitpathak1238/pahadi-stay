@@ -34,14 +34,31 @@ function respond(array $body, int $status = 200): never
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') respond(['ok' => true]);
 if ($directory === '' || $publicUrl === '' || $secret === '') respond(['error' => 'Media storage is not configured.'], 500);
+$publicFile = (string) ($_GET['file'] ?? '');
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && $publicFile !== '') {
+    if (!preg_match('/^[a-f0-9-]+\.(jpg|png|webp|mp4|mov)$/', $publicFile)) respond(['error' => 'Invalid media file.'], 400);
+    $filePath = $directory . '/' . $publicFile;
+    if (!is_file($filePath)) respond(['error' => 'Media file not found.'], 404);
+    header_remove('Content-Type');
+    header('Content-Type: ' . (mime_content_type($filePath) ?: 'application/octet-stream'));
+    header('Content-Length: ' . (string) filesize($filePath));
+    header('Cache-Control: public, max-age=31536000, immutable');
+    readfile($filePath);
+    exit;
+}
 $providedSecret = (string) ($_SERVER['HTTP_X_MEDIA_SECRET'] ?? '');
 if ($providedSecret === '' || !hash_equals($secret, $providedSecret)) respond(['error' => 'Unauthorized media request.'], 401);
 if (!is_dir($directory) && !mkdir($directory, 0750, true)) respond(['error' => 'Media directory is not writable.'], 500);
 if (!is_writable($directory)) respond(['error' => 'Media directory is not writable.'], 500);
 
 function metadataPath(string $directory, string $filename): string { return $directory . '/.' . $filename . '.json'; }
-function fileUrl(string $publicUrl, string $filename): string { return $publicUrl . '/' . rawurlencode($filename); }
+function fileUrl(string $publicUrl, string $filename): string { return $publicUrl . '/media-api.php?file=' . rawurlencode($filename); }
 function safeFilenameFromUrl(string $url, string $publicUrl): ?string {
+    if (str_starts_with($url, $publicUrl . '/media-api.php?file=')) {
+        $query = parse_url($url, PHP_URL_QUERY);
+        parse_str(is_string($query) ? $query : '', $params);
+        $url = $publicUrl . '/' . (string) ($params['file'] ?? '');
+    }
     if (!str_starts_with($url, $publicUrl . '/')) return null;
     $filename = basename(parse_url($url, PHP_URL_PATH) ?: '');
     return preg_match('/^[a-f0-9-]+\.(jpg|png|webp|mp4|mov)$/', $filename) ? $filename : null;
