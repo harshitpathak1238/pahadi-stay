@@ -1,17 +1,15 @@
 # KainchiDarshan workspace
 
-## Blog image storage
+## Media storage
 
-Blog posts are stored in PostgreSQL. Uploaded media is written to the separate Hostinger images directory. For a Hostinger deployment, set these environment variables and deploy the Next.js app on Hostinger (a Vercel function cannot access Hostinger's filesystem):
+Blog posts are stored in MySQL. When the app is deployed on Vercel, media is stored by the Hostinger PHP bridge in the Hostinger images directory. Upload the file [media-api.php](hostinger-media-api/media-api.php) to Hostinger, configure its environment values, and set these Vercel variables:
 
 ```dotenv
-HOSTINGER_BLOG_UPLOAD_DIR="/home/USER/domains/example.com/public_html/uploads/blog"
-HOSTINGER_BLOG_UPLOAD_URL="https://example.com/uploads/blog"
-HOSTINGER_IMAGE_UPLOAD_DIR="/home/USER/domains/example.com/public_html/uploads/images"
-HOSTINGER_IMAGE_UPLOAD_URL="https://example.com/uploads/images"
+HOSTINGER_MEDIA_API_URL="https://example.com/media-api.php"
+HOSTINGER_MEDIA_API_SECRET="the-same-long-random-secret-as-Hostinger"
 ```
 
-`HOSTINGER_BLOG_UPLOAD_DIR` and `HOSTINGER_BLOG_UPLOAD_URL` reserve the blog upload location. `HOSTINGER_IMAGE_UPLOAD_DIR` and `HOSTINGER_IMAGE_UPLOAD_URL` control uploaded images and videos. These are absolute Hostinger filesystem paths and browser-accessible URL prefixes; do not use CDN values. The upload route validates media type and size, and the public blog sanitizes normal article HTML before rendering.
+The Vercel media route authenticates the logged-in admin first, then calls Hostinger with the server-only `X-Media-Secret` header. Hostinger validates the secret, MIME type, size, and generated filename before writing to disk. Media metadata is stored in hidden JSON sidecar files, not Prisma. Hostinger plans that do not expose PHP `getenv()` variables should upload `media-config.php` beside `media-api.php` (or one directory above `public_html`) using `media-config.php.example` as the template. The older `HOSTINGER_IMAGE_UPLOAD_*` variables describe the storage location used by the PHP bridge; they do not grant Vercel direct filesystem access.
 # KainchiDarshan
 
 Premium stays, rides, rentals, and slow adventures around Bhimtal and Kainchi Dham.
@@ -28,7 +26,7 @@ Premium stays, rides, rentals, and slow adventures around Bhimtal and Kainchi Dh
 
 Blog post records are stored in the MySQL `BlogPost` table, but media is filesystem-only. The Media Library reads and writes image/video files directly in `HOSTINGER_IMAGE_UPLOAD_DIR`; it does not use Prisma or a `MediaAsset` table. Small hidden JSON sidecar files in the same directory preserve the display filename and alt text. During local development, uploads fall back to `public/uploads/images`.
 
-The admin upload API must run on the same Hostinger server as the configured directory. A local Windows server cannot write to `/home/...` on Hostinger, so local development uses the fallback directory unless a locally mounted directory is configured. Login, admin authorization, blog posts, listings, and bookings still use the application's existing MySQL database.
+Login, admin authorization, blog posts, listings, and bookings still use the application's existing MySQL database.
 
 If blog posts are missing in Hostinger, verify that the deployed app's `DATABASE_URL` points to the same Hostinger database used when the posts were created, and that the migrations have been applied there. A different database, an un-applied migration, or a failed remote connection will make the public journal appear empty.
 

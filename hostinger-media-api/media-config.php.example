@@ -1,0 +1,7 @@
+<?php
+
+return [
+    'directory' => '/home/u445690330/public_html/uploads/images',
+    'publicUrl' => 'https://springgreen-salmon-184354.hostingersite.com/uploads/images',
+    'secret' => 'replace-with-the-same-vercel-secret',
+];

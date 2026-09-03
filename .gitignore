@@ -2,5 +2,6 @@ node_modules
 .next
 .vercel
 .env*
+hostinger-media-api/media-config.php
 !.env.example
 prisma/*.db
