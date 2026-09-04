@@ -13,9 +13,23 @@ async function proxy(request: Request, init: RequestInit = {}) {
   return fetch(target, { ...init, signal: AbortSignal.timeout(30000), headers: { ...(init.headers || {}), 'X-Media-Secret': secret, 'X-Forwarded-Host': new URL(request.url).host } });
 }
 
+function normalizeLegacyUrls(value: unknown, apiUrl: string): unknown {
+  if (typeof value === 'string') return value.replace(`${new URL(apiUrl).origin}/uploads/images/media-api.php?file=`, `${new URL(apiUrl).origin}/media-api.php?file=`);
+  if (Array.isArray(value)) return value.map((item) => normalizeLegacyUrls(item, apiUrl));
+  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, normalizeLegacyUrls(item, apiUrl)]));
+  return value;
+}
+
 async function responseFromMedia(response: Response) {
   const text = await response.text();
-  return new NextResponse(text, { status: response.status, headers: { 'Content-Type': response.headers.get('Content-Type') || 'application/json' } });
+  const contentType = response.headers.get('Content-Type') || 'application/json';
+  if (!contentType.includes('application/json')) return new NextResponse(text, { status: response.status, headers: { 'Content-Type': contentType } });
+  try {
+    const normalized = normalizeLegacyUrls(JSON.parse(text), mediaApiUrl() || 'http://localhost/media-api.php');
+    return NextResponse.json(normalized, { status: response.status });
+  } catch {
+    return new NextResponse(text, { status: response.status, headers: { 'Content-Type': contentType } });
+  }
 }
 
 export async function GET(request: Request) {
