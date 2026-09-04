@@ -22,6 +22,7 @@ foreach ([dirname(__DIR__) . '/media-config.php', __DIR__ . '/media-config.php']
 }
 $directory = rtrim((string) ($config['directory'] ?? getenv('HOSTINGER_IMAGE_UPLOAD_DIR')), '/');
 $publicUrl = rtrim((string) ($config['publicUrl'] ?? getenv('HOSTINGER_IMAGE_UPLOAD_URL')), '/');
+$apiUrl = rtrim((string) ($config['apiUrl'] ?? ($publicUrl !== '' ? dirname($publicUrl) . '/media-api.php' : '')), '/');
 $secret = (string) ($config['secret'] ?? getenv('HOSTINGER_MEDIA_API_SECRET'));
 header('Content-Type: application/json; charset=utf-8');
 
@@ -33,7 +34,7 @@ function respond(array $body, int $status = 200): never
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') respond(['ok' => true]);
-if ($directory === '' || $publicUrl === '' || $secret === '') respond(['error' => 'Media storage is not configured.'], 500);
+if ($directory === '' || $publicUrl === '' || $apiUrl === '' || $secret === '') respond(['error' => 'Media storage is not configured.'], 500);
 $publicFile = (string) ($_GET['file'] ?? '');
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && $publicFile !== '') {
     if (!preg_match('/^[a-f0-9-]+\.(jpg|png|webp|mp4|mov)$/', $publicFile)) respond(['error' => 'Invalid media file.'], 400);
@@ -52,9 +53,9 @@ if (!is_dir($directory) && !mkdir($directory, 0750, true)) respond(['error' => '
 if (!is_writable($directory)) respond(['error' => 'Media directory is not writable.'], 500);
 
 function metadataPath(string $directory, string $filename): string { return $directory . '/.' . $filename . '.json'; }
-function fileUrl(string $publicUrl, string $filename): string { return $publicUrl . '/media-api.php?file=' . rawurlencode($filename); }
-function safeFilenameFromUrl(string $url, string $publicUrl): ?string {
-    if (str_starts_with($url, $publicUrl . '/media-api.php?file=')) {
+function fileUrl(string $apiUrl, string $filename): string { return $apiUrl . '?file=' . rawurlencode($filename); }
+function safeFilenameFromUrl(string $url, string $publicUrl, string $apiUrl): ?string {
+    if (str_starts_with($url, $apiUrl . '?file=') || str_starts_with($url, $publicUrl . '/media-api.php?file=')) {
         $query = parse_url($url, PHP_URL_QUERY);
         parse_str(is_string($query) ? $query : '', $params);
         $url = $publicUrl . '/' . (string) ($params['file'] ?? '');
@@ -72,14 +73,14 @@ function readMeta(string $directory, string $filename): array {
 function writeMeta(string $directory, string $filename, string $displayName, ?string $altText): void {
     file_put_contents(metadataPath($directory, $filename), json_encode(['filename' => $displayName ?: $filename, 'altText' => $altText], JSON_UNESCAPED_SLASHES), LOCK_EX);
 }
-function asset(string $directory, string $publicUrl, string $filename): ?array {
+function asset(string $directory, string $publicUrl, string $apiUrl, string $filename): ?array {
     $path = $directory . '/' . $filename;
     if (!is_file($path)) return null;
     $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
     $mime = array_search($extension, ALLOWED, true);
     if (!is_string($mime)) return null;
     $meta = readMeta($directory, $filename);
-    $url = fileUrl($publicUrl, $filename);
+    $url = fileUrl($apiUrl, $filename);
     return ['id' => $url, 'filename' => $meta['filename'], 'url' => $url, 'mimeType' => $mime, 'size' => filesize($path), 'width' => null, 'height' => null, 'altText' => $meta['altText'], 'thumbnailUrl' => str_starts_with($mime, 'image/') ? $url : null, 'createdAt' => date(DATE_ATOM, filemtime($path)), 'usage' => []];
 }
 
@@ -87,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $assets = [];
     foreach (scandir($directory) ?: [] as $filename) {
         if ($filename[0] === '.') continue;
-        $item = asset($directory, $publicUrl, $filename);
+        $item = asset($directory, $publicUrl, $apiUrl, $filename);
         if ($item) $assets[] = $item;
     }
     $search = strtolower(trim((string) ($_GET['search'] ?? '')));
@@ -121,14 +122,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $filename = bin2hex(random_bytes(16)) . '.' . $extension;
     if (!move_uploaded_file((string) $file['tmp_name'], $directory . '/' . $filename)) respond(['error' => 'Could not save the uploaded file.'], 500);
     writeMeta($directory, $filename, basename((string) $file['name']), null);
-    respond(['asset' => asset($directory, $publicUrl, $filename)], 201);
+    respond(['asset' => asset($directory, $publicUrl, $apiUrl, $filename)], 201);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'PATCH') {
     $id = (string) ($_POST['id'] ?? '');
-    $filename = safeFilenameFromUrl($id, $publicUrl);
+    $filename = safeFilenameFromUrl($id, $publicUrl, $apiUrl);
     if ($filename === null) respond(['error' => 'Invalid media identifier.'], 400);
-    $current = asset($directory, $publicUrl, $filename);
+    $current = asset($directory, $publicUrl, $apiUrl, $filename);
     if ($current === null) respond(['error' => 'Media file not found.'], 404);
     $replacement = $_FILES['file'] ?? null;
     if (is_array($replacement) && ($replacement['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
@@ -139,7 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'PATCH') {
         if ((int) $replacement['size'] > $limit || !move_uploaded_file((string) $replacement['tmp_name'], $directory . '/' . $filename)) respond(['error' => 'Could not replace the media file.'], 400);
     }
     writeMeta($directory, $filename, trim((string) ($_POST['filename'] ?? $current['filename'])), trim((string) ($_POST['altText'] ?? '')) ?: null);
-    respond(['asset' => asset($directory, $publicUrl, $filename)]);
+    respond(['asset' => asset($directory, $publicUrl, $apiUrl, $filename)]);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
