@@ -4,6 +4,7 @@ import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
+import { normalizeBlogHtml } from '@/lib/sanitize-html';
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Bold, Code2, ImagePlus, Italic, Link as LinkIcon, List, ListOrdered, Pencil, Plus, Quote, Save, Search, Trash2, X, type LucideIcon } from 'lucide-react';
 
@@ -121,10 +122,10 @@ function Editor({ form, change, authors, save, upload, removeUploadedImage, busy
   const [dirty, setDirty] = useState(true);
   const [preview, setPreview] = useState(false);
   const [selectionVersion, setSelectionVersion] = useState(0);
-  const editor = useEditor({ extensions: [StarterKit.configure({ link: false }), Image, Link.configure({ openOnClick: false })], content: form.body, onUpdate: ({ editor: current }) => { change('body', current.getHTML()); setDirty(true); setSelectionVersion((version) => version + 1); }, onSelectionUpdate: () => setSelectionVersion((version) => version + 1), editorProps: { attributes: { class: 'prose min-h-[300px] max-w-none p-4 outline-none' } } });
+  const editor = useEditor({ extensions: [StarterKit.configure({ link: false }), Image, Link.configure({ openOnClick: false })], content: normalizeBlogHtml(form.body || '<p></p>'), onUpdate: ({ editor: current }) => { change('body', current.getHTML()); setDirty(true); setSelectionVersion((version) => version + 1); }, onSelectionUpdate: () => setSelectionVersion((version) => version + 1), editorProps: { attributes: { class: 'prose min-h-[300px] max-w-none p-4 outline-none' } } });
   useEffect(() => { if (!source && editor) { const content = normalizeHtml(form.body || '<p></p>'); if (editor.getHTML() !== content) editor.commands.setContent(content, { emitUpdate: false }); if (content !== form.body) change('body', content); } }, [editor, form.body, source]);
   const active = (name: string) => { void selectionVersion; return Boolean(editor?.isActive(name)); };
-  const toggleSource = () => { if (source && editor) editor.commands.setContent(form.body || '<p></p>', { emitUpdate: false }); setSource((value) => !value); };
+  const toggleSource = () => { if (source && editor) editor.commands.setContent(normalizeBlogHtml(form.body || '<p></p>'), { emitUpdate: false }); setSource((value) => !value); };
   const fullDocument = /<!doctype\s+html|<html[\s>]/i.test(form.body);
   const inlineUpload = async (file: File) => { const url = await upload(file); if (url) editor?.chain().focus().setImage({ src: url }).run(); };
   const field = (key: keyof Form, label: string, _required = false, minLength?: number, maxLength?: number) => { const optionalMeta = ['metaTitle', 'metaDescription', 'primaryKeyword'].includes(String(key)); return <label className="grid gap-1 text-[12px] font-semibold">{label}<input required={false} minLength={optionalMeta ? undefined : minLength} maxLength={maxLength} value={String(form[key] ?? '')} onChange={(event) => { const value = event.target.value; change(key, value); if (key === 'title' && !form.id) change('slug', slugify(value)); setDirty(true); }} className="h-9 border border-[#d9d9dc] bg-white px-2 text-[13px] font-normal" /></label>; };
