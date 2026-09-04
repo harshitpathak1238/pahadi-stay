@@ -33,7 +33,7 @@ function sanitizationOptions() {
     allowedAttributes: { a: ['href', 'target', 'rel'], img: ['src', 'alt', 'title'], '*': ['class', 'id'] },
     allowedSchemes: ['http', 'https'],
     allowedSchemesByTag: { img: ['http', 'https'] },
-  } as const;
+  };
 }
 
 export function sanitizeBlogHtml(html: string) {
