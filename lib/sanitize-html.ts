@@ -27,15 +27,35 @@ function extractBody(html: string) {
   return document ? document[1].replace(/<head\b[^>]*>[\s\S]*?<\/head>/gi, '') : trimmed;
 }
 
-export function sanitizeBlogHtml(html: string) {
-  return sanitizeHtml(html, {
+function sanitizationOptions() {
+  return {
     allowedTags: ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'mark', 'code', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'a', 'img', 'section', 'article', 'main', 'header', 'footer', 'nav', 'div', 'span', 'figure', 'figcaption', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'hr'],
     allowedAttributes: { a: ['href', 'target', 'rel'], img: ['src', 'alt', 'title'], '*': ['class', 'id'] },
     allowedSchemes: ['http', 'https'],
     allowedSchemesByTag: { img: ['http', 'https'] },
-  });
+  } as const;
+}
+
+export function sanitizeBlogHtml(html: string) {
+  return sanitizeHtml(extractBody(html), sanitizationOptions());
 }
 
 export function normalizeBlogHtml(html: string) {
   return sanitizeBlogHtml(extractBody(html));
+}
+
+export function isFullBlogDocument(html: string) {
+  const decoded = decodeStoredMarkup(html);
+  return /<!doctype\s+html|<html\b|<body\b/i.test(decoded);
+}
+
+export function getFullBlogDocument(html: string) {
+  const decoded = decodeStoredMarkup(html).trim();
+  const body = decoded.match(/<body\b[^>]*>([\s\S]*?)<\/body>/i)?.[1] || extractBody(decoded);
+  const styles = [...decoded.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)].map((match) => match[1]).join('\n')
+    .replace(/<\/?style\b[^>]*>/gi, '')
+    .replace(/@import\s+[^;]+;?/gi, '')
+    .replace(/expression\s*\([^)]*\)/gi, '')
+    .replace(/url\s*\(\s*['"]?\s*javascript:[^)]*\)/gi, '');
+  return { content: sanitizeHtml(body, sanitizationOptions()), styles };
 }

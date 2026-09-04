@@ -4,7 +4,7 @@ import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
-import { normalizeBlogHtml } from '@/lib/sanitize-html';
+import { getFullBlogDocument, isFullBlogDocument, normalizeBlogHtml } from '@/lib/sanitize-html';
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Bold, Code2, ImagePlus, Italic, Link as LinkIcon, List, ListOrdered, Pencil, Plus, Quote, Save, Search, Trash2, X, type LucideIcon } from 'lucide-react';
 
@@ -80,7 +80,7 @@ export function BlogManager() {
     event.preventDefault();
     if (!form) return;
     const localErrors = [
-      form.metaTitle.trim().length > 160 ? 'SEO title must be 160 characters or fewer.' : '',
+      form.metaTitle.trim().length > 160 ? 'SEO title must be 160 characters or fewer.' : '', 
       form.metaDescription.trim().length > 320 ? 'SEO meta description must be 320 characters or fewer.' : '',
       form.primaryKeyword.trim().length > 100 ? 'Primary keyword must be 100 characters or fewer.' : '',
     ].filter(Boolean);
@@ -126,7 +126,7 @@ function Editor({ form, change, authors, save, upload, removeUploadedImage, busy
   useEffect(() => { if (!source && editor) { const content = normalizeHtml(form.body || '<p></p>'); if (editor.getHTML() !== content) editor.commands.setContent(content, { emitUpdate: false }); if (content !== form.body) change('body', content); } }, [editor, form.body, source]);
   const active = (name: string) => { void selectionVersion; return Boolean(editor?.isActive(name)); };
   const toggleSource = () => { if (source && editor) editor.commands.setContent(normalizeBlogHtml(form.body || '<p></p>'), { emitUpdate: false }); setSource((value) => !value); };
-  const fullDocument = /<!doctype\s+html|<html[\s>]/i.test(form.body);
+  const fullDocument = isFullBlogDocument(form.body) ? getFullBlogDocument(form.body) : null;
   const inlineUpload = async (file: File) => { const url = await upload(file); if (url) editor?.chain().focus().setImage({ src: url }).run(); };
   const field = (key: keyof Form, label: string, _required = false, minLength?: number, maxLength?: number) => { const optionalMeta = ['metaTitle', 'metaDescription', 'primaryKeyword'].includes(String(key)); return <label className="grid gap-1 text-[12px] font-semibold">{label}<input required={false} minLength={optionalMeta ? undefined : minLength} maxLength={maxLength} value={String(form[key] ?? '')} onChange={(event) => { const value = event.target.value; change(key, value); if (key === 'title' && !form.id) change('slug', slugify(value)); setDirty(true); }} className="h-9 border border-[#d9d9dc] bg-white px-2 text-[13px] font-normal" /></label>; };
   const tools: [LucideIcon, string, string, () => void][] = [[Bold, 'Bold', 'bold', () => editor?.chain().focus().toggleBold().run()], [Italic, 'Italic', 'italic', () => editor?.chain().focus().toggleItalic().run()], [List, 'Bulleted list', 'bulletList', () => editor?.chain().focus().toggleBulletList().run()], [ListOrdered, 'Numbered list', 'orderedList', () => editor?.chain().focus().toggleOrderedList().run()], [Quote, 'Quote', 'blockquote', () => editor?.chain().focus().toggleBlockquote().run()], [LinkIcon, 'Link', 'link', () => { const url = window.prompt('Link URL'); if (url) editor?.chain().focus().setLink({ href: url }).run(); }]];
