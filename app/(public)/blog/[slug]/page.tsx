@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getPublishedBlog, getPublishedBlogs } from '@/lib/blog';
-import { sanitizeBlogHtml } from '@/lib/sanitize-html';
+import { getFullBlogDocument, isFullBlogDocument, sanitizeBlogHtml } from '@/lib/sanitize-html';
 
 export async function generateStaticParams() { return (await getPublishedBlogs()).map((blog) => ({ slug: blog.slug })); }
 
@@ -13,32 +13,12 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   return { title: blog.metaTitle, description: blog.metaDescription, keywords: blog.tags, alternates: { canonical: `${baseUrl}/blog/${blog.slug}` }, openGraph: { type: 'article', title: blog.metaTitle, description: blog.metaDescription, url: `${baseUrl}/blog/${blog.slug}`, images: blog.featuredImage ? [{ url: blog.featuredImage, alt: blog.imageAltText || blog.title }] : undefined, publishedTime: blog.publishedAt?.toISOString(), modifiedTime: blog.updatedAt?.toISOString(), authors: [blog.authorName] }, twitter: { card: 'summary_large_image', title: blog.metaTitle, description: blog.metaDescription, images: blog.featuredImage ? [blog.featuredImage] : undefined } };
 }
 
-function parseFullDocumentBlog(html: string) {
-  const trimmed = html.trim();
-  const bodyMatch = trimmed.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-  const htmlMatch = trimmed.match(/<html[^>]*>([\s\S]*?)<\/html>/i);
-  const bodyHtml = bodyMatch ? bodyMatch[1] : htmlMatch ? htmlMatch[1] : trimmed;
-  const styles = [...trimmed.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)]
-    .map((match) => match[1])
-    .join('\n');
-
-  const content = bodyHtml
-    .replace(/<script[\s\S]*?<\/script>/gi, '')
-    .replace(/<\/?body[^>]*>/gi, '')
-    .replace(/<\/?html[^>]*>/gi, '')
-    .replace(/<\/?head[^>]*>[\s\S]*?<\/head>/gi, '')
-    .trim();
-
-  return { content, styles };
-}
-
 export default async function Article({ params }: { params: { slug: string } }) {
   const blog = await getPublishedBlog(params.slug);
   if (!blog) notFound();
   const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
   const jsonLd = { '@context': 'https://schema.org', '@type': 'Article', headline: blog.title, description: blog.metaDescription, image: blog.featuredImage ? [`${baseUrl}${blog.featuredImage}`] : undefined, author: { '@type': 'Person', name: blog.authorName }, publisher: { '@type': 'Organization', name: 'KainchiDarshan' }, datePublished: blog.publishedAt?.toISOString(), dateModified: blog.updatedAt?.toISOString() || blog.publishedAt?.toISOString(), mainEntityOfPage: `${baseUrl}/blog/${blog.slug}` };
-  const looksLikeFullDocument = /<!doctype\s+html|<html[\s>]|<body[\s>]|<section[\s>]|<header[\s>]|<article[\s>]/i.test(blog.body);
-  const fullDocument = looksLikeFullDocument ? parseFullDocumentBlog(blog.body) : null;
+  const fullDocument = isFullBlogDocument(blog.body) ? getFullBlogDocument(blog.body) : null;
 
   return (
     <article className="mx-auto max-w-3xl px-5 py-14 md:py-20">
@@ -50,7 +30,7 @@ export default async function Article({ params }: { params: { slug: string } }) 
           <p className="mt-8 text-xl leading-8 text-[#526057]">{blog.excerpt}</p>
           {blog.featuredImage && (
             <div className="relative mt-10 aspect-[16/9] overflow-hidden rounded-2xl">
-              <Image src={blog.featuredImage} alt={blog.imageAltText || blog.title} fill priority sizes="(max-width: 768px) 92vw, 768px" className="object-cover" />
+              <Image src={blog.featuredImage} alt={blog.imageAltText || blog.title} fill priority unoptimized sizes="(max-width: 768px) 92vw, 768px" className="object-cover" />
             </div>
           )}
         </>
