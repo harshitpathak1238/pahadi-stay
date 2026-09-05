@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
-import { ArrowLeft, Bold, Code2, Edit3, ImagePlus, Italic, Link as LinkIcon, List, ListOrdered, Pencil, Plus, Quote, Save, Trash2, X, type LucideIcon } from 'lucide-react';
+import { ArrowLeft, Bold, Code2, Edit3, ImagePlus, Italic, Link as LinkIcon, List, ListOrdered, Pencil, Plus, Quote, Save, Trash2, Upload, X, type LucideIcon } from 'lucide-react';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import ImageExtension from '@tiptap/extension-image';
@@ -308,6 +308,31 @@ function Field({ label, value, onChange, placeholder, type = 'text', multiline =
 }
 
 function ListingEditor({ form, setForm, busy, message, cancel, save }: { form: Form; setForm: Dispatch<SetStateAction<Form>>; busy: boolean; message: string; cancel: () => void; save: (event: React.FormEvent) => void }) {
+  const [uploading, setUploading] = useState(false);
+  const [uploadMessage, setUploadMessage] = useState('');
+  const uploadImages = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    event.target.value = '';
+    if (!files.length) return;
+    setUploading(true);
+    setUploadMessage('');
+    const uploadedUrls: string[] = [];
+    for (const file of files) {
+      const data = new FormData();
+      data.append('file', file);
+      try {
+        const response = await fetch('/api/admin/media', { method: 'POST', body: data });
+        const result = await response.json().catch(() => ({}));
+        if (response.ok && typeof result.asset?.url === 'string') uploadedUrls.push(result.asset.url);
+        else setUploadMessage(result.error || `Could not upload ${file.name}.`);
+      } catch {
+        setUploadMessage(`Could not upload ${file.name}.`);
+      }
+    }
+    if (uploadedUrls.length) setForm((current) => ({ ...current, images: [current.images, ...uploadedUrls].filter(Boolean).join(', ') }));
+    setUploading(false);
+  };
+  const imageUrls = form.images.split(',').map((image) => image.trim()).filter(Boolean);
   return (
     <form onSubmit={save} className="rounded-2xl border border-[#dfe3d8] bg-white p-5 md:p-7">
       {message && <p className="mb-4 rounded-xl bg-[#e2eee7] p-3 sans text-sm text-[#24584a]">{message}</p>}
@@ -328,7 +353,18 @@ function ListingEditor({ form, setForm, busy, message, cancel, save }: { form: F
         <Field label="Selling price" type="number" value={form.sellPrice} onChange={(value) => setForm((current) => ({ ...current, sellPrice: value }))} placeholder="0" />
         <Field label="Bike quantity" type="number" value={form.bikeQuantity} onChange={(value) => setForm((current) => ({ ...current, bikeQuantity: value }))} placeholder="0" />
         <Field label="Scooty quantity" type="number" value={form.scootyQuantity} onChange={(value) => setForm((current) => ({ ...current, scootyQuantity: value }))} placeholder="0" />
-        <Field label="Images" value={form.images} onChange={(value) => setForm((current) => ({ ...current, images: value }))} placeholder="image-1.jpg, image-2.jpg" hint="comma-separated" />
+        <div className="grid gap-2 md:col-span-2">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <label className="sans text-sm font-bold text-[#173f35]">Images</label>
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[#173f35] px-3 py-2 sans text-xs font-bold text-white hover:bg-[#24584a]">
+              <Upload size={14} /> {uploading ? 'Uploading...' : 'Upload images'}
+              <input type="file" accept="image/jpeg,image/png,image/webp" multiple disabled={uploading} onChange={uploadImages} className="hidden" />
+            </label>
+          </div>
+          {uploadMessage && <p className="text-xs text-[#a44a4a]">{uploadMessage}</p>}
+          {imageUrls.length > 0 && <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-5">{imageUrls.map((image, index) => <div key={`${image}-${index}`} className="relative overflow-hidden rounded-xl border border-[#d9d9dc] bg-[#f6f6f4]"><img src={image} alt={`Listing image ${index + 1}`} className="aspect-square w-full object-cover" /><button type="button" aria-label={`Remove image ${index + 1}`} onClick={() => setForm((current) => ({ ...current, images: imageUrls.filter((_, imageIndex) => imageIndex !== index).join(', ') }))} className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-white/95 text-[#a44a4a] shadow-sm"><X size={14} /></button></div>)}</div>}
+          <textarea value={form.images} onChange={(event) => setForm((current) => ({ ...current, images: event.target.value }))} placeholder="Upload images or paste image URLs, separated by commas" className="min-h-20 rounded-xl border border-[#d6d9d1] bg-white p-3 font-normal" />
+        </div>
         <Field label="Amenities" value={form.amenities} onChange={(value) => setForm((current) => ({ ...current, amenities: value }))} placeholder="WiFi, Mountain view" hint="comma-separated" />
         <div className="md:col-span-2">
           <Field label="Description" value={form.description} onChange={(value) => setForm((current) => ({ ...current, description: value }))} placeholder="Tell guests about the spot, style, and experience." multiline />
