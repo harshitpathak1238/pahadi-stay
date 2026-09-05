@@ -2,10 +2,11 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { db } from '@/lib/db';
 import { getAdminPartner, requireAdmin } from '@/lib/admin';
+import { listingLiveRequirements } from '@/lib/listing-requirements';
 
 const listingStatus = z.preprocess((value) => typeof value === 'string' ? value.trim().toUpperCase() : value, z.enum(['DRAFT', 'LIVE', 'PAUSED', 'PENDING_REVIEW']).default('DRAFT'));
 const optionalStringList = z.array(z.string().trim().max(500)).default([]).transform((items) => items.map((item) => item.trim()).filter(Boolean));
-const listingSchema = z.object({ slug: z.string().trim().max(160).default(''), category: z.string().trim().max(20).default('STAY'), title: z.string().trim().max(120).default('Untitled listing'), description: z.string().trim().default(''), location: z.string().trim().max(160).default(''), basePrice: z.coerce.number().nonnegative().default(0), sellPrice: z.coerce.number().nonnegative().default(0), bikeQuantity: z.coerce.number().int().nonnegative().default(0), scootyQuantity: z.coerce.number().int().nonnegative().default(0), images: optionalStringList, amenities: optionalStringList, status: listingStatus });
+const listingSchema = z.object({ slug: z.string().trim().max(160).default(''), category: z.enum(['STAY', 'RIDE', 'RENTAL', 'ACTIVITY']).default('STAY'), title: z.string().trim().max(120).default('Untitled listing'), description: z.string().trim().default(''), location: z.string().trim().max(160).default(''), basePrice: z.coerce.number().nonnegative().default(0), sellPrice: z.coerce.number().nonnegative().default(0), images: optionalStringList, amenities: optionalStringList, details: z.record(z.string(), z.unknown()).default({}), status: listingStatus });
 
 export async function GET(request: Request) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
@@ -22,6 +23,8 @@ export async function POST(request: Request) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
   const parsed = listingSchema.safeParse(await request.json());
   if (!parsed.success) return NextResponse.json({ error: 'Check the listing fields and try again.', details: parsed.error.flatten() }, { status: 400 });
+  const missing = parsed.data.status === 'LIVE' ? listingLiveRequirements(parsed.data.category, parsed.data) : [];
+  if (missing.length) return NextResponse.json({ error: 'This listing is not ready to publish.', missing, details: `Complete the pre-flight checklist: ${missing.join(', ')}.` }, { status: 422 });
   try {
     const partner = await getAdminPartner();
     const title = parsed.data.title || 'Untitled listing';

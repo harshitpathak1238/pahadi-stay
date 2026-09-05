@@ -7,6 +7,7 @@ import Link from '@tiptap/extension-link';
 import { normalizeBlogHtml } from '@/lib/sanitize-html';
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Bold, Code2, ImagePlus, Italic, Link as LinkIcon, List, ListOrdered, Pencil, Plus, Quote, Save, Search, Trash2, X, type LucideIcon } from 'lucide-react';
+import { prepareImageForUpload } from '@/lib/client-image-upload';
 
 type Author = { id: string; name: string | null; email: string | null };
 type Blog = { id: string; slug: string; title: string; metaTitle: string; metaDescription: string; excerpt: string; body: string; authorName: string; authorId: string | null; category: string; primaryKeyword: string; tags: string[]; featuredImage: string | null; imageAltText: string | null; status: 'DRAFT' | 'SCHEDULED' | 'PUBLISHED' | 'ARCHIVED'; scheduledAt: string | null; publishedAt: string | null };
@@ -47,7 +48,9 @@ export function BlogManager() {
 
   const upload = async (file: File) => {
     const data = new FormData();
-    data.append('file', file);
+    let preparedFile: File;
+    try { preparedFile = await prepareImageForUpload(file); } catch { setMessage('The selected image could not be read.'); return null; }
+    data.append('file', preparedFile);
     setBusy(true);
     try {
       const response = await fetch('/api/admin/media', { method: 'POST', body: data });

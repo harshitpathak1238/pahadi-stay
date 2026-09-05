@@ -7,12 +7,14 @@ import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import ImageExtension from '@tiptap/extension-image';
 import TiptapLink from '@tiptap/extension-link';
+import { CategoryListingEditor } from './CategoryListingEditor';
 
 type Category = 'STAY' | 'RIDE' | 'RENTAL' | 'ACTIVITY';
 type Section = Category | 'PACKAGE';
-type Listing = { id: string; title: string; slug: string; category: Category; location: string; sellPrice: string | number; basePrice: string | number; bikeQuantity?: number; scootyQuantity?: number; status: string; description: string; images?: string[]; amenities?: string[] };
-type TravelPackage = { id: string; title: string; description: string; price: string | number; listingIds?: string[] };
-type Form = { slug: string; title: string; description: string; location: string; basePrice: string; sellPrice: string; bikeQuantity: string; scootyQuantity: string; images: string; amenities: string; status: string; price: string; listingIds: string[] };
+type Listing = { id: string; title: string; slug: string; category: Category; location: string; sellPrice: string | number; basePrice: string | number; status: string; description: string; images?: string[]; amenities?: string[]; details?: Record<string, unknown> };
+type TravelPackage = { id: string; title: string; description: string; price: string | number; listingIds?: string[]; status?: string; details?: Record<string, unknown> };
+export type ListingForm = { slug: string; title: string; description: string; location: string; basePrice: string; sellPrice: string; images: string[]; amenities: string; status: string; price: string; listingIds: string[]; details: Record<string, string> };
+type LegacyForm = Omit<ListingForm, 'images'> & { images: string; bikeQuantity: string; scootyQuantity: string };
 
 const tabs: { key: Section; label: string }[] = [
   { key: 'STAY', label: 'Stays' },
@@ -22,20 +24,19 @@ const tabs: { key: Section; label: string }[] = [
   { key: 'PACKAGE', label: 'Packages' },
 ];
 
-const freshForm = (): Form => ({
+const freshForm = (): ListingForm => ({
   slug: '',
   title: '',
   description: '',
   location: '',
   basePrice: '',
   sellPrice: '',
-  bikeQuantity: '0',
-  scootyQuantity: '0',
-  images: '',
+  images: [],
   amenities: '',
   status: 'DRAFT',
   price: '',
   listingIds: [],
+  details: {},
 });
 
 const normalizeHtml = (html: string) => {
@@ -50,7 +51,7 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
   const [items, setItems] = useState<Listing[]>([]);
   const [packages, setPackages] = useState<TravelPackage[]>([]);
   const [allListings, setAllListings] = useState<Listing[]>([]);
-  const [form, setForm] = useState<Form>(freshForm);
+  const [form, setForm] = useState<ListingForm>(freshForm);
   const [editing, setEditing] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [message, setMessage] = useState('');
@@ -80,7 +81,7 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
     if (section === 'PACKAGE') loadAllListings();
   }, [section]);
 
-  const change = (key: keyof Form, value: string | string[]) => setForm((current) => ({ ...current, [key]: value }));
+  const change = (key: keyof ListingForm, value: string | string[]) => setForm((current) => ({ ...current, [key]: value }));
 
   const add = () => {
     setEditing(null);
@@ -99,6 +100,8 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
         description: packageItem.description,
         price: String(packageItem.price),
         listingIds: packageItem.listingIds || [],
+        status: packageItem.status || 'DRAFT',
+        details: Object.fromEntries(Object.entries(packageItem.details || {}).map(([key, value]) => [key, String(value ?? '')])),
       });
     } else {
       const listing = item as Listing;
@@ -110,11 +113,10 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
         location: listing.location,
         basePrice: String(listing.basePrice),
         sellPrice: String(listing.sellPrice),
-        bikeQuantity: String(listing.bikeQuantity || 0),
-        scootyQuantity: String(listing.scootyQuantity || 0),
-        images: (listing.images || []).join(', '),
+        images: listing.images || [],
         amenities: (listing.amenities || []).join(', '),
         status: listing.status,
+        details: Object.fromEntries(Object.entries(listing.details || {}).map(([key, value]) => [key, String(value ?? '')])),
       });
     }
     setShowForm(true);
@@ -141,6 +143,8 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
       description: form.description || '',
       price: Number(form.price || 0),
       listingIds: form.listingIds,
+      details: form.details,
+      status: String(form.status || 'DRAFT').trim().toUpperCase(),
     };
 
     try {
@@ -149,7 +153,7 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
       const result = await response.json().catch(() => ({}));
       if (!response.ok) {
         const fieldErrors = result.details?.fieldErrors ? Object.entries(result.details.fieldErrors).flatMap(([field, errors]) => `${field}: ${(errors as string[]).join(', ')}`).join(' ') : '';
-        setMessage([result.error || 'Could not save this package.', fieldErrors].filter(Boolean).join(' '));
+        setMessage(result.missing?.length ? `Can't publish yet: ${result.missing.join(', ')}.` : [result.error || 'Could not save this package.', fieldErrors].filter(Boolean).join(' '));
         return;
       }
       cancel();
@@ -175,10 +179,9 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
       location: form.location,
       basePrice: Number(form.basePrice),
       sellPrice: Number(form.sellPrice),
-      bikeQuantity: Number(form.bikeQuantity),
-      scootyQuantity: Number(form.scootyQuantity),
-      images: asList(form.images),
+      images: form.images,
       amenities: asList(form.amenities),
+      details: form.details,
       status: String(form.status || 'DRAFT').trim().toUpperCase(),
     };
     const endpoint = `/api/admin/listings${editing ? `/${editing}` : ''}`;
@@ -186,7 +189,7 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
       const response = await fetch(endpoint, { method: editing ? 'PATCH' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) {
-        setMessage(result.error || 'Could not save this listing.');
+        setMessage(result.missing?.length ? `Can't publish yet: ${result.missing.join(', ')}.` : result.error || 'Could not save this listing.');
         return;
       }
       cancel();
@@ -229,14 +232,7 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
         save={submit}
       />
     ) : (
-      <ListingEditor
-        form={form}
-        setForm={setForm}
-        busy={busy}
-        message={message}
-        cancel={cancel}
-        save={submit}
-      />
+      <CategoryListingEditor category={section} form={form} setForm={setForm} busy={busy} message={message} cancel={cancel} save={submit} />
     );
   }
 
@@ -307,7 +303,7 @@ function Field({ label, value, onChange, placeholder, type = 'text', multiline =
   );
 }
 
-function ListingEditor({ form, setForm, busy, message, cancel, save }: { form: Form; setForm: Dispatch<SetStateAction<Form>>; busy: boolean; message: string; cancel: () => void; save: (event: React.FormEvent) => void }) {
+function ListingEditor({ form, setForm, busy, message, cancel, save }: { form: LegacyForm; setForm: Dispatch<SetStateAction<LegacyForm>>; busy: boolean; message: string; cancel: () => void; save: (event: React.FormEvent) => void }) {
   const [uploading, setUploading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState('');
   const [source, setSource] = useState(() => /<!doctype\s+html|<html[\s>]/i.test(form.description));
@@ -404,7 +400,7 @@ function ListingEditor({ form, setForm, busy, message, cancel, save }: { form: F
   );
 }
 
-function PackageEditor({ form, setForm, allListings, toggle, editing, busy, message, cancel, save }: { form: Form; setForm: Dispatch<SetStateAction<Form>>; allListings: Listing[]; toggle: (id: string) => void; editing: boolean; busy: boolean; message: string; cancel: () => void; save: (event: React.FormEvent) => void }) {
+function PackageEditor({ form, setForm, allListings, toggle, editing, busy, message, cancel, save }: { form: ListingForm; setForm: Dispatch<SetStateAction<ListingForm>>; allListings: Listing[]; toggle: (id: string) => void; editing: boolean; busy: boolean; message: string; cancel: () => void; save: (event: React.FormEvent) => void }) {
   const [source, setSource] = useState(() => /<!doctype\s+html|<html[\s>]/i.test(form.description));
   const editor = useEditor({
     extensions: [StarterKit.configure({ link: false }), ImageExtension, TiptapLink.configure({ openOnClick: false })],
@@ -466,6 +462,14 @@ function PackageEditor({ form, setForm, allListings, toggle, editing, busy, mess
         <div className="grid gap-4">
           <Field label="Package title" value={form.title} onChange={(value) => setForm((current) => ({ ...current, title: value }))} placeholder="Bhimtal weekend escape" />
           <Field label="Package price" type="number" value={form.price} onChange={(value) => setForm((current) => ({ ...current, price: value }))} placeholder="0" />
+            <Field label="Duration" value={form.details.duration || ''} onChange={(value) => setForm((current) => ({ ...current, details: { ...current.details, duration: value } }))} placeholder="3 nights / 4 days" />
+            <label className="grid gap-2 text-[12px] font-semibold text-[#173f35]">Status
+              <select value={form.status} onChange={(event) => setForm((current) => ({ ...current, status: event.target.value }))} className="h-10 rounded-xl border border-[#d6d9d1] bg-white px-3 font-normal">
+                <option value="DRAFT">Draft</option>
+                <option value="LIVE">Live</option>
+                <option value="PAUSED">Paused</option>
+              </select>
+            </label>
           <div className="rounded-2xl border border-[#d9d9dc] bg-white">
             <div className="flex flex-wrap items-center gap-1 border-b border-[#e1e1e3] bg-[#fafafa] p-2">
               {tools.map(([Icon, label, mark, onClick]) => (

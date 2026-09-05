@@ -42,6 +42,12 @@ enum BlogStatus {
 	ARCHIVED
 }
 
+enum PackageStatus {
+	DRAFT
+	LIVE
+	PAUSED
+}
+
 enum BookingStatus {
 	PENDING
 	CONFIRMED
@@ -253,6 +259,8 @@ model Package {
 	description String
 	listingIds Json
 	price      Decimal  @db.Decimal(10, 2)
+	details    Json     @default("{}")
+	status     PackageStatus @default(DRAFT)
 	createdAt  DateTime @default(now())
 }
 

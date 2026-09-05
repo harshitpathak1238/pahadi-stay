@@ -1,0 +1,5 @@
+ALTER TABLE `Package` ADD COLUMN `details` JSON NULL,
+    ADD COLUMN `status` ENUM('DRAFT', 'LIVE', 'PAUSED') NOT NULL DEFAULT 'DRAFT';
+
+UPDATE `Package` SET `details` = JSON_OBJECT() WHERE `details` IS NULL;
+ALTER TABLE `Package` MODIFY `details` JSON NOT NULL;
