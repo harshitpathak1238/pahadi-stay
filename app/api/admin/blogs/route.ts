@@ -3,9 +3,10 @@ import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin';
 import { blogSchema } from '@/lib/validations/blog';
-import { normalizeBlogHtml } from '@/lib/sanitize-html';
+import { sanitizeBlogHtml } from '@/lib/sanitize-html';
 
 function imageUrls(body: string, featuredImage?: string | null) { return [...new Set([featuredImage, ...[...body.matchAll(/<img[^>]+src=["']([^"']+)["']/gi)].map((match) => match[1])].filter((url): url is string => Boolean(url)))]; }
+function isFullDocument(body: string) { return /<!doctype\s+html|<html[\s>]/i.test(body); }
 
 export async function GET(request: Request) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
   if (!parsed.success) return NextResponse.json({ error: 'Please complete all blog fields correctly.', details: parsed.error.flatten() }, { status: 422 });
   if (parsed.data.status === 'SCHEDULED' && parsed.data.scheduledAt && parsed.data.scheduledAt <= new Date()) return NextResponse.json({ error: 'Scheduled posts need a future publish time.' }, { status: 422 });
   try {
-    const body = normalizeBlogHtml(parsed.data.body);
+    const body = isFullDocument(parsed.data.body) ? parsed.data.body : sanitizeBlogHtml(parsed.data.body);
     const blog = await db.blogPost.create({ data: { ...parsed.data, body, imageUrls: imageUrls(body, parsed.data.featuredImage), publishedAt: parsed.data.status === 'PUBLISHED' ? new Date() : null, scheduledAt: parsed.data.status === 'SCHEDULED' ? parsed.data.scheduledAt : null } });
     revalidatePath('/blog'); revalidatePath(`/blog/${blog.slug}`);
     return NextResponse.json(blog, { status: 201 });

@@ -113,18 +113,12 @@ model Listing {
 	title        String
 	description  String
 	location     String
-	address      String         @default("")
 	basePrice    Decimal          @db.Decimal(10, 2)
 	sellPrice    Decimal          @db.Decimal(10, 2)
 	bikeQuantity Int              @default(0)
 	scootyQuantity Int            @default(0)
 	images       Json
 	amenities    Json
-	details      Json?
-	seoTitle     String         @default("")
-	seoDescription String       @default("")
-	cancellationPolicy String    @default("FLEXIBLE")
-	featured     Boolean        @default(false)
 	status       ListingStatus    @default(DRAFT)
 	partner      Partner          @relation(fields: [partnerId], references: [id])
 	availability Availability[]

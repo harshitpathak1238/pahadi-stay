@@ -10,12 +10,7 @@ function normalizeBlog(post: BlogPost): PublishedBlog {
 
 export async function getPublishedBlogs(): Promise<PublishedBlog[]> {
   try {
-    const query = db.blogPost.findMany({ where: { status: 'PUBLISHED', publishedAt: { lte: new Date() } }, orderBy: { publishedAt: 'desc' } });
-    const posts = await Promise.race([
-      query,
-      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Published blogs query timed out')), 5000)),
-    ]);
-    return posts.map(normalizeBlog);
+    return (await db.blogPost.findMany({ where: { status: 'PUBLISHED', publishedAt: { lte: new Date() } }, orderBy: { publishedAt: 'desc' } })).map(normalizeBlog);
   } catch (error) {
     console.error('Published blogs unavailable:', error);
     return [];
