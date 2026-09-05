@@ -148,7 +148,8 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
       const response = await fetch(endpoint, { method: editing ? 'PATCH' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) {
-        setMessage(result.error || 'Could not save this package.');
+        const fieldErrors = result.details?.fieldErrors ? Object.entries(result.details.fieldErrors).flatMap(([field, errors]) => `${field}: ${(errors as string[]).join(', ')}`).join(' ') : '';
+        setMessage([result.error || 'Could not save this package.', fieldErrors].filter(Boolean).join(' '));
         return;
       }
       cancel();
