@@ -310,6 +310,20 @@ function Field({ label, value, onChange, placeholder, type = 'text', multiline =
 function ListingEditor({ form, setForm, busy, message, cancel, save }: { form: Form; setForm: Dispatch<SetStateAction<Form>>; busy: boolean; message: string; cancel: () => void; save: (event: React.FormEvent) => void }) {
   const [uploading, setUploading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState('');
+  const [source, setSource] = useState(() => /<!doctype\s+html|<html[\s>]/i.test(form.description));
+  const editor = useEditor({
+    extensions: [StarterKit.configure({ link: false }), ImageExtension, TiptapLink.configure({ openOnClick: false })],
+    content: form.description || '<p></p>',
+    onUpdate: ({ editor: current }) => setForm((currentForm) => ({ ...currentForm, description: current.getHTML() })),
+    editorProps: { attributes: { class: 'prose min-h-[220px] max-w-none p-4 outline-none' } },
+  });
+  useEffect(() => {
+    if (!source && editor) {
+      const content = normalizeHtml(form.description || '<p></p>');
+      if (editor.getHTML() !== content) editor.commands.setContent(content, { emitUpdate: false });
+      if (content !== form.description) setForm((current) => ({ ...current, description: content }));
+    }
+  }, [editor, form.description, source, setForm]);
   const uploadImages = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     event.target.value = '';
@@ -333,6 +347,14 @@ function ListingEditor({ form, setForm, busy, message, cancel, save }: { form: F
     setUploading(false);
   };
   const imageUrls = form.images.split(',').map((image) => image.trim()).filter(Boolean);
+  const tools: [LucideIcon, string, string, () => void][] = [
+    [Bold, 'Bold', 'bold', () => editor?.chain().focus().toggleBold().run()],
+    [Italic, 'Italic', 'italic', () => editor?.chain().focus().toggleItalic().run()],
+    [List, 'Bulleted list', 'bulletList', () => editor?.chain().focus().toggleBulletList().run()],
+    [ListOrdered, 'Numbered list', 'orderedList', () => editor?.chain().focus().toggleOrderedList().run()],
+    [Quote, 'Quote', 'blockquote', () => editor?.chain().focus().toggleBlockquote().run()],
+    [LinkIcon, 'Link', 'link', () => { const url = window.prompt('Link URL'); if (url) editor?.chain().focus().setLink({ href: url }).run(); }],
+  ];
   return (
     <form onSubmit={save} className="rounded-2xl border border-[#dfe3d8] bg-white p-5 md:p-7">
       {message && <p className="mb-4 rounded-xl bg-[#e2eee7] p-3 sans text-sm text-[#24584a]">{message}</p>}
@@ -366,8 +388,16 @@ function ListingEditor({ form, setForm, busy, message, cancel, save }: { form: F
           <textarea value={form.images} onChange={(event) => setForm((current) => ({ ...current, images: event.target.value }))} placeholder="Upload images or paste image URLs, separated by commas" className="min-h-20 rounded-xl border border-[#d6d9d1] bg-white p-3 font-normal" />
         </div>
         <Field label="Amenities" value={form.amenities} onChange={(value) => setForm((current) => ({ ...current, amenities: value }))} placeholder="WiFi, Mountain view" hint="comma-separated" />
-        <div className="md:col-span-2">
-          <Field label="Description" value={form.description} onChange={(value) => setForm((current) => ({ ...current, description: value }))} placeholder="Tell guests about the spot, style, and experience." multiline />
+        <div className="md:col-span-2 grid gap-2">
+          <label className="sans text-sm font-bold text-[#173f35]">Description</label>
+          <div className="rounded-2xl border border-[#d9d9dc] bg-white">
+            <div className="flex flex-wrap items-center gap-1 border-b border-[#e1e1e3] bg-[#fafafa] p-2">
+              {tools.map(([Icon, label, mark, onClick]) => <button type="button" key={label} title={label} aria-label={label} aria-pressed={Boolean(editor?.isActive(mark))} onClick={onClick} className="grid h-8 w-8 place-items-center hover:bg-[#e9e9eb]"><Icon size={15} /></button>)}
+              <button type="button" title="Heading 2" aria-label="Heading 2" onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()} className="h-8 w-8 text-xs font-bold hover:bg-[#e9e9eb]">H2</button>
+              <button type="button" title="HTML source" aria-label="HTML source" aria-pressed={source} onClick={() => setSource((value) => !value)} className={`grid h-8 w-8 place-items-center text-xs font-bold ${source ? 'bg-[#dcefe2] text-[#24584a]' : 'hover:bg-[#e9e9eb]'}`}><Code2 size={15} /></button>
+            </div>
+            {source ? <textarea value={form.description} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} className="min-h-[220px] w-full p-4 font-mono text-[12px] outline-none" /> : <EditorContent editor={editor} />}
+          </div>
         </div>
       </div>
     </form>
