@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import type { Prisma } from '@prisma/client';
 import { db } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin';
 import { packageLiveRequirements } from '@/lib/listing-requirements';
@@ -27,7 +28,7 @@ export async function POST(request: Request) {
     description: parsed.data.description?.trim() || '',
     listingIds: parsed.data.listingIds || [],
     price: Number(parsed.data.price ?? 0),
-    details: parsed.data.details,
+    details: parsed.data.details as Prisma.InputJsonValue,
     status: parsed.data.status,
   };
   const missing = parsed.data.status === 'LIVE' ? packageLiveRequirements(data) : [];

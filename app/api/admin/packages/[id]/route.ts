@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import type { Prisma } from '@prisma/client';
 import { db } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin';
 import { packageLiveRequirements } from '@/lib/listing-requirements';
@@ -22,7 +23,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     ...(parsed.data.description !== undefined ? { description: parsed.data.description.trim() } : {}),
     ...(parsed.data.listingIds !== undefined ? { listingIds: parsed.data.listingIds } : {}),
     ...(parsed.data.price !== undefined ? { price: Number(parsed.data.price) } : {}),
-    ...(parsed.data.details !== undefined ? { details: parsed.data.details } : {}),
+    ...(parsed.data.details !== undefined ? { details: parsed.data.details as Prisma.InputJsonValue } : {}),
     ...(parsed.data.status !== undefined ? { status: parsed.data.status } : {}),
   };
   if (parsed.data.status === 'LIVE') {
