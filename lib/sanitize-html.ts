@@ -1,23 +1,40 @@
 import sanitizeHtml from 'sanitize-html';
+import { parse, parseFragment, serializeOuter } from 'parse5';
+
+type ParsedNode = { nodeName?: string; childNodes?: ParsedNode[]; value?: string };
+
+function findNode(node: ParsedNode, nodeName: string): ParsedNode | null {
+  if (node.nodeName === nodeName) return node;
+  for (const child of node.childNodes || []) {
+    const match = findNode(child, nodeName);
+    if (match) return match;
+  }
+  return null;
+}
+
+function textContent(node: ParsedNode): string {
+  return node.childNodes?.length ? node.childNodes.map(textContent).join('') : 'value' in node && typeof node.value === 'string' ? node.value : '';
+}
 
 export function isFullBlogDocument(html: string) {
   return /<!doctype\s+html|<html[\s>]|<body[\s>]|<(article|section|header|main|div|table|style)\b/i.test(html);
 }
 
 export function getFullBlogDocument(html: string) {
-  const trimmed = html.trim();
-  const bodyMatch = trimmed.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-  const htmlMatch = trimmed.match(/<html[^>]*>([\s\S]*?)<\/html>/i);
-  const bodyHtml = bodyMatch ? bodyMatch[1] : htmlMatch ? htmlMatch[1] : trimmed;
-  const styles = [...trimmed.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)]
-    .map((match) => match[1])
-    .join('\n');
-  const content = bodyHtml
-    .replace(/<script[\s\S]*?<\/script>/gi, '')
-    .replace(/<\/?body[^>]*>/gi, '')
-    .replace(/<\/?html[^>]*>/gi, '')
-    .replace(/<\/?head[^>]*>[\s\S]*?<\/head>/gi, '')
+  const hasDocumentWrapper = /<!doctype\s+html|<html[\s>]|<body[\s>]|<head[\s>]/i.test(html);
+  const document = (hasDocumentWrapper ? parse(html) : parseFragment(html)) as ParsedNode;
+  const body = hasDocumentWrapper ? findNode(document, 'body') : null;
+  const htmlNode = hasDocumentWrapper ? findNode(document, 'html') : null;
+  const contentRoot = body || htmlNode || document;
+  const content = (contentRoot.childNodes || [])
+    .filter((node) => node.nodeName !== 'script' && node.nodeName !== 'head')
+    .map((node) => serializeOuter(node as Parameters<typeof serializeOuter>[0]))
+    .join('')
     .trim();
+  const styles = [...(findNode(document, 'head')?.childNodes || []), ...(body?.childNodes || [])]
+    .filter((node) => node.nodeName === 'style')
+    .map(textContent)
+    .join('\n');
   return { content, styles };
 }
 

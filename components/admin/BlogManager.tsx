@@ -14,7 +14,6 @@ import { ArrowLeft, Bold, Code2, ImagePlus, Italic, Link as LinkIcon, List, List
 import { prepareImageForUpload } from '@/lib/client-image-upload';
 import { ResizableImage } from './ResizableImage';
 import { GenericArticle, GenericDiv, GenericSpan } from './BlogEditorExtensions';
-import { TextSelection } from '@tiptap/pm/state';
 
 type Author = { id: string; name: string | null; email: string | null };
 type Blog = { id: string; slug: string; title: string; metaTitle: string; metaDescription: string; excerpt: string; body: string; authorName: string; authorId: string | null; category: string; primaryKeyword: string; tags: string[]; featuredImage: string | null; imageAltText: string | null; status: 'DRAFT' | 'SCHEDULED' | 'PUBLISHED' | 'ARCHIVED'; scheduledAt: string | null; publishedAt: string | null };
@@ -152,11 +151,8 @@ function Editor({ form, change, authors, save, upload, removeUploadedImage, busy
     if (source) {
       change('body', `${form.body}\n<img src="${url}" alt="">`);
     } else if (editor) {
-      const { state, view } = editor;
-      const mappedPosition = state.tr.mapping.map(state.selection.from);
-      const selection = TextSelection.near(state.doc.resolve(mappedPosition));
-      const image = state.schema.nodes.image.create({ src: url });
-      view.dispatch(state.tr.setSelection(selection).replaceSelectionWith(image).scrollIntoView());
+      const pos = editor.state.selection.from;
+      editor.chain().focus().insertContentAt(pos, { type: 'image', attrs: { src: url } }).run();
     }
     setDirty(true);
     setPicker(null);
