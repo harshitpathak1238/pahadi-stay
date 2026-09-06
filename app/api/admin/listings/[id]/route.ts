@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import type { Prisma } from '@prisma/client';
 import { db } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin';
 
@@ -13,8 +14,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   if (!parsed.success) return NextResponse.json({ error: 'Check the listing fields and try again.' }, { status: 400 });
   const existing = await db.listing.findUnique({ where: { id: params.id }, select: { category: true, title: true, description: true, basePrice: true, sellPrice: true, images: true, location: true } });
   if (!existing) return NextResponse.json({ error: 'Listing not found.' }, { status: 404 });
-  const { category, partnerId, ...fields } = parsed.data;
-  const data = { ...fields, ...(category ? { category } : {}), ...(partnerId ? { partner: { connect: { id: partnerId } } } : {}) };
+  const { category, partnerId, details, ...fields } = parsed.data;
+  const data = { ...fields, ...(details ? { details: details as Prisma.InputJsonObject } : {}), ...(category ? { category } : {}), ...(partnerId ? { partner: { connect: { id: partnerId } } } : {}) };
   const listing = await db.listing.update({ where: { id: params.id }, data });
   return NextResponse.json(listing);
 }

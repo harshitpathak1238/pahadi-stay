@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import type { Prisma } from '@prisma/client';
 import { db } from '@/lib/db';
 import { getAdminPartner, requireAdmin } from '@/lib/admin';
 
@@ -26,7 +27,8 @@ export async function POST(request: Request) {
     const partner = await getAdminPartner();
     const title = parsed.data.title || 'Untitled listing';
     const slug = parsed.data.slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || `listing-${Date.now()}`;
-    const listing = await db.listing.create({ data: { ...parsed.data, slug, title, partnerId: partner.id, basePrice: parsed.data.basePrice, sellPrice: parsed.data.sellPrice, category: (parsed.data.category || 'STAY') as 'STAY' | 'RIDE' | 'RENTAL' | 'ACTIVITY' } });
+    const { details, ...fields } = parsed.data;
+    const listing = await db.listing.create({ data: { ...fields, details: details as Prisma.InputJsonObject, slug, title, partnerId: partner.id, basePrice: parsed.data.basePrice, sellPrice: parsed.data.sellPrice, category: (parsed.data.category || 'STAY') as 'STAY' | 'RIDE' | 'RENTAL' | 'ACTIVITY' } });
     return NextResponse.json(listing, { status: 201 });
   } catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : 'Could not create listing.' }, { status: 500 }); }
 }
