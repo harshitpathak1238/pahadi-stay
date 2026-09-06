@@ -21,7 +21,7 @@ Premium stays, rides, rentals, and slow adventures around Bhimtal and Kainchi Dh
 1. Install Node.js 18.17+ and MySQL access. This project uses MySQL, not PostgreSQL.
 2. Copy `.env.example` to `.env.local` and fill in `DATABASE_URL` and `NEXTAUTH_SECRET`. For local development, use a reachable local MySQL database or the Hostinger MySQL database; the app cannot render database-backed pages while that host is unreachable.
 3. Run `npm install`.
-4. Run `npx prisma generate`, then apply the migrations with `npx prisma migrate deploy`.
+4. Run `npx prisma generate`, then apply the migrations with `npx prisma migrate deploy`. The production build also applies pending migrations before compiling.
 5. Start with `npm run dev`, or deploy with `npm run build && npm start`.
 
 ## Where content is stored
