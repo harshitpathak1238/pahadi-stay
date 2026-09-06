@@ -64,7 +64,7 @@ export function FilterSidebar({
         <div className="rounded-lg border border-[#d9e0e8] bg-white p-4 lg:bg-white">
           <div className="flex items-center justify-between lg:hidden">
             <h2 className="font-bold">Filter by:</h2>
-            <button className="text-xs text-[#0071c2]" onClick={() => setFilterOpen(false)}>
+            <button className="text-xs text-[#1a3a2a]" onClick={() => setFilterOpen(false)}>
               <X size={20} />
             </button>
           </div>
@@ -76,7 +76,7 @@ export function FilterSidebar({
               <span className="absolute left-[55%] top-[52%] text-xl">📍</span>
               <span className="absolute left-[70%] top-[20%] text-xl">📍</span>
             </div>
-            <button className="mt-3 rounded bg-[#0071c2] px-3 py-2 text-xs font-bold text-white hover:bg-[#005b9d]">
+            <button className="mt-3 rounded bg-[#1a3a2a] px-3 py-2 text-xs font-bold text-white hover:bg-[#0f2818]">
               Show on map
             </button>
           </div>
@@ -131,7 +131,7 @@ export function FilterSidebar({
 
           {/* Mobile done button */}
           <button
-            className="mt-5 w-full rounded bg-[#0071c2] px-4 py-3 text-sm font-bold text-white hover:bg-[#005b9d] lg:hidden"
+            className="mt-5 w-full rounded bg-[#1a3a2a] px-4 py-3 text-sm font-bold text-white hover:bg-[#0f2818] lg:hidden"
             onClick={() => setFilterOpen(false)}
           >
             Done

@@ -43,7 +43,7 @@ export function StaysSearchPage({ stays }: { stays: Listing[] }) {
   return (
     <div className="bg-[#f5f7fa] text-[#1f2937]">
       {/* Header */}
-      <div className="border-b border-[#d9e0e8] bg-[#003b95] text-white">
+      <div className="border-b border-[#2a2a2a] bg-gradient-to-r from-[#1a3a2a] to-[#0d1f15] text-white">
         <div className="mx-auto max-w-[1280px] px-4 py-4 md:px-6">
           <div className="flex items-center justify-between gap-4">
             <Link href="/" className="text-xl font-black tracking-tight">
@@ -58,16 +58,16 @@ export function StaysSearchPage({ stays }: { stays: Listing[] }) {
               <Link href="/signup" className="rounded border border-white px-3 py-2">
                 Register
               </Link>
-              <Link href="/login" className="rounded bg-white px-3 py-2 text-[#003b95]">
+              <Link href="/login" className="rounded bg-white px-3 py-2 text-[#1a3a2a]">
                 Sign in
               </Link>
             </div>
-            <Link href="/login" className="rounded bg-white px-3 py-2 text-xs font-bold text-[#003b95] md:hidden">
+            <Link href="/login" className="rounded bg-white px-3 py-2 text-xs font-bold text-[#1a3a2a] md:hidden">
               Sign in
             </Link>
           </div>
           <nav className="mt-5 flex gap-5 overflow-x-auto pb-1 text-xs font-bold">
-            <span className="whitespace-nowrap rounded-full bg-white px-4 py-2 text-[#003b95]">🏨 Stays</span>
+            <span className="whitespace-nowrap rounded-full bg-white px-4 py-2 text-[#1a3a2a]">🏨 Stays</span>
             <span className="whitespace-nowrap">✈ Flights</span>
             <span className="whitespace-nowrap">✈ Flight + Hotel</span>
             <span className="whitespace-nowrap">🚗 Car rental</span>
@@ -82,7 +82,7 @@ export function StaysSearchPage({ stays }: { stays: Listing[] }) {
         <div className="rounded-xl bg-[#feba02] p-2 shadow-sm">
           <div className="grid gap-2 md:grid-cols-[1.2fr_1fr_1fr_auto]">
             <label className="flex items-center gap-2 rounded border border-[#c98e00] bg-white px-3 py-3 text-sm text-[#374151]">
-              <MapPin size={17} className="text-[#003b95]" />
+              <MapPin size={17} className="text-[#1a3a2a]" />
               <input
                 value={destination}
                 onChange={(event) => setDestination(event.target.value)}
@@ -92,7 +92,7 @@ export function StaysSearchPage({ stays }: { stays: Listing[] }) {
               <X size={15} />
             </label>
             <label className="flex items-center gap-2 rounded border border-[#c98e00] bg-white px-3 py-3 text-sm text-[#374151]">
-              <CalendarDays size={17} className="text-[#003b95]" />
+              <CalendarDays size={17} className="text-[#1a3a2a]" />
               <input
                 value={dates}
                 onChange={(event) => setDates(event.target.value)}
@@ -101,7 +101,7 @@ export function StaysSearchPage({ stays }: { stays: Listing[] }) {
               />
             </label>
             <label className="flex items-center gap-2 rounded border border-[#c98e00] bg-white px-3 py-3 text-sm text-[#374151]">
-              <Users size={17} className="text-[#003b95]" />
+              <Users size={17} className="text-[#1a3a2a]" />
               <input
                 value={guests}
                 onChange={(event) => setGuests(event.target.value)}
@@ -109,7 +109,7 @@ export function StaysSearchPage({ stays }: { stays: Listing[] }) {
                 aria-label="Guests"
               />
             </label>
-            <button className="rounded bg-[#0071c2] px-7 py-3 font-bold text-white hover:bg-[#005b9d]">
+            <button className="rounded bg-[#1a3a2a] px-7 py-3 font-bold text-white hover:bg-[#0f2818]">
               <Search size={18} className="mx-auto" />
             </button>
           </div>
@@ -169,14 +169,14 @@ export function StaysSearchPage({ stays }: { stays: Listing[] }) {
                   <button
                     aria-label="List view"
                     onClick={() => setView('list')}
-                    className={`p-2 transition ${view === 'list' ? 'bg-[#e7f1f8] text-[#0071c2]' : 'text-[#536274]'}`}
+                    className={`p-2 transition ${view === 'list' ? 'bg-[#e8f0ed] text-[#1a3a2a]' : 'text-[#536274]'}`}
                   >
                     <List size={17} />
                   </button>
                   <button
                     aria-label="Grid view"
                     onClick={() => setView('grid')}
-                    className={`p-2 transition ${view === 'grid' ? 'bg-[#e7f1f8] text-[#0071c2]' : 'text-[#536274]'}`}
+                    className={`p-2 transition ${view === 'grid' ? 'bg-[#e8f0ed] text-[#1a3a2a]' : 'text-[#536274]'}`}
                   >
                     <LayoutGrid size={17} />
                   </button>
@@ -206,7 +206,7 @@ export function StaysSearchPage({ stays }: { stays: Listing[] }) {
                     setActiveFilters([]);
                     setMaxPrice(Math.max(...stays.map((stay) => stay.price), 10000));
                   }}
-                  className="mt-3 text-sm font-bold text-[#0071c2] hover:underline"
+                  className="mt-3 text-sm font-bold text-[#1a3a2a] hover:underline"
                 >
                   Clear filters
                 </button>

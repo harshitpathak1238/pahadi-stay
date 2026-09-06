@@ -36,7 +36,7 @@ export function ResultCard({ stay, isWishlisted, onToggleWishlist, view }: Resul
 
         {/* Info */}
         <div className="p-4">
-          <Link href={`/stays/${stay.slug}`} className="line-clamp-2 font-semibold text-[#1f2937] hover:text-[#0071c2]">
+          <Link href={`/stays/${stay.slug}`} className="line-clamp-2 font-semibold text-[#1f2937] hover:text-[#1a3a2a]">
             {stay.title}
           </Link>
 
@@ -63,7 +63,7 @@ export function ResultCard({ stay, isWishlisted, onToggleWishlist, view }: Resul
               <p className="text-xs text-[#536274]">From</p>
               <p className="font-bold text-[#1f2937]">₹{stay.price.toLocaleString('en-IN')}</p>
             </div>
-            <button className="rounded bg-[#0071c2] px-3 py-2 text-xs font-bold text-white hover:bg-[#005b9d]">
+            <button className="rounded bg-[#1a3a2a] px-3 py-2 text-xs font-bold text-white hover:bg-[#0f2818]">
               See prices
             </button>
           </div>
@@ -96,7 +96,7 @@ export function ResultCard({ stay, isWishlisted, onToggleWishlist, view }: Resul
         <div>
           <Link
             href={`/stays/${stay.slug}`}
-            className="line-clamp-2 font-semibold text-[#1f2937] hover:text-[#0071c2]"
+            className="line-clamp-2 font-semibold text-[#1f2937] hover:text-[#1a3a2a]"
           >
             {stay.title}
           </Link>
@@ -124,7 +124,7 @@ export function ResultCard({ stay, isWishlisted, onToggleWishlist, view }: Resul
       {/* Right column - pricing and CTA */}
       <div className="flex flex-col items-end justify-between border-l border-[#e5e7eb] p-4">
         {/* Rating badge */}
-        <div className="rounded bg-[#003b95] p-2 text-center text-white">
+        <div className="rounded bg-[#1a3a2a] p-2 text-center text-white">
           <div className="text-sm font-bold">{stay.rating.toFixed(1)}</div>
           <div className="text-xs">Excellent</div>
         </div>
@@ -134,7 +134,7 @@ export function ResultCard({ stay, isWishlisted, onToggleWishlist, view }: Resul
           <p className="text-xs text-[#536274]">From</p>
           <p className="font-bold text-[#1f2937]">₹{stay.price.toLocaleString('en-IN')}</p>
           <p className="text-xs text-[#536274]">/ night</p>
-          <button className="mt-2 rounded bg-[#0071c2] px-4 py-2 text-xs font-bold text-white hover:bg-[#005b9d]">
+          <button className="mt-2 rounded bg-[#1a3a2a] px-4 py-2 text-xs font-bold text-white hover:bg-[#0f2818]">
             Show prices
           </button>
         </div>
