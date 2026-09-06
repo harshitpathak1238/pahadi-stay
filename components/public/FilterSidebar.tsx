@@ -57,11 +57,9 @@ export function FilterSidebar({
 
       {/* Sidebar */}
       <aside
-        className={`${
-          filterOpen ? 'block' : 'hidden'
-        } fixed inset-0 z-40 overflow-y-auto bg-black/50 lg:relative lg:z-auto lg:block lg:bg-transparent lg:p-0`}
+          className={`${filterOpen ? 'block' : 'hidden'} fixed inset-0 z-40 overflow-y-auto bg-black/50 p-3 lg:relative lg:z-auto lg:block lg:bg-transparent lg:p-0`}
       >
-        <div className="rounded-lg border border-[#d9e0e8] bg-white p-4 lg:bg-white">
+          <div className="mx-auto max-w-lg rounded-xl border border-[#d9e0e8] bg-white p-4 shadow-xl lg:max-w-none lg:rounded-lg lg:shadow-none lg:bg-white">
           <div className="flex items-center justify-between lg:hidden">
             <h2 className="font-bold">Filter by:</h2>
             <button className="text-xs text-[#1a3a2a]" onClick={() => setFilterOpen(false)}>

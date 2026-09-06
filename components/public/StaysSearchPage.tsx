@@ -41,10 +41,10 @@ export function StaysSearchPage({ stays }: { stays: Listing[] }) {
 
   return (
     <div className="bg-[#f5f7fa] text-[#1f2937]">
-      <main className="mx-auto max-w-[1280px] px-4 py-5 md:px-6">
+      <main className="mx-auto w-full max-w-[1280px] px-3 py-4 sm:px-4 sm:py-5 md:px-6">
         {/* Search bar */}
         <div className="rounded-xl bg-[#feba02] p-2 shadow-sm">
-          <div className="grid gap-2 md:grid-cols-[1.2fr_1fr_1fr_auto]">
+          <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-[1.2fr_1fr_1fr_auto]">
             <label className="flex items-center gap-2 rounded border border-[#c98e00] bg-white px-3 py-3 text-sm text-[#374151]">
               <MapPin size={17} className="text-[#1a3a2a]" />
               <input
@@ -73,14 +73,14 @@ export function StaysSearchPage({ stays }: { stays: Listing[] }) {
                 aria-label="Guests"
               />
             </label>
-            <button className="rounded bg-[#1a3a2a] px-7 py-3 font-bold text-white hover:bg-[#0f2818]">
+            <button className="rounded bg-[#1a3a2a] px-7 py-3 font-bold text-white hover:bg-[#0f2818] sm:col-span-2 md:col-span-1">
               <Search size={18} className="mx-auto" />
             </button>
           </div>
         </div>
 
         {/* Breadcrumb */}
-        <div className="mt-4 text-xs text-[#536274]">
+        <div className="mt-4 overflow-x-auto whitespace-nowrap text-xs text-[#536274]">
           Home <span className="mx-2">›</span> India <span className="mx-2">›</span> Uttarakhand <span className="mx-2">›</span> Bhimtal
           <span className="mx-2">›</span> Search results
         </div>
@@ -103,9 +103,9 @@ export function StaysSearchPage({ stays }: { stays: Listing[] }) {
           {/* Right column - results */}
           <section>
             {/* Results header: count, sort, list/grid toggle */}
-            <div className="flex flex-wrap items-end justify-between gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <h1 className="text-2xl font-bold md:text-3xl">
+                <h1 className="text-xl font-bold leading-tight sm:text-2xl md:text-3xl">
                   {destination}: {results.length} properties found
                 </h1>
                 <p className="mt-1 text-sm text-[#536274]">
@@ -114,13 +114,13 @@ export function StaysSearchPage({ stays }: { stays: Listing[] }) {
               </div>
 
               {/* Sort and view toggle */}
-              <div className="flex items-center gap-3">
-                <label className="flex items-center gap-2 text-sm">
+              <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">
+                <label className="flex min-w-0 items-center gap-2 text-sm">
                   Sort by:
                   <select
                     value={sort}
                     onChange={(event) => setSort(event.target.value)}
-                    className="rounded border border-[#b9c5d1] bg-white px-3 py-2 font-semibold"
+                    className="min-w-0 rounded border border-[#b9c5d1] bg-white px-3 py-2 font-semibold"
                   >
                     <option>Recommended</option>
                     <option>Price: low to high</option>

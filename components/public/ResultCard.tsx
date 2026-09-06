@@ -20,7 +20,7 @@ export function ResultCard({ stay, isWishlisted, onToggleWishlist, view }: Resul
       <article className="overflow-hidden rounded-lg border border-[#d9e0e8] bg-white shadow-sm transition hover:shadow-md">
         {/* Image with wishlist */}
         <div className="relative">
-          <img src={stay.image} alt={stay.title} className="h-48 w-full object-cover" />
+          <img src={stay.image} alt={stay.title} className="h-44 w-full object-cover sm:h-48" />
           <button
             aria-label={`Save ${stay.title}`}
             onClick={() => onToggleWishlist(stay.slug)}
@@ -74,10 +74,10 @@ export function ResultCard({ stay, isWishlisted, onToggleWishlist, view }: Resul
 
   // List view - horizontal card
   return (
-    <article className="grid gap-4 overflow-hidden rounded-lg border border-[#d9e0e8] bg-white shadow-sm transition hover:shadow-md md:grid-cols-[200px_minmax(0,1fr)_150px]">
+    <article className="grid min-w-0 overflow-hidden rounded-lg border border-[#d9e0e8] bg-white shadow-sm transition hover:shadow-md md:gap-4 md:grid-cols-[200px_minmax(0,1fr)_150px]">
       {/* Image with wishlist */}
       <div className="relative">
-        <img src={stay.image} alt={stay.title} className="h-40 w-full object-cover md:h-48" />
+        <img src={stay.image} alt={stay.title} className="h-36 w-full object-cover sm:h-40 md:h-48" />
         <button
           aria-label={`Save ${stay.title}`}
           onClick={() => onToggleWishlist(stay.slug)}
@@ -92,7 +92,7 @@ export function ResultCard({ stay, isWishlisted, onToggleWishlist, view }: Resul
       </div>
 
       {/* Info - center column */}
-      <div className="flex flex-col justify-between p-4">
+      <div className="flex flex-col justify-between p-3 sm:p-4">
         <div>
           <Link
             href={`/stays/${stay.slug}`}
@@ -122,7 +122,7 @@ export function ResultCard({ stay, isWishlisted, onToggleWishlist, view }: Resul
       </div>
 
       {/* Right column - pricing and CTA */}
-      <div className="flex flex-col items-end justify-between border-l border-[#e5e7eb] p-4">
+      <div className="flex flex-row items-center justify-between gap-3 border-t border-[#e5e7eb] p-3 md:flex-col md:items-end md:justify-between md:border-l md:border-t-0 md:p-4">
         {/* Rating badge */}
         <div className="rounded bg-[#1a3a2a] p-2 text-center text-white">
           <div className="text-sm font-bold">{stay.rating.toFixed(1)}</div>
