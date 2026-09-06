@@ -15,6 +15,12 @@ function findNode(node: ParsedNode, nodeName: string): ParsedNode | null {
   return null;
 }
 
+function findNodes(node: ParsedNode, nodeName: string): ParsedNode[] {
+  const matches = node.nodeName === nodeName ? [node] : [];
+  if (!('childNodes' in node)) return matches;
+  return matches.concat(...node.childNodes.map((child) => findNodes(child, nodeName)));
+}
+
 function textContent(node: ParsedNode): string {
   return 'childNodes' in node ? node.childNodes.map(textContent).join('') : 'value' in node ? node.value : '';
 }
@@ -34,20 +40,26 @@ export function getFullBlogDocument(html: string) {
   const htmlNode = hasDocumentWrapper ? asParentNode(findNode(document, 'html')) : null;
   const contentRoot = body || htmlNode || document;
   const content = (contentRoot.childNodes || [])
-    .filter((node) => node.nodeName !== 'script' && node.nodeName !== 'head')
+    .filter((node) => node.nodeName !== 'script' && node.nodeName !== 'head' && node.nodeName !== 'style')
     .map((node) => serializeOuter(node))
     .join('')
     .trim();
-  const head = asParentNode(findNode(document, 'head'));
-  const styles = [...(head?.childNodes || []), ...(body?.childNodes || [])]
-    .filter((node) => node.nodeName === 'style')
-    .map(textContent)
-    .join('\n');
+  const styles = findNodes(document, 'style').map(textContent).join('\n');
   return { content, styles };
 }
 
 export function normalizeBlogHtml(html: string) {
   return isFullBlogDocument(html) ? getFullBlogDocument(html).content : html;
+}
+
+export function sanitizeBlogCss(css: string) {
+  return css
+    .slice(0, 30000)
+    .replace(/<\/?(?:script|style)[^>]*>/gi, '')
+    .replace(/@import\s+(?:url\s*\([^)]*\)|[^;]+);?/gi, '')
+    .replace(/expression\s*\([^)]*\)/gi, '')
+    .replace(/javascript\s*:/gi, '')
+    .replace(/<\s*\/?\s*style/gi, '<\\/style');
 }
 
 export function sanitizeBlogHtml(html: string) {

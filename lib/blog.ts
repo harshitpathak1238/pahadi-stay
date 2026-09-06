@@ -1,7 +1,14 @@
 import type { BlogPost } from '@prisma/client';
 import { db } from '@/lib/db';
+import { normalizeBlogHtml, sanitizeBlogCss } from '@/lib/sanitize-html';
 
-export type PublishedBlog = Omit<BlogPost, 'tags' | 'createdAt' | 'updatedAt'> & { tags: string[]; createdAt: Date | null; updatedAt: Date | null };
+type BlogPostWithCustomCss = BlogPost & { customCss?: string | null };
+export type PublishedBlog = Omit<BlogPost, 'tags' | 'createdAt' | 'updatedAt'> & { customCss: string | null; tags: string[]; createdAt: Date | null; updatedAt: Date | null };
+
+export function renderBlogDocument(body: string, customCss: string | null) {
+  const css = sanitizeBlogCss(customCss || '').replace(/<\/style/gi, '<\\/style');
+  return `<!doctype html><html><head><meta charset="utf-8"><style>${css}</style></head><body>${normalizeBlogHtml(body)}</body></html>`;
+}
 
 export function normalizeBlogImageSources(html: string): string {
   const apiUrl = process.env.HOSTINGER_MEDIA_API_URL?.replace(/\/$/, '');
@@ -25,7 +32,7 @@ export function normalizeBlogImageSources(html: string): string {
 
 function normalizeBlog(post: BlogPost): PublishedBlog {
   const tags = Array.isArray(post.tags) ? post.tags.filter((tag): tag is string => typeof tag === 'string') : [];
-  return { ...post, tags };
+  return { ...post, customCss: (post as BlogPostWithCustomCss).customCss ?? null, tags };
 }
 
 export async function getPublishedBlogs(): Promise<PublishedBlog[]> {

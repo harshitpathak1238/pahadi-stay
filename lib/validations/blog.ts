@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 const blogStatus = z.preprocess((value) => typeof value === 'string' ? value.trim().toUpperCase() : value, z.enum(['DRAFT', 'SCHEDULED', 'PUBLISHED', 'ARCHIVED']).default('DRAFT'));
 const optionalUrl = z.union([z.string().trim().max(500).optional(), z.literal('')]).transform((value) => (typeof value === 'string' ? value.trim() : value)).nullable().optional();
+const optionalCustomCss = z.union([z.string().max(30000), z.literal('')]).transform((value) => (typeof value === 'string' ? value : value)).nullable().optional();
 
 export const blogSchema = z.object({
   slug: z.string().trim().max(160).default(''),
@@ -10,6 +11,7 @@ export const blogSchema = z.object({
   metaDescription: z.string().trim().max(320).default(''),
   excerpt: z.string().trim().max(320).default(''),
   body: z.string().trim().max(200000).default(''),
+  customCss: optionalCustomCss,
   authorName: z.string().trim().max(100).default(''),
   authorId: z.string().cuid().nullable().optional(),
   category: z.string().trim().max(60).default(''),

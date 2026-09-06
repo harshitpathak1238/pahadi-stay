@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { normalizeBlogHtml, sanitizeBlogHtml } from '../../lib/sanitize-html';
+import { getFullBlogDocument, normalizeBlogHtml, sanitizeBlogCss, sanitizeBlogHtml } from '../../lib/sanitize-html';
+import { renderBlogDocument } from '../../lib/blog';
 
 const fullDocument = `<!doctype html><html><head><style>.category{color:red}</style></head><body><article><span class="category">Design &amp; Tech</span><div class="meta">Published on 2026-09-06</div><blockquote>Keep the structure.</blockquote><div class="tag-container"><span class="tag">HTML</span><span class="tag">Semantic Web</span></div><h2>1. The Power of Semantic HTML</h2></article></body></html>`;
 
@@ -12,6 +13,26 @@ describe('blog editor HTML preservation', () => {
     expect(html).toContain('<h2>1. The Power of Semantic HTML</h2>');
     expect(html).not.toContain('<style>');
     expect(html).not.toContain('<!doctype');
+  });
+
+  it('extracts document styles separately from body content', () => {
+    const result = getFullBlogDocument(fullDocument);
+    expect(result.styles).toContain('.category{color:red}');
+    expect(result.content).not.toContain('<style>');
+  });
+
+  it('removes unsafe custom CSS constructs', () => {
+    const css = sanitizeBlogCss('@import url("https://evil.example/x.css"); .x { color: red; background: url(javascript:alert(1)); width: expression(alert(1)); } <script>alert(1)</script>');
+    expect(css).not.toMatch(/@import|javascript\s*:|expression\s*\(/i);
+    expect(css).not.toContain('<script>');
+    expect(css).toContain('.x');
+  });
+
+  it('renders sanitized custom CSS inside the isolated blog document head', () => {
+    const document = renderBlogDocument('<p class="category">Design &amp; Tech</p>', '.category { color: blue; } @import url("https://evil.example/x.css");');
+    expect(document).toContain('<head><meta charset="utf-8"><style>.category { color: blue; } </style></head>');
+    expect(document).toContain('<body><p class="category">Design &amp; Tech</p></body>');
+    expect(document).not.toContain('@import');
   });
 
   it('preserves unrelated arbitrary div and span classes without code changes', () => {
