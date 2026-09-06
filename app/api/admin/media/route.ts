@@ -51,7 +51,8 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
   try {
-    const response = await proxy(request, { method: 'PATCH', body: await request.arrayBuffer(), headers: { 'Content-Type': request.headers.get('Content-Type') || '' } });
+    // PHP only parses multipart form fields for POST, so preserve the body but use POST upstream.
+    const response = await proxy(request, { method: 'POST', body: await request.arrayBuffer(), headers: { 'Content-Type': request.headers.get('Content-Type') || '' } });
     return responseFromMedia(response);
   } catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : 'Media update failed.' }, { status: 503 }); }
 }

@@ -111,22 +111,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     respond(['assets' => array_map(static fn (array $item): array => $item + ['kind' => str_starts_with($item['mimeType'], 'video/') ? 'VIDEO' : 'IMAGE'], array_slice($assets, ($page - 1) * $pageSize, $pageSize)), 'total' => count($assets), 'page' => $page, 'pageSize' => $pageSize, 'pages' => (int) ceil(count($assets) / $pageSize)]);
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $file = $_FILES['file'] ?? null;
-    if (!is_array($file) || ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) respond(['error' => 'Choose an image or video file.'], 400);
-    $mime = (new finfo(FILEINFO_MIME_TYPE))->file((string) $file['tmp_name']);
-    $extension = ALLOWED[$mime] ?? null;
-    $limit = str_starts_with((string) $mime, 'video/') ? MAX_VIDEO_BYTES : MAX_IMAGE_BYTES;
-    if ($extension === null) respond(['error' => 'Supported files: JPG, PNG, WebP, MP4, and MOV.'], 400);
-    if ((int) $file['size'] > $limit) respond(['error' => 'The selected file is too large.'], 413);
-    $filename = bin2hex(random_bytes(16)) . '.' . $extension;
-    if (!move_uploaded_file((string) $file['tmp_name'], $directory . '/' . $filename)) respond(['error' => 'Could not save the uploaded file.'], 500);
-    writeMeta($directory, $filename, basename((string) $file['name']), null);
-    respond(['asset' => asset($directory, $publicUrl, $apiUrl, $filename)], 201);
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'PATCH') {
-    $id = (string) ($_POST['id'] ?? '');
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
+    $id = (string) $_POST['id'];
     $filename = safeFilenameFromUrl($id, $publicUrl, $apiUrl);
     if ($filename === null) respond(['error' => 'Invalid media identifier.'], 400);
     $current = asset($directory, $publicUrl, $apiUrl, $filename);
@@ -141,6 +127,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'PATCH') {
     }
     writeMeta($directory, $filename, trim((string) ($_POST['filename'] ?? $current['filename'])), trim((string) ($_POST['altText'] ?? '')) ?: null);
     respond(['asset' => asset($directory, $publicUrl, $apiUrl, $filename)]);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $file = $_FILES['file'] ?? null;
+    if (!is_array($file) || ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) respond(['error' => 'Choose an image or video file.'], 400);
+    $mime = (new finfo(FILEINFO_MIME_TYPE))->file((string) $file['tmp_name']);
+    $extension = ALLOWED[$mime] ?? null;
+    $limit = str_starts_with((string) $mime, 'video/') ? MAX_VIDEO_BYTES : MAX_IMAGE_BYTES;
+    if ($extension === null) respond(['error' => 'Supported files: JPG, PNG, WebP, MP4, and MOV.'], 400);
+    if ((int) $file['size'] > $limit) respond(['error' => 'The selected file is too large.'], 413);
+    $filename = bin2hex(random_bytes(16)) . '.' . $extension;
+    if (!move_uploaded_file((string) $file['tmp_name'], $directory . '/' . $filename)) respond(['error' => 'Could not save the uploaded file.'], 500);
+    writeMeta($directory, $filename, basename((string) $file['name']), null);
+    respond(['asset' => asset($directory, $publicUrl, $apiUrl, $filename)], 201);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
