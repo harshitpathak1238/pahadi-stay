@@ -1,9 +1,15 @@
 'use client';
 
-import { useState, type Dispatch, type SetStateAction } from 'react';
-import { ArrowLeft, Bath, BedDouble, BedSingle, CircleParking, ConciergeBell, Flower2, GripVertical, ImagePlus, Info, Languages, Link as LinkIcon, Monitor, Save, Trash2, Upload, UserRound, Wifi } from 'lucide-react';
+import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
+import { ArrowLeft, Bath, BedDouble, BedSingle, Bold, CircleParking, Code2, ConciergeBell, Flower2, GripVertical, ImagePlus, Info, Italic, Languages, Link as LinkIcon, List, ListOrdered, Monitor, Quote, Save, Trash2, Upload, UserRound, Wifi, type LucideIcon } from 'lucide-react';
 import type { ListingForm } from './ContentManager';
 import { stayFacilityGroups } from '@/lib/stay-facilities';
+import { EditorContent, useEditor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import TiptapLink from '@tiptap/extension-link';
+import ImageExtension from '@tiptap/extension-image';
+import { GenericArticle, GenericDiv, GenericSpan } from './BlogEditorExtensions';
+import { normalizeBlogHtml } from '@/lib/sanitize-html';
 
 const categoryNames = { STAY: 'Stay', RIDE: 'Ride', RENTAL: 'Rental', ACTIVITY: 'Activity' } as const;
 const valueOf = (details: Record<string, string>, name: string) => details[name] || '';
@@ -44,6 +50,53 @@ export function CategoryListingEditor({ category, form, setForm, busy, message, 
   const [uploadMessage, setUploadMessage] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const setDetail = (name: string, value: string) => setForm((current) => ({ ...current, details: { ...current.details, [name]: value } }));
+  const [source, setSource] = useState(false);
+  const editor = useEditor({
+    extensions: [StarterKit.configure({ link: false }), GenericArticle, GenericDiv, GenericSpan, ImageExtension, TiptapLink.configure({ openOnClick: false })],
+    content: normalizeBlogHtml(form.description || '<p></p>'),
+    onUpdate: ({ editor: current }) => { if (!source) setForm((currentForm) => ({ ...currentForm, description: current.getHTML() })); },
+    editorProps: { attributes: { class: 'prose min-h-[220px] max-w-none p-4 outline-none' } },
+  });
+  useEffect(() => {
+    if (!source && editor) {
+      const content = normalizeBlogHtml(form.description || '<p></p>');
+      if (editor.getHTML() !== content) editor.commands.setContent(content, { emitUpdate: false });
+      if (content !== form.description) setForm((current) => ({ ...current, description: content }));
+    }
+  }, [editor, form.description, source, setForm]);
+  const toggleSource = () => {
+    if (source && editor) {
+      const content = normalizeBlogHtml(form.description || '<p></p>');
+      editor.commands.setContent(content, { emitUpdate: false });
+      setForm((current) => ({ ...current, description: content }));
+    } else if (editor) {
+      setForm((current) => ({ ...current, description: editor.getHTML() }));
+    }
+    setSource((current) => !current);
+  };
+  const insertImage = async () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/jpeg,image/png,image/webp';
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file || !editor) return;
+      const data = new FormData();
+      data.append('file', file);
+      const response = await fetch('/api/admin/media', { method: 'POST', body: data });
+      const result = await response.json().catch(() => ({}));
+      if (response.ok && typeof result.asset?.url === 'string') editor.chain().focus().setImage({ src: result.asset.url }).run();
+    };
+    input.click();
+  };
+  const tools: [LucideIcon, string, string, () => void][] = [
+    [Bold, 'Bold', 'bold', () => editor?.chain().focus().toggleBold().run()],
+    [Italic, 'Italic', 'italic', () => editor?.chain().focus().toggleItalic().run()],
+    [List, 'Bulleted list', 'bulletList', () => editor?.chain().focus().toggleBulletList().run()],
+    [ListOrdered, 'Numbered list', 'orderedList', () => editor?.chain().focus().toggleOrderedList().run()],
+    [Quote, 'Quote', 'blockquote', () => editor?.chain().focus().toggleBlockquote().run()],
+    [LinkIcon, 'Link', 'link', () => { const url = window.prompt('Link URL'); if (url) editor?.chain().focus().setLink({ href: url }).run(); }],
+  ];
 
   const upload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
@@ -115,7 +168,18 @@ export function CategoryListingEditor({ category, form, setForm, busy, message, 
         {category === 'RENTAL' && <><DetailInput label="Vehicle type" value={valueOf(form.details, 'vehicleType')} onChange={(value) => setDetail('vehicleType', value)} placeholder="Bike or scooty" /><DetailInput label="Make / model" value={valueOf(form.details, 'makeModel')} onChange={(value) => setDetail('makeModel', value)} /><DetailInput label="Year" value={valueOf(form.details, 'year')} onChange={(value) => setDetail('year', value)} type="number" /><DetailInput label="Registration / license plate" value={valueOf(form.details, 'registrationNumber')} onChange={(value) => setDetail('registrationNumber', value)} /><DetailInput label="Transmission" value={valueOf(form.details, 'transmission')} onChange={(value) => setDetail('transmission', value)} /><DetailInput label="Daily price" value={valueOf(form.details, 'dailyPrice')} onChange={(value) => setDetail('dailyPrice', value)} type="number" /><DetailInput label="Quantity available" value={valueOf(form.details, 'quantity')} onChange={(value) => setDetail('quantity', value)} type="number" /><DetailInput label="Mileage / odometer" value={valueOf(form.details, 'mileage')} onChange={(value) => setDetail('mileage', value)} /><DetailInput label="Fuel type" value={valueOf(form.details, 'fuelType')} onChange={(value) => setDetail('fuelType', value)} /><DetailInput label="Capacity" value={valueOf(form.details, 'capacity')} onChange={(value) => setDetail('capacity', value)} /><DetailInput label="Pickup / delivery options" value={valueOf(form.details, 'pickupOptions')} onChange={(value) => setDetail('pickupOptions', value)} /><DetailTextarea label="Notable features" value={valueOf(form.details, 'features')} onChange={(value) => setDetail('features', value)} placeholder="Helmet included, phone mount" /><DetailTextarea label="FAQ" value={valueOf(form.details, 'faq')} onChange={(value) => setDetail('faq', value)} placeholder="Question and answer pairs" /></>}
         {category === 'ACTIVITY' && <><DetailInput label="Minimum group size" value={valueOf(form.details, 'groupMin')} onChange={(value) => setDetail('groupMin', value)} type="number" /><DetailInput label="Maximum group size" value={valueOf(form.details, 'groupMax')} onChange={(value) => setDetail('groupMax', value)} type="number" /><DetailTextarea label="What is included" value={valueOf(form.details, 'included')} onChange={(value) => setDetail('included', value)} /><DetailTextarea label="Safety information" value={valueOf(form.details, 'safetyInformation')} onChange={(value) => setDetail('safetyInformation', value)} /><DetailTextarea label="About the guide/operator" value={valueOf(form.details, 'guideAbout')} onChange={(value) => setDetail('guideAbout', value)} /><DetailInput label="Duration" value={valueOf(form.details, 'duration')} onChange={(value) => setDetail('duration', value)} /><DetailInput label="Meeting point" value={valueOf(form.details, 'meetingPoint')} onChange={(value) => setDetail('meetingPoint', value)} /></>}
         {category === 'STAY' && <div className="md:col-span-2 rounded-2xl border border-[#dfe3d8] bg-[#f7f8f4] p-4"><div><p className="text-[13px] font-bold text-[#173f35]">Stay facilities</p><p className="mt-1 text-[11px] font-normal text-[#6c7770]">Choose the facilities guests can expect. New stays start with all facilities selected.</p></div><div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">{stayFacilityGroups.map((group) => { const Icon = facilityIcons[group.title as keyof typeof facilityIcons] || Info; return <fieldset key={group.title} className="rounded-xl border border-[#e1e4dc] bg-white p-3"><legend className="px-1 text-[12px] font-bold text-[#173f35]"><span className="inline-flex items-center gap-2"><Icon size={16} strokeWidth={1.8} />{group.title}</span></legend><div className="grid gap-2">{group.items.map((item) => <label key={`${group.title}-${item.key}`} className="flex items-start gap-2 text-[12px] font-normal text-[#526057]"><input type="checkbox" checked={form.stayFacilities[item.key] ?? true} onChange={(event) => setForm((current) => ({ ...current, stayFacilities: { ...current.stayFacilities, [item.key]: event.target.checked } }))} className="mt-0.5 accent-[#24584a]" /><span>{item.label}</span></label>)}</div></fieldset>; })}</div></div>}
-        <label className="grid gap-1 md:col-span-2 text-[12px] font-semibold text-[#173f35]"><span>Description{category !== 'RENTAL' && <b className="ml-1 text-[#a44a4a]">*</b>}</span><textarea value={form.description} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} className="min-h-28 rounded-xl border border-[#d6d9d1] p-3 font-normal" /></label>
+        <div className="grid gap-2 md:col-span-2">
+          <label className="text-[12px] font-semibold text-[#173f35]">Description{category !== 'RENTAL' && <b className="ml-1 text-[#a44a4a]">*</b>}</label>
+          <div className="rounded-2xl border border-[#d9d9dc] bg-white">
+            <div className="flex flex-wrap items-center gap-1 border-b border-[#e1e1e3] bg-[#fafafa] p-2">
+              {tools.map(([Icon, label, mark, onClick]) => <button type="button" key={label} title={label} aria-label={label} aria-pressed={Boolean(editor?.isActive(mark))} onClick={onClick} className="grid h-8 w-8 place-items-center hover:bg-[#e9e9eb]"><Icon size={15} /></button>)}
+              <button type="button" title="Heading 2" aria-label="Heading 2" aria-pressed={Boolean(editor?.isActive('heading'))} onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()} className="h-8 w-8 text-xs font-bold hover:bg-[#e9e9eb]">H2</button>
+              <button type="button" title="Insert image" aria-label="Insert image" onClick={insertImage} className="grid h-8 w-8 place-items-center hover:bg-[#e9e9eb]"><ImagePlus size={15} /></button>
+              <button type="button" title="HTML source" aria-label="HTML source" aria-pressed={source} onClick={toggleSource} className={`grid h-8 w-8 place-items-center text-xs font-bold ${source ? 'bg-[#dcefe2] text-[#24584a]' : 'hover:bg-[#e9e9eb]'}`}><Code2 size={15} /></button>
+            </div>
+            {source ? <textarea value={form.description} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} className="min-h-[220px] w-full p-4 font-mono text-[12px] outline-none" /> : <EditorContent editor={editor} />}
+          </div>
+        </div>
         <div className="md:col-span-2">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-[12px] font-semibold text-[#173f35]">Photos <span className="font-normal text-[#6c7770]">{category === 'STAY' || category === 'ACTIVITY' ? 'minimum 5 to publish' : category === 'RENTAL' ? 'minimum 3 to publish' : 'minimum 2 to publish'}</span></p><p className="mt-1 text-[11px] text-[#6c7770]">Use clear photos of the actual listing. Avoid text overlays.</p></div><label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#173f35] px-3 py-2 text-xs font-bold text-white"><Upload size={14} /> {uploading ? 'Uploading...' : 'Upload photos'}<input type="file" accept="image/jpeg,image/png,image/webp" multiple disabled={uploading} onChange={upload} className="hidden" /></label></div>
           <div className="mt-3 flex flex-col gap-2 sm:flex-row"><label className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-[#d6d9d1] bg-white px-3 focus-within:border-[#24584a]"><LinkIcon size={14} className="shrink-0 text-[#6c7770]" /><input type="url" value={imageUrl} onChange={(event) => { setImageUrl(event.target.value); if (uploadMessage) setUploadMessage(''); }} onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); addImageUrl(); } }} placeholder="Paste an image URL" className="h-10 min-w-0 flex-1 outline-none" /></label><button type="button" onClick={addImageUrl} className="inline-flex h-10 items-center justify-center rounded-xl border border-[#173f35] px-4 text-xs font-bold text-[#173f35] hover:bg-[#eef4ef]">Add URL</button></div>
