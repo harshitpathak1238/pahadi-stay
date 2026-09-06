@@ -33,6 +33,11 @@ function respond(array $body, int $status = 200): never
     exit;
 }
 
+function logMediaBranch(string $branch): void
+{
+    error_log('[media-api] branch=' . $branch . ' post=' . json_encode($_POST, JSON_UNESCAPED_SLASHES));
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') respond(['ok' => true]);
 if ($directory === '' || $publicUrl === '' || $apiUrl === '' || $secret === '') respond(['error' => 'Media storage is not configured.'], 500);
 $publicFile = (string) ($_GET['file'] ?? '');
@@ -51,6 +56,9 @@ $providedSecret = (string) ($_SERVER['HTTP_X_MEDIA_SECRET'] ?? '');
 if ($providedSecret === '' || !hash_equals($secret, $providedSecret)) respond(['error' => 'Unauthorized media request.'], 401);
 if (!is_dir($directory) && !mkdir($directory, 0750, true)) respond(['error' => 'Media directory is not writable.'], 500);
 if (!is_writable($directory)) respond(['error' => 'Media directory is not writable.'], 500);
+
+$rawId = trim((string) ($_POST['id'] ?? ''));
+$updateFilename = $rawId !== '' ? safeFilenameFromUrl($rawId, $publicUrl, $apiUrl) : null;
 
 function metadataPath(string $directory, string $filename): string { return $directory . '/.' . $filename . '.json'; }
 function fileUrl(string $apiUrl, string $filename): string { return $apiUrl . '?file=' . rawurlencode($filename); }
@@ -112,6 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delete') {
+    logMediaBranch('delete');
     $ids = json_decode((string) ($_POST['ids'] ?? '[]'), true);
     $deleted = [];
     foreach (is_array($ids) ? $ids : [] as $id) {
@@ -124,25 +133,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delet
     respond(['deleted' => $deleted]);
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
-    $id = (string) $_POST['id'];
-    $filename = safeFilenameFromUrl($id, $publicUrl, $apiUrl);
-    if ($filename === null) respond(['error' => 'Invalid media identifier.'], 400);
-    $current = asset($directory, $publicUrl, $apiUrl, $filename);
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $rawId !== '') {
+    logMediaBranch('update');
+    if ($updateFilename === null) respond(['error' => 'Invalid media identifier.'], 400);
+    $current = asset($directory, $publicUrl, $apiUrl, $updateFilename);
     if ($current === null) respond(['error' => 'Media file not found.'], 404);
     $replacement = $_FILES['file'] ?? null;
     if (is_array($replacement) && ($replacement['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
         $mime = (new finfo(FILEINFO_MIME_TYPE))->file((string) $replacement['tmp_name']);
         $extension = ALLOWED[$mime] ?? null;
-        if ($extension === null || $extension !== pathinfo($filename, PATHINFO_EXTENSION)) respond(['error' => 'Replacement file type is invalid.'], 400);
+        if ($extension === null || $extension !== pathinfo($updateFilename, PATHINFO_EXTENSION)) respond(['error' => 'Replacement file type is invalid.'], 400);
         $limit = str_starts_with((string) $mime, 'video/') ? MAX_VIDEO_BYTES : MAX_IMAGE_BYTES;
-        if ((int) $replacement['size'] > $limit || !move_uploaded_file((string) $replacement['tmp_name'], $directory . '/' . $filename)) respond(['error' => 'Could not replace the media file.'], 400);
+        if ((int) $replacement['size'] > $limit || !move_uploaded_file((string) $replacement['tmp_name'], $directory . '/' . $updateFilename)) respond(['error' => 'Could not replace the media file.'], 400);
     }
-    writeMeta($directory, $filename, trim((string) ($_POST['filename'] ?? $current['filename'])), trim((string) ($_POST['altText'] ?? '')) ?: null);
-    respond(['asset' => asset($directory, $publicUrl, $apiUrl, $filename)]);
+    writeMeta($directory, $updateFilename, trim((string) ($_POST['filename'] ?? $current['filename'])), trim((string) ($_POST['altText'] ?? '')) ?: null);
+    respond(['asset' => asset($directory, $publicUrl, $apiUrl, $updateFilename)]);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    logMediaBranch('upload');
     $file = $_FILES['file'] ?? null;
     if (!is_array($file) || ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) respond(['error' => 'Choose an image or video file.'], 400);
     $mime = (new finfo(FILEINFO_MIME_TYPE))->file((string) $file['tmp_name']);
