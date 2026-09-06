@@ -20,15 +20,6 @@ async function multipartBody(request: Request): Promise<FormData> {
   return body;
 }
 
-async function formBody(request: Request): Promise<URLSearchParams> {
-  const source = await request.formData();
-  const body = new URLSearchParams();
-  source.forEach((value, key) => {
-    if (typeof value === 'string') body.append(key, value);
-  });
-  return body;
-}
-
 function normalizeLegacyUrls(value: unknown, apiUrl: string): unknown {
   if (typeof value === 'string') return value.replace(`${new URL(apiUrl).origin}/uploads/images/media-api.php?file=`, `${new URL(apiUrl).origin}/media-api.php?file=`);
   if (Array.isArray(value)) return value.map((item) => normalizeLegacyUrls(item, apiUrl));
@@ -59,7 +50,9 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
   try {
-    const response = await proxy(request, { method: 'POST', body: await multipartBody(request) });
+    const source = await request.formData();
+    const body = source.has('id') ? source : await multipartBody(new Request(request.url, { method: 'POST', body: source }));
+    const response = await proxy(request, { method: 'POST', body });
     return responseFromMedia(response);
   } catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : 'Media upload failed.' }, { status: 503 }); }
 }
@@ -69,7 +62,11 @@ export async function PATCH(request: Request) {
   try {
     const source = await request.formData();
     const replacement = source.get('file');
-    const body = replacement instanceof File && replacement.size > 0 ? await multipartBody(new Request(request.url, { method: 'POST', body: source })) : await formBody(new Request(request.url, { method: 'POST', body: source }));
+    const body = replacement instanceof File && replacement.size > 0 ? source : (() => {
+      const params = new URLSearchParams();
+      source.forEach((value, key) => { if (typeof value === 'string') params.append(key, value); });
+      return params;
+    })();
     const response = await proxy(request, { method: 'POST', body });
     return responseFromMedia(response);
   } catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : 'Media update failed.' }, { status: 503 }); }
