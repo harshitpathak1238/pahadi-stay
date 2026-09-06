@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Bath, BedDouble, BedSingle, CircleParking, ConciergeBell, Flower2, Info, Languages, Monitor, UserRound, Wifi } from "lucide-react";
 import { getPublicListing, getPublicListings } from "@/lib/listings";
@@ -28,20 +27,17 @@ export default async function StayDetail({ params }: { params: { slug: string } 
     <div className="pb-24 md:pb-0">
       <div className="mx-auto grid max-w-6xl gap-3 px-4 pt-5 md:grid-cols-[1.5fr_1fr] md:px-5 md:pt-8">
         <div className="relative min-h-[280px] overflow-hidden rounded-2xl md:min-h-[520px]">
-          <Image
+          <img
             src={stay.image}
             alt={stay.title}
-            fill
-            priority
-            className="object-cover"
+            className="h-full w-full object-cover"
           />
         </div>
         <div className="relative hidden min-h-[520px] overflow-hidden rounded-2xl bg-[#dfe4da] md:block">
-          <Image
+          <img
             src={stay.image}
             alt=""
-            fill
-            className="object-cover opacity-70"
+            className="h-full w-full object-cover opacity-70"
           />
         </div>
       </div>
