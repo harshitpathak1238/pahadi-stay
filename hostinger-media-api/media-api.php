@@ -148,7 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
     $ids = is_array($body['ids'] ?? null) ? $body['ids'] : [];
     $deleted = [];
     foreach ($ids as $id) {
-        $filename = is_string($id) ? safeFilenameFromUrl($id, $publicUrl) : null;
+        $filename = is_string($id) ? safeFilenameFromUrl($id, $publicUrl, $apiUrl) : null;
         if ($filename === null) continue;
         @unlink($directory . '/' . $filename);
         @unlink(metadataPath($directory, $filename));

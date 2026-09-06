@@ -46,7 +46,7 @@ export function MediaLibrary() {
     const warning = asset.usage.length ? `Used in ${asset.usage.length} place(s): ${asset.usage.map((item) => `${item.type}: ${item.title}`).join(', ')}. Delete anyway?` : `Delete ${asset.filename}?`;
     if (!window.confirm(warning)) return;
     const response = await fetch('/api/admin/media', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: [asset.id] }) });
-    const result = await response.json();
+    const result = await response.json().catch(() => ({ error: `Media deletion failed (${response.status}).` }));
     if (response.status === 409 && window.confirm(`${result.error} ${result.usage?.flatMap((item: { references: Usage[] }) => item.references.map((reference) => `${reference.type}: ${reference.title}`)).join(', ')}. Delete anyway?`)) await fetch('/api/admin/media', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: [asset.id], force: true }) });
     setSelected(null); load();
   };
@@ -56,7 +56,7 @@ export function MediaLibrary() {
   const bulkDelete = async () => {
     if (!selectedIds.length || !window.confirm(`Check usage and delete ${selectedIds.length} selected file(s)?`)) return;
     const response = await fetch('/api/admin/media', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: selectedIds }) });
-    const result = await response.json();
+    const result = await response.json().catch(() => ({ error: `Media deletion failed (${response.status}).` }));
     if (response.status === 409 && window.confirm(`${result.error} Delete the selected files anyway?`)) await fetch('/api/admin/media', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: selectedIds, force: true }) });
     setSelectedIds([]); load();
   };
