@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { CalendarDays, LayoutGrid, List, MapPin, Search, Users, X } from 'lucide-react';
 import type { Listing } from '@/lib/mock-data';
@@ -42,41 +41,6 @@ export function StaysSearchPage({ stays }: { stays: Listing[] }) {
 
   return (
     <div className="bg-[#f5f7fa] text-[#1f2937]">
-      {/* Header */}
-      <div className="border-b border-[#2a2a2a] bg-gradient-to-r from-[#1a3a2a] to-[#0d1f15] text-white">
-        <div className="mx-auto max-w-[1280px] px-4 py-4 md:px-6">
-          <div className="flex items-center justify-between gap-4">
-            <Link href="/" className="text-xl font-black tracking-tight">
-              Kainchi
-              <span className="text-[#feba02]">Darshan</span>
-            </Link>
-            <div className="hidden items-center gap-5 text-xs font-semibold md:flex">
-              <span>INR</span>
-              <span aria-label="India">🇮🇳</span>
-              <span>Help</span>
-              <Link href="/partner/login">List your property</Link>
-              <Link href="/signup" className="rounded border border-white px-3 py-2">
-                Register
-              </Link>
-              <Link href="/login" className="rounded bg-white px-3 py-2 text-[#1a3a2a]">
-                Sign in
-              </Link>
-            </div>
-            <Link href="/login" className="rounded bg-white px-3 py-2 text-xs font-bold text-[#1a3a2a] md:hidden">
-              Sign in
-            </Link>
-          </div>
-          <nav className="mt-5 flex gap-5 overflow-x-auto pb-1 text-xs font-bold">
-            <span className="whitespace-nowrap rounded-full bg-white px-4 py-2 text-[#1a3a2a]">🏨 Stays</span>
-            <span className="whitespace-nowrap">✈ Flights</span>
-            <span className="whitespace-nowrap">✈ Flight + Hotel</span>
-            <span className="whitespace-nowrap">🚗 Car rental</span>
-            <span className="whitespace-nowrap">🎟 Attractions</span>
-            <span className="whitespace-nowrap">🚕 Airport taxis</span>
-          </nav>
-        </div>
-      </div>
-
       <main className="mx-auto max-w-[1280px] px-4 py-5 md:px-6">
         {/* Search bar */}
         <div className="rounded-xl bg-[#feba02] p-2 shadow-sm">
