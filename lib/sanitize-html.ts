@@ -1,19 +1,26 @@
 import sanitizeHtml from 'sanitize-html';
-import { parse, parseFragment, serializeOuter } from 'parse5';
+import { parse, parseFragment, serializeOuter, type DefaultTreeAdapterTypes } from 'parse5';
 
-type ParsedNode = { nodeName?: string; childNodes?: ParsedNode[]; value?: string };
+type ParsedNode = DefaultTreeAdapterTypes.Node;
+type ParsedParentNode = DefaultTreeAdapterTypes.ParentNode;
 
 function findNode(node: ParsedNode, nodeName: string): ParsedNode | null {
   if (node.nodeName === nodeName) return node;
-  for (const child of node.childNodes || []) {
-    const match = findNode(child, nodeName);
-    if (match) return match;
+  if ('childNodes' in node) {
+    for (const child of node.childNodes) {
+      const match = findNode(child, nodeName);
+      if (match) return match;
+    }
   }
   return null;
 }
 
 function textContent(node: ParsedNode): string {
-  return node.childNodes?.length ? node.childNodes.map(textContent).join('') : 'value' in node && typeof node.value === 'string' ? node.value : '';
+  return 'childNodes' in node ? node.childNodes.map(textContent).join('') : 'value' in node ? node.value : '';
+}
+
+function asParentNode(node: ParsedNode | null): ParsedParentNode | null {
+  return node && 'childNodes' in node ? node : null;
 }
 
 export function isFullBlogDocument(html: string) {
@@ -22,16 +29,17 @@ export function isFullBlogDocument(html: string) {
 
 export function getFullBlogDocument(html: string) {
   const hasDocumentWrapper = /<!doctype\s+html|<html[\s>]|<body[\s>]|<head[\s>]/i.test(html);
-  const document = (hasDocumentWrapper ? parse(html) : parseFragment(html)) as ParsedNode;
-  const body = hasDocumentWrapper ? findNode(document, 'body') : null;
-  const htmlNode = hasDocumentWrapper ? findNode(document, 'html') : null;
+  const document = hasDocumentWrapper ? parse(html) : parseFragment(html);
+  const body = hasDocumentWrapper ? asParentNode(findNode(document, 'body')) : null;
+  const htmlNode = hasDocumentWrapper ? asParentNode(findNode(document, 'html')) : null;
   const contentRoot = body || htmlNode || document;
   const content = (contentRoot.childNodes || [])
     .filter((node) => node.nodeName !== 'script' && node.nodeName !== 'head')
-    .map((node) => serializeOuter(node as Parameters<typeof serializeOuter>[0]))
+    .map((node) => serializeOuter(node))
     .join('')
     .trim();
-  const styles = [...(findNode(document, 'head')?.childNodes || []), ...(body?.childNodes || [])]
+  const head = asParentNode(findNode(document, 'head'));
+  const styles = [...(head?.childNodes || []), ...(body?.childNodes || [])]
     .filter((node) => node.nodeName === 'style')
     .map(textContent)
     .join('\n');
