@@ -3,7 +3,7 @@ import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin';
 import { blogSchema } from '@/lib/validations/blog';
-import { normalizeBlogHtml, sanitizeBlogCss, sanitizeBlogHtml } from '@/lib/sanitize-html';
+import { isFullBlogDocument, sanitizeBlogHtml } from '@/lib/sanitize-html';
 
 function imageUrls(body: string, featuredImage?: string | null) { return [...new Set([featuredImage, ...[...body.matchAll(/<img[^>]+src=["']([^"']+)["']/gi)].map((match) => match[1])].filter((url): url is string => Boolean(url)))]; }
 function hasNonRemoteImage(body: string, featuredImage?: string | null) {
@@ -33,8 +33,8 @@ export async function POST(request: Request) {
   if (hasNonRemoteImage(parsed.data.body, parsed.data.featuredImage)) return NextResponse.json({ error: 'Images must be uploaded with the image button so they are stored in Hostinger.' }, { status: 422 });
   if (parsed.data.status === 'SCHEDULED' && parsed.data.scheduledAt && parsed.data.scheduledAt <= new Date()) return NextResponse.json({ error: 'Scheduled posts need a future publish time.' }, { status: 422 });
   try {
-    const body = sanitizeBlogHtml(normalizeBlogHtml(parsed.data.body));
-    const blog = await db.blogPost.create({ data: { ...parsed.data, body, customCss: parsed.data.customCss ? sanitizeBlogCss(parsed.data.customCss) : null, imageUrls: imageUrls(body, parsed.data.featuredImage), publishedAt: parsed.data.status === 'PUBLISHED' ? new Date() : null, scheduledAt: parsed.data.status === 'SCHEDULED' ? parsed.data.scheduledAt : null } });
+    const body = isFullBlogDocument(parsed.data.body) ? parsed.data.body : sanitizeBlogHtml(parsed.data.body);
+    const blog = await db.blogPost.create({ data: { ...parsed.data, body, imageUrls: imageUrls(body, parsed.data.featuredImage), publishedAt: parsed.data.status === 'PUBLISHED' ? new Date() : null, scheduledAt: parsed.data.status === 'SCHEDULED' ? parsed.data.scheduledAt : null } });
     revalidatePath('/blog'); revalidatePath(`/blog/${blog.slug}`);
     return NextResponse.json(blog, { status: 201 });
   } catch (error) {

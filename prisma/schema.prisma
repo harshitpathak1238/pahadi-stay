@@ -273,7 +273,6 @@ model BlogPost {
 	metaDescription String     @db.Text
 	excerpt         String     @db.Text
 	body            String     @db.LongText
-	customCss       String?    @db.Text
 	authorName      String
 	authorId        String?
 	category        String

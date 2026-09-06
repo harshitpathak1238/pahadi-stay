@@ -30,7 +30,7 @@ function asParentNode(node: ParsedNode | null): ParsedParentNode | null {
 }
 
 export function isFullBlogDocument(html: string) {
-  return /<!doctype\s+html|<html[\s>]|<body[\s>]|<(article|section|header|main|div|table|style)\b/i.test(html);
+  return /<!doctype\s+html|<html[\s>]/i.test(html);
 }
 
 export function getFullBlogDocument(html: string) {
@@ -50,16 +50,6 @@ export function getFullBlogDocument(html: string) {
 
 export function normalizeBlogHtml(html: string) {
   return isFullBlogDocument(html) ? getFullBlogDocument(html).content : html;
-}
-
-export function sanitizeBlogCss(css: string) {
-  return css
-    .slice(0, 30000)
-    .replace(/<\/?(?:script|style)[^>]*>/gi, '')
-    .replace(/@import\s+(?:url\s*\([^)]*\)|[^;]+);?/gi, '')
-    .replace(/expression\s*\([^)]*\)/gi, '')
-    .replace(/javascript\s*:/gi, '')
-    .replace(/<\s*\/?\s*style/gi, '<\\/style');
 }
 
 export function sanitizeBlogHtml(html: string) {

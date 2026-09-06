@@ -3,7 +3,7 @@ import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin';
 import { blogUpdateSchema } from '@/lib/validations/blog';
-import { normalizeBlogHtml, sanitizeBlogCss, sanitizeBlogHtml } from '@/lib/sanitize-html';
+import { isFullBlogDocument, sanitizeBlogHtml } from '@/lib/sanitize-html';
 
 function imageUrls(body: string, featuredImage?: string | null) { return [...new Set([featuredImage, ...[...body.matchAll(/<img[^>]+src=["']([^"']+)["']/gi)].map((match) => match[1])].filter((url): url is string => Boolean(url)))]; }
 function hasNonRemoteImage(body: string, featuredImage?: string | null) {
@@ -20,8 +20,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   try {
     const existing = await db.blogPost.findUnique({ where: { id: params.id }, select: { slug: true, publishedAt: true, body: true, featuredImage: true } });
     if (!existing) return NextResponse.json({ error: 'Blog not found.' }, { status: 404 });
-    const body = parsed.data.body === undefined ? existing.body : sanitizeBlogHtml(normalizeBlogHtml(parsed.data.body));
-    const data = { ...parsed.data, ...(parsed.data.customCss !== undefined ? { customCss: parsed.data.customCss ? sanitizeBlogCss(parsed.data.customCss) : null } : {}), body, imageUrls: imageUrls(body, parsed.data.featuredImage === undefined ? existing.featuredImage : parsed.data.featuredImage), publishedAt: parsed.data.status === 'PUBLISHED' ? existing.publishedAt ?? new Date() : null, scheduledAt: parsed.data.status === 'SCHEDULED' ? parsed.data.scheduledAt : null };
+    const body = parsed.data.body === undefined ? existing.body : isFullBlogDocument(parsed.data.body) ? parsed.data.body : sanitizeBlogHtml(parsed.data.body);
+    const data = { ...parsed.data, body, imageUrls: imageUrls(body, parsed.data.featuredImage === undefined ? existing.featuredImage : parsed.data.featuredImage), publishedAt: parsed.data.status === 'PUBLISHED' ? existing.publishedAt ?? new Date() : null, scheduledAt: parsed.data.status === 'SCHEDULED' ? parsed.data.scheduledAt : null };
     const blog = await db.blogPost.update({ where: { id: params.id }, data });
     revalidatePath('/blog'); revalidatePath(`/blog/${existing.slug}`); if (blog.slug !== existing.slug) revalidatePath(`/blog/${blog.slug}`);
     return NextResponse.json(blog);
