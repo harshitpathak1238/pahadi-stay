@@ -6,6 +6,11 @@ import { blogSchema } from '@/lib/validations/blog';
 import { isFullBlogDocument, sanitizeBlogHtml } from '@/lib/sanitize-html';
 
 function imageUrls(body: string, featuredImage?: string | null) { return [...new Set([featuredImage, ...[...body.matchAll(/<img[^>]+src=["']([^"']+)["']/gi)].map((match) => match[1])].filter((url): url is string => Boolean(url)))]; }
+function hasNonRemoteImage(body: string, featuredImage?: string | null) {
+  return [featuredImage, ...[...body.matchAll(/<img[^>]+src=["']([^"']+)["']/gi)].map((match) => match[1])]
+    .filter((url): url is string => Boolean(url))
+    .some((url) => !/^https?:\/\//i.test(url));
+}
 export async function GET(request: Request) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
   const params = new URL(request.url).searchParams;
@@ -25,6 +30,7 @@ export async function POST(request: Request) {
   try { body = await request.json(); } catch { return NextResponse.json({ error: 'The blog request was not valid JSON.' }, { status: 400 }); }
   const parsed = blogSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: 'Please complete all blog fields correctly.', details: parsed.error.flatten() }, { status: 422 });
+  if (hasNonRemoteImage(parsed.data.body, parsed.data.featuredImage)) return NextResponse.json({ error: 'Images must be uploaded with the image button so they are stored in Hostinger.' }, { status: 422 });
   if (parsed.data.status === 'SCHEDULED' && parsed.data.scheduledAt && parsed.data.scheduledAt <= new Date()) return NextResponse.json({ error: 'Scheduled posts need a future publish time.' }, { status: 422 });
   try {
     const body = isFullBlogDocument(parsed.data.body) ? parsed.data.body : sanitizeBlogHtml(parsed.data.body);

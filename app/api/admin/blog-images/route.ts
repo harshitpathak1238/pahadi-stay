@@ -1,6 +1,5 @@
-import { access, mkdir, unlink, writeFile } from 'fs/promises';
+import { access, unlink } from 'fs/promises';
 import path from 'path';
-import { randomUUID } from 'crypto';
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin';
 
@@ -9,10 +8,9 @@ const allowedTypes: Record<string, string> = { 'image/jpeg': 'jpg', 'image/png':
 async function getStorage() {
   const configuredDirectory = process.env.HOSTINGER_IMAGE_UPLOAD_DIR;
   const configuredUrl = (process.env.HOSTINGER_IMAGE_UPLOAD_URL || '').replace(/\/$/, '');
-  if (configuredDirectory && configuredUrl && !process.env.VERCEL) {
-    try { await access(configuredDirectory); return { directory: configuredDirectory, publicUrl: configuredUrl }; } catch { return { directory: path.join(process.cwd(), 'public', 'uploads', 'images'), publicUrl: '/uploads/images' }; }
-  }
-  return { directory: path.join(process.cwd(), 'public', 'uploads', 'images'), publicUrl: '/uploads/images' };
+  if (!configuredDirectory || !configuredUrl || process.env.VERCEL) throw new Error('Hostinger image storage is not configured for this deployment.');
+  await access(configuredDirectory);
+  return { directory: configuredDirectory, publicUrl: configuredUrl };
 }
 
 export async function POST(request: Request) {
@@ -24,13 +22,9 @@ export async function POST(request: Request) {
     const extension = allowedTypes[file.type];
     if (!extension) return NextResponse.json({ error: 'Supported files: JPG, PNG, WebP, GIF, MP4, WebM, and MOV.' }, { status: 400 });
     if (file.size > 25 * 1024 * 1024) return NextResponse.json({ error: 'Images and videos must be smaller than 25 MB.' }, { status: 400 });
-    if (process.env.VERCEL) return NextResponse.json({ error: 'Hostinger storage is available only when this API runs on Hostinger. Deploy the Next.js app there to enable uploads.' }, { status: 503 });
     const storage = await getStorage();
     const directory = storage.directory;
-    await mkdir(directory, { recursive: true });
-    const filename = `${randomUUID()}.${extension}`;
-    await writeFile(path.join(directory, filename), Buffer.from(await file.arrayBuffer()));
-    return NextResponse.json({ url: `${storage.publicUrl}/${filename}` }, { status: 201 });
+    return NextResponse.json({ error: 'This legacy upload endpoint is disabled. Use the Hostinger media API.' }, { status: 410 });
   } catch (error) {
     console.error('Blog image upload failed:', error);
     return NextResponse.json({ error: 'Image storage is unavailable. Configure writable production storage for blog uploads.' }, { status: 500 });

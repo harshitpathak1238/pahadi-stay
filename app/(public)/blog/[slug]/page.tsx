@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getPublishedBlog, getPublishedBlogs } from '@/lib/blog';
+import { getPublishedBlog, getPublishedBlogs, normalizeBlogImageSources } from '@/lib/blog';
 
 export async function generateStaticParams() { return (await getPublishedBlogs()).map((blog) => ({ slug: blog.slug })); }
 
@@ -22,7 +22,7 @@ export default async function Article({ params }: { params: { slug: string } }) 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <iframe
         title={blog.title}
-        srcDoc={blog.body}
+        srcDoc={normalizeBlogImageSources(blog.body)}
         sandbox="allow-same-origin"
         className="block min-h-[1600px] w-full border-0"
       />

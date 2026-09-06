@@ -57,26 +57,26 @@ export function CategoryListingEditor({ category, form, setForm, busy, message, 
 
   const Input = ({ label, name, required = false, type = 'text', placeholder = '' }: { label: string; name: string; required?: boolean; type?: string; placeholder?: string }) => (
     <label className="grid gap-1 text-[12px] font-semibold text-[#173f35]">
-      <span>{label}{required && <b className="ml-1 text-[#a44a4a]">*</b>}</span>
+      <span>{label}</span>
       <input type={type} value={valueOf(form.details, name)} onChange={(event) => setDetail(name, event.target.value)} placeholder={placeholder} className="h-10 rounded-xl border border-[#d6d9d1] bg-white px-3 font-normal outline-none focus:border-[#24584a]" />
     </label>
   );
   const Textarea = ({ label, name, required = false, placeholder = '' }: { label: string; name: string; required?: boolean; placeholder?: string }) => (
     <label className="grid gap-1 text-[12px] font-semibold text-[#173f35]">
-      <span>{label}{required && <b className="ml-1 text-[#a44a4a]">*</b>}</span>
+      <span>{label}</span>
       <textarea value={valueOf(form.details, name)} onChange={(event) => setDetail(name, event.target.value)} placeholder={placeholder} className="min-h-24 rounded-xl border border-[#d6d9d1] bg-white p-3 font-normal outline-none focus:border-[#24584a]" />
     </label>
   );
 
   return (
-    <form onSubmit={save} className="rounded-2xl border border-[#dfe3d8] bg-white p-5 md:p-7">
+    <form onSubmit={save} className="rounded-2xl border border-[#dfe3d8] bg-white p-5 md:p-7 [&_b]:hidden">
       {message && <p className="mb-5 border border-[#e7b5a6] bg-[#fff3ef] p-3 text-[13px] text-[#9f3d3d]">{message}</p>}
       <div className="mb-5 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 text-[12px] text-[#616161]"><button type="button" onClick={cancel} className="inline-flex items-center gap-2 border border-[#d9d9dc] bg-white px-3 py-2 font-semibold"><ArrowLeft size={14} /> Back</button><span>/ {categoryNames[category]} editor</span></div>
         <button disabled={busy} className="inline-flex items-center gap-2 bg-[#173f35] px-4 py-2 text-[12px] font-semibold text-white disabled:opacity-60"><Save size={14} /> Save</button>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
-        <label className="grid gap-1 text-[12px] font-semibold text-[#173f35]"><span>Title<b className="ml-1 text-[#a44a4a]">*</b></span><input value={form.title} onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))} className="h-10 rounded-xl border border-[#d6d9d1] px-3 font-normal" /></label>
+        <label className="grid gap-1 text-[12px] font-semibold text-[#173f35]"><span>Title</span><input value={form.title} onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))} className="h-10 rounded-xl border border-[#d6d9d1] px-3 font-normal" /></label>
         <label className="grid gap-1 text-[12px] font-semibold text-[#173f35]"><span>Location</span><input value={form.location} onChange={(event) => setForm((current) => ({ ...current, location: event.target.value }))} className="h-10 rounded-xl border border-[#d6d9d1] px-3 font-normal" /></label>
         <label className="grid gap-1 text-[12px] font-semibold text-[#173f35]"><span>Slug</span><input value={form.slug} onChange={(event) => setForm((current) => ({ ...current, slug: event.target.value }))} placeholder="listing-slug" className="h-10 rounded-xl border border-[#d6d9d1] px-3 font-normal" /></label>
         <label className="grid gap-1 text-[12px] font-semibold text-[#173f35]"><span>Base price<b className="ml-1 text-[#a44a4a">*</b></span><input type="number" min="0" value={form.basePrice} onChange={(event) => setForm((current) => ({ ...current, basePrice: event.target.value }))} className="h-10 rounded-xl border border-[#d6d9d1] px-3 font-normal" /></label>
