@@ -11,6 +11,7 @@ const formatSize = (bytes: number) => bytes < 1024 * 1024 ? `${Math.max(1, Math.
 
 export function MediaLibrary() {
   const inputRef = useRef<HTMLInputElement>(null);
+  const loadSequence = useRef(0);
   const [assets, setAssets] = useState<Asset[]>([]);
   const [selected, setSelected] = useState<Asset | null>(null);
   const [uploads, setUploads] = useState<UploadState[]>([]);
@@ -26,20 +27,23 @@ export function MediaLibrary() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const load = async () => {
+    const sequence = ++loadSequence.current;
     const startedAt = Date.now();
     setLoading(true);
     setMessage('');
     try {
       const response = await fetch(`/api/admin/media?search=${encodeURIComponent(search)}&type=${type}&sort=${sort}&page=${page}`, { cache: 'no-store' });
-      if (!response.ok) { setMessage(`Could not load media library (${response.status}).`); return; }
+      if (!response.ok) { if (sequence === loadSequence.current) setMessage(`Could not load media library (${response.status}).`); return; }
       const result = await response.json();
-      setAssets(Array.isArray(result.assets) ? result.assets : []);
-      setPages(Number(result.pages) || 1);
+      if (sequence === loadSequence.current) {
+        setAssets(Array.isArray(result.assets) ? result.assets : []);
+        setPages(Number(result.pages) || 1);
+      }
     } catch {
-      setMessage('Could not reach the media service.');
+      if (sequence === loadSequence.current) setMessage('Could not reach the media service.');
     } finally {
       await new Promise((resolve) => setTimeout(resolve, Math.max(0, 2000 - (Date.now() - startedAt))));
-      setLoading(false);
+      if (sequence === loadSequence.current) setLoading(false);
     }
   };
   useEffect(() => { load(); }, [search, type, sort, page]);
