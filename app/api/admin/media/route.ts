@@ -20,6 +20,15 @@ async function multipartBody(request: Request): Promise<FormData> {
   return body;
 }
 
+async function formBody(request: Request): Promise<URLSearchParams> {
+  const source = await request.formData();
+  const body = new URLSearchParams();
+  source.forEach((value, key) => {
+    if (typeof value === 'string') body.append(key, value);
+  });
+  return body;
+}
+
 function normalizeLegacyUrls(value: unknown, apiUrl: string): unknown {
   if (typeof value === 'string') return value.replace(`${new URL(apiUrl).origin}/uploads/images/media-api.php?file=`, `${new URL(apiUrl).origin}/media-api.php?file=`);
   if (Array.isArray(value)) return value.map((item) => normalizeLegacyUrls(item, apiUrl));
@@ -58,8 +67,10 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
   try {
-    // PHP only parses multipart form fields for POST; rebuild the body so $_POST and $_FILES are populated.
-    const response = await proxy(request, { method: 'POST', body: await multipartBody(request) });
+    const source = await request.formData();
+    const replacement = source.get('file');
+    const body = replacement instanceof File && replacement.size > 0 ? await multipartBody(new Request(request.url, { method: 'POST', body: source })) : await formBody(new Request(request.url, { method: 'POST', body: source }));
+    const response = await proxy(request, { method: 'POST', body });
     return responseFromMedia(response);
   } catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : 'Media update failed.' }, { status: 503 }); }
 }
@@ -67,8 +78,9 @@ export async function PATCH(request: Request) {
 export async function DELETE(request: Request) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
   try {
-    const body = await request.text();
-    const response = await proxy(request, { method: 'DELETE', body, headers: { 'Content-Type': 'application/json' } });
+    const payload = await request.json().catch(() => ({}));
+    const body = new URLSearchParams({ action: 'delete', ids: JSON.stringify(Array.isArray(payload.ids) ? payload.ids : []), force: payload.force ? '1' : '0' });
+    const response = await proxy(request, { method: 'POST', body });
     return responseFromMedia(response);
   } catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : 'Media deletion failed.' }, { status: 503 }); }
 }

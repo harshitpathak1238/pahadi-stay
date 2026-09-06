@@ -111,6 +111,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     respond(['assets' => array_map(static fn (array $item): array => $item + ['kind' => str_starts_with($item['mimeType'], 'video/') ? 'VIDEO' : 'IMAGE'], array_slice($assets, ($page - 1) * $pageSize, $pageSize)), 'total' => count($assets), 'page' => $page, 'pageSize' => $pageSize, 'pages' => (int) ceil(count($assets) / $pageSize)]);
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delete') {
+    $ids = json_decode((string) ($_POST['ids'] ?? '[]'), true);
+    $deleted = [];
+    foreach (is_array($ids) ? $ids : [] as $id) {
+        $filename = is_string($id) ? safeFilenameFromUrl($id, $publicUrl, $apiUrl) : null;
+        if ($filename === null) continue;
+        @unlink($directory . '/' . $filename);
+        @unlink(metadataPath($directory, $filename));
+        $deleted[] = $id;
+    }
+    respond(['deleted' => $deleted]);
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
     $id = (string) $_POST['id'];
     $filename = safeFilenameFromUrl($id, $publicUrl, $apiUrl);

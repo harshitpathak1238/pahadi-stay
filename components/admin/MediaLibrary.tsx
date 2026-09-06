@@ -20,14 +20,27 @@ export function MediaLibrary() {
   const [view, setView] = useState<'grid' | 'list'>('grid');
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
+  const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
   const [dragging, setDragging] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const load = async () => {
-    const response = await fetch(`/api/admin/media?search=${encodeURIComponent(search)}&type=${type}&sort=${sort}&page=${page}`, { cache: 'no-store' });
-    if (!response.ok) { setMessage('Could not load media library.'); return; }
-    const result = await response.json(); setAssets(result.assets); setPages(result.pages);
+    const startedAt = Date.now();
+    setLoading(true);
+    setMessage('');
+    try {
+      const response = await fetch(`/api/admin/media?search=${encodeURIComponent(search)}&type=${type}&sort=${sort}&page=${page}`, { cache: 'no-store' });
+      if (!response.ok) { setMessage(`Could not load media library (${response.status}).`); return; }
+      const result = await response.json();
+      setAssets(Array.isArray(result.assets) ? result.assets : []);
+      setPages(Number(result.pages) || 1);
+    } catch {
+      setMessage('Could not reach the media service.');
+    } finally {
+      await new Promise((resolve) => setTimeout(resolve, Math.max(0, 2000 - (Date.now() - startedAt))));
+      setLoading(false);
+    }
   };
   useEffect(() => { load(); }, [search, type, sort, page]);
 
@@ -48,6 +61,7 @@ export function MediaLibrary() {
     const response = await fetch('/api/admin/media', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: [asset.id] }) });
     const result = await response.json().catch(() => ({ error: `Media deletion failed (${response.status}).` }));
     if (response.status === 409 && window.confirm(`${result.error} ${result.usage?.flatMap((item: { references: Usage[] }) => item.references.map((reference) => `${reference.type}: ${reference.title}`)).join(', ')}. Delete anyway?`)) await fetch('/api/admin/media', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: [asset.id], force: true }) });
+    if (!response.ok && response.status !== 409) { setMessage(result.error || `Media deletion failed (${response.status}).`); return; }
     setSelected(null); load();
   };
   const toggleSelected = (id: string) => setSelectedIds((current) => current.includes(id) ? current.filter((value) => value !== id) : [...current, id]);
@@ -58,11 +72,13 @@ export function MediaLibrary() {
     const response = await fetch('/api/admin/media', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: selectedIds }) });
     const result = await response.json().catch(() => ({ error: `Media deletion failed (${response.status}).` }));
     if (response.status === 409 && window.confirm(`${result.error} Delete the selected files anyway?`)) await fetch('/api/admin/media', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: selectedIds, force: true }) });
+    if (!response.ok && response.status !== 409) { setMessage(result.error || `Media deletion failed (${response.status}).`); return; }
     setSelectedIds([]); load();
   };
   const bulkDownload = () => selectedIds.forEach((id) => { const asset = assets.find((item) => item.id === id); if (asset) { const link = document.createElement('a'); link.href = asset.url; link.download = asset.filename; link.target = '_blank'; link.click(); } });
 
-  return <section className="min-h-screen bg-[#f6f6f7]">
+  return <section className="relative min-h-screen bg-[#f6f6f7]">
+    {loading && <div className="absolute inset-0 z-20 bg-[#f6f6f7] pt-64 text-center"><Loader2 className="mx-auto animate-spin text-[#24584a]" size={30} /><p className="mt-3 text-[14px] font-semibold">Loading media files...</p><p className="mt-1 text-[12px] text-[#777]">This can take a moment.</p></div>}
     <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="text-[11px] font-semibold uppercase tracking-[.08em] text-[#777]">Content</p><h1 className="mt-2 text-[26px] font-semibold">Media Library</h1><p className="mt-1 text-[13px] text-[#777]">One home for reusable images and videos.</p></div><button onClick={() => inputRef.current?.click()} className="inline-flex h-9 items-center justify-center gap-2 rounded-[4px] bg-[#303030] px-4 text-[12px] font-semibold text-white"><Upload size={15} /> Upload files</button><input ref={inputRef} type="file" multiple accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime" className="hidden" onChange={(event) => event.target.files && uploadFiles(event.target.files)} /></div>
     <div onDragEnter={() => setDragging(true)} onDragLeave={() => setDragging(false)} onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); setDragging(false); uploadFiles(event.dataTransfer.files); }} className={`mt-6 grid min-h-28 place-items-center border border-dashed p-5 text-center ${dragging ? 'border-[#24584a] bg-[#e9f3ed]' : 'border-[#c8c8cc] bg-white'}`}><FileImage className="text-[#8b8b8f]" size={25} /><p className="mt-2 text-[13px] font-semibold">Drop images or videos here</p><p className="mt-1 text-[12px] text-[#777]">JPG, PNG, WebP up to 10 MB. MP4 and MOV up to 100 MB.</p></div>
     {uploads.length > 0 && <div className="mt-4 grid gap-2">{uploads.map((upload) => <div key={upload.name} className="border border-[#e1e1e3] bg-white p-3"><div className="flex justify-between text-[12px]"><span className="truncate">{upload.name}</span><span>{upload.error || `${upload.progress}%`}</span></div><div className="mt-2 h-1.5 bg-[#ededee]"><div className={`h-full ${upload.error ? 'bg-[#b94b3d]' : 'bg-[#24584a]'}`} style={{ width: `${upload.progress}%` }} /></div></div>)}</div>}
