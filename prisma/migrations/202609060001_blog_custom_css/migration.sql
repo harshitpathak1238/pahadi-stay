@@ -1,1 +1,0 @@
-ALTER TABLE `BlogPost` ADD COLUMN `customCss` TEXT NULL;

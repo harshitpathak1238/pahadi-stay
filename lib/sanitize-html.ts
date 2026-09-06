@@ -4,6 +4,8 @@ import { parse, parseFragment, serializeOuter, type DefaultTreeAdapterTypes } fr
 type ParsedNode = DefaultTreeAdapterTypes.Node;
 type ParsedParentNode = DefaultTreeAdapterTypes.ParentNode;
 
+export type FullBlogDocumentParts = { body: string; styles: string; prefix: string; suffix: string };
+
 function findNode(node: ParsedNode, nodeName: string): ParsedNode | null {
   if (node.nodeName === nodeName) return node;
   if ('childNodes' in node) {
@@ -46,6 +48,17 @@ export function getFullBlogDocument(html: string) {
     .trim();
   const styles = findNodes(document, 'style').map(textContent).join('\n');
   return { content, styles };
+}
+
+export function splitFullBlogDocument(html: string): FullBlogDocumentParts {
+  const openingBody = /<body\b[^>]*>/i.exec(html);
+  if (!openingBody || openingBody.index === undefined) return { body: getFullBlogDocument(html).content, styles: getFullBlogDocument(html).styles, prefix: '<!doctype html><html><head></head><body>', suffix: '</body></html>' };
+  const bodyStart = openingBody.index + openingBody[0].length;
+  const closingBody = /<\/body\s*>/i.exec(html.slice(bodyStart));
+  if (!closingBody || closingBody.index === undefined) return { body: getFullBlogDocument(html).content, styles: getFullBlogDocument(html).styles, prefix: html.slice(0, bodyStart), suffix: '</body></html>' };
+  const bodyEnd = bodyStart + closingBody.index;
+  const styles = findNodes(parse(html), 'style').map(textContent).join('\n');
+  return { body: html.slice(bodyStart, bodyEnd), styles, prefix: html.slice(0, bodyStart), suffix: html.slice(bodyEnd) };
 }
 
 export function normalizeBlogHtml(html: string) {

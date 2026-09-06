@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getFullBlogDocument, isFullBlogDocument, normalizeBlogHtml, sanitizeBlogHtml } from '../../lib/sanitize-html';
+import { getFullBlogDocument, isFullBlogDocument, normalizeBlogHtml, sanitizeBlogHtml, splitFullBlogDocument } from '../../lib/sanitize-html';
 
 const fullDocument = `<!doctype html><html><head><style>.category{color:red}</style></head><body><article><span class="category">Design &amp; Tech</span><div class="meta">Published on 2026-09-06</div><blockquote>Keep the structure.</blockquote><div class="tag-container"><span class="tag">HTML</span><span class="tag">Semantic Web</span></div><h2>1. The Power of Semantic HTML</h2></article></body></html>`;
 
@@ -23,6 +23,12 @@ describe('blog editor HTML preservation', () => {
     const result = getFullBlogDocument(fullDocument);
     expect(result.styles).toContain('.category{color:red}');
     expect(result.content).not.toContain('<style>');
+  });
+
+  it('preserves the document shell while replacing only the edited body', () => {
+    const parts = splitFullBlogDocument(fullDocument);
+    expect(`${parts.prefix}<h2>Edited heading</h2>${parts.suffix}`).toContain('<!doctype html><html><head><style>.category{color:red}</style></head><body><h2>Edited heading</h2></body></html>');
+    expect(parts.body).toContain('<span class="category">Design &amp; Tech</span>');
   });
 
   it('preserves unrelated arbitrary div and span classes without code changes', () => {
