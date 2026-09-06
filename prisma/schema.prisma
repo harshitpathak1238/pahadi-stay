@@ -125,6 +125,7 @@ model Listing {
 	scootyQuantity Int            @default(0)
 	images       Json
 	amenities    Json
+	details      Json?
 	status       ListingStatus    @default(DRAFT)
 	partner      Partner          @relation(fields: [partnerId], references: [id])
 	availability Availability[]

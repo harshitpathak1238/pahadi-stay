@@ -1,10 +1,13 @@
 import type { ListingCategory } from '@prisma/client';
 import { db } from '@/lib/db';
 import { rentals, stays, type Listing, type Rental } from '@/lib/mock-data';
+import { defaultStayFacilities } from '@/lib/stay-facilities';
 
 function strings(value: unknown): string[] { return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []; }
-function mapRecord(record: { slug: string; title: string; location: string; sellPrice: unknown; category: ListingCategory; images: unknown; amenities: unknown }): Listing {
-  return { slug: record.slug, title: record.title, location: record.location, price: Number(record.sellPrice), rating: 5, category: record.category === 'RENTAL' ? 'rental' : record.category === 'ACTIVITY' ? 'activity' : 'stay', image: strings(record.images)[0] || '/images/Logo.png', description: '', amenities: strings(record.amenities) };
+function mapRecord(record: { slug: string; title: string; location: string; sellPrice: unknown; category: ListingCategory; images: unknown; amenities: unknown; details?: unknown }): Listing {
+  const details = record.details && typeof record.details === 'object' ? record.details as Record<string, unknown> : {};
+  const facilities = details.facilities && typeof details.facilities === 'object' ? Object.fromEntries(Object.entries(details.facilities).filter(([, value]) => typeof value === 'boolean')) as Record<string, boolean> : { ...defaultStayFacilities };
+  return { slug: record.slug, title: record.title, location: record.location, price: Number(record.sellPrice), rating: 5, category: record.category === 'RENTAL' ? 'rental' : record.category === 'ACTIVITY' ? 'activity' : 'stay', image: strings(record.images)[0] || '/images/Logo.png', description: '', amenities: strings(record.amenities), facilities };
 }
 
 export async function getPublicListings(category: ListingCategory): Promise<Listing[]> {

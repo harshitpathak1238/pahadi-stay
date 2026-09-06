@@ -8,12 +8,13 @@ import StarterKit from '@tiptap/starter-kit';
 import ImageExtension from '@tiptap/extension-image';
 import TiptapLink from '@tiptap/extension-link';
 import { CategoryListingEditor } from './CategoryListingEditor';
+import { defaultStayFacilities } from '@/lib/stay-facilities';
 
 type Category = 'STAY' | 'RIDE' | 'RENTAL' | 'ACTIVITY';
 type Section = Category | 'PACKAGE';
 type Listing = { id: string; title: string; slug: string; category: Category; location: string; sellPrice: string | number; basePrice: string | number; status: string; description: string; images?: string[]; amenities?: string[]; details?: Record<string, unknown> };
 type TravelPackage = { id: string; title: string; description: string; price: string | number; listingIds?: string[]; status?: string; details?: Record<string, unknown> };
-export type ListingForm = { slug: string; title: string; description: string; location: string; basePrice: string; sellPrice: string; images: string[]; amenities: string; status: string; price: string; listingIds: string[]; details: Record<string, string> };
+export type ListingForm = { slug: string; title: string; description: string; location: string; basePrice: string; sellPrice: string; images: string[]; amenities: string; status: string; price: string; listingIds: string[]; details: Record<string, string>; stayFacilities: Record<string, boolean> };
 type LegacyForm = Omit<ListingForm, 'images'> & { images: string; bikeQuantity: string; scootyQuantity: string };
 
 const tabs: { key: Section; label: string }[] = [
@@ -37,6 +38,7 @@ const freshForm = (): ListingForm => ({
   price: '',
   listingIds: [],
   details: {},
+  stayFacilities: { ...defaultStayFacilities },
 });
 
 const normalizeHtml = (html: string) => {
@@ -105,6 +107,8 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
       });
     } else {
       const listing = item as Listing;
+      const rawDetails = listing.details || {};
+      const rawFacilities = rawDetails.facilities;
       setForm({
         ...freshForm(),
         slug: listing.slug,
@@ -116,7 +120,8 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
         images: listing.images || [],
         amenities: (listing.amenities || []).join(', '),
         status: listing.status,
-        details: Object.fromEntries(Object.entries(listing.details || {}).map(([key, value]) => [key, String(value ?? '')])),
+        details: Object.fromEntries(Object.entries(rawDetails).filter(([key]) => key !== 'facilities').map(([key, value]) => [key, String(value ?? '')])),
+        stayFacilities: section === 'STAY' && rawFacilities && typeof rawFacilities === 'object' ? { ...defaultStayFacilities, ...Object.fromEntries(Object.entries(rawFacilities).filter(([, value]) => typeof value === 'boolean')) } : { ...defaultStayFacilities },
       });
     }
     setShowForm(true);
@@ -143,7 +148,7 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
       description: form.description || '',
       price: Number(form.price || 0),
       listingIds: form.listingIds,
-      details: form.details,
+      details: section === 'STAY' ? { ...form.details, facilities: form.stayFacilities } : form.details,
       status: String(form.status || 'DRAFT').trim().toUpperCase(),
     };
 

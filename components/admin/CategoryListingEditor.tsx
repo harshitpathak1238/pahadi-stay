@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, type Dispatch, type SetStateAction } from 'react';
-import { ArrowLeft, GripVertical, ImagePlus, Save, Trash2, Upload } from 'lucide-react';
+import { ArrowLeft, GripVertical, ImagePlus, Link as LinkIcon, Save, Trash2, Upload } from 'lucide-react';
 import type { ListingForm } from './ContentManager';
+import { stayFacilityGroups } from '@/lib/stay-facilities';
 
 const categoryNames = { STAY: 'Stay', RIDE: 'Ride', RENTAL: 'Rental', ACTIVITY: 'Activity' } as const;
 const valueOf = (details: Record<string, string>, name: string) => details[name] || '';
@@ -20,6 +21,7 @@ type Props = {
 export function CategoryListingEditor({ category, form, setForm, busy, message, cancel, save }: Props) {
   const [uploading, setUploading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
   const setDetail = (name: string, value: string) => setForm((current) => ({ ...current, details: { ...current.details, [name]: value } }));
 
   const upload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,6 +45,25 @@ export function CategoryListingEditor({ category, form, setForm, busy, message, 
     }
     if (urls.length) setForm((current) => ({ ...current, images: [...current.images, ...urls] }));
     setUploading(false);
+  };
+
+  const addImageUrl = () => {
+    const url = imageUrl.trim();
+    if (!url) return;
+    try {
+      const parsedUrl = new URL(url);
+      if (!['http:', 'https:'].includes(parsedUrl.protocol)) throw new Error('unsupported protocol');
+    } catch {
+      setUploadMessage('Enter a valid image URL starting with http:// or https://.');
+      return;
+    }
+    if (form.images.includes(url)) {
+      setUploadMessage('That image URL has already been added.');
+      return;
+    }
+    setForm((current) => ({ ...current, images: [...current.images, url] }));
+    setImageUrl('');
+    setUploadMessage('');
   };
 
   const moveImage = (index: number, offset: number) => setForm((current) => {
@@ -85,9 +106,11 @@ export function CategoryListingEditor({ category, form, setForm, busy, message, 
         {category === 'RIDE' && <><Input label="Vehicle type" name="vehicleType" required /><Input label="Passenger capacity" name="passengerCapacity" required type="number" /><Input label="Route or custom pickup" name="route" required /><Input label="Estimated duration" name="duration" /><Textarea label="Driver notes" name="driverNotes" /><Textarea label="Waiting, toll, and fuel notes" name="pricingNotes" /></>}
         {category === 'RENTAL' && <><Input label="Vehicle type" name="vehicleType" required placeholder="Bike or scooty" /><Input label="Make / model" name="makeModel" required /><Input label="Year" name="year" required type="number" /><Input label="Registration / license plate" name="registrationNumber" required /><Input label="Transmission" name="transmission" required /><Input label="Daily price" name="dailyPrice" required type="number" /><Input label="Quantity available" name="quantity" required type="number" /><Input label="Mileage / odometer" name="mileage" /><Input label="Fuel type" name="fuelType" /><Input label="Capacity" name="capacity" /><Input label="Pickup / delivery options" name="pickupOptions" /><Textarea label="Notable features" name="features" placeholder="Helmet included, phone mount" /><Textarea label="FAQ" name="faq" placeholder="Question and answer pairs" /></>}
         {category === 'ACTIVITY' && <><Input label="Minimum group size" name="groupMin" required type="number" /><Input label="Maximum group size" name="groupMax" required type="number" /><Textarea label="What is included" name="included" required /><Textarea label="Safety information" name="safetyInformation" required /><Textarea label="About the guide/operator" name="guideAbout" /><Input label="Duration" name="duration" /><Input label="Meeting point" name="meetingPoint" /></>}
+        {category === 'STAY' && <div className="md:col-span-2 rounded-2xl border border-[#dfe3d8] bg-[#f7f8f4] p-4"><div><p className="text-[13px] font-bold text-[#173f35]">Stay facilities</p><p className="mt-1 text-[11px] font-normal text-[#6c7770]">Choose the facilities guests can expect. New stays start with all facilities selected.</p></div><div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">{stayFacilityGroups.map((group) => <fieldset key={group.title} className="rounded-xl border border-[#e1e4dc] bg-white p-3"><legend className="px-1 text-[12px] font-bold text-[#173f35]">{group.title}</legend><div className="grid gap-2">{group.items.map((item) => <label key={`${group.title}-${item.key}`} className="flex items-start gap-2 text-[12px] font-normal text-[#526057]"><input type="checkbox" checked={form.stayFacilities[item.key] ?? true} onChange={(event) => setForm((current) => ({ ...current, stayFacilities: { ...current.stayFacilities, [item.key]: event.target.checked } }))} className="mt-0.5 accent-[#24584a]" /><span>{item.label}</span></label>)}</div></fieldset>)}</div></div>}
         <label className="grid gap-1 md:col-span-2 text-[12px] font-semibold text-[#173f35]"><span>Description{category !== 'RENTAL' && <b className="ml-1 text-[#a44a4a]">*</b>}</span><textarea value={form.description} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} className="min-h-28 rounded-xl border border-[#d6d9d1] p-3 font-normal" /></label>
         <div className="md:col-span-2">
-          <div className="flex items-center justify-between gap-3"><div><p className="text-[12px] font-semibold text-[#173f35]">Photos <span className="font-normal text-[#6c7770]">{category === 'STAY' || category === 'ACTIVITY' ? 'minimum 5 to publish' : category === 'RENTAL' ? 'minimum 3 to publish' : 'minimum 2 to publish'}</span></p><p className="mt-1 text-[11px] text-[#6c7770]">Use clear photos of the actual listing. Avoid text overlays.</p></div><label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[#173f35] px-3 py-2 text-xs font-bold text-white"><Upload size={14} /> {uploading ? 'Uploading...' : 'Upload photos'}<input type="file" accept="image/jpeg,image/png,image/webp" multiple disabled={uploading} onChange={upload} className="hidden" /></label></div>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-[12px] font-semibold text-[#173f35]">Photos <span className="font-normal text-[#6c7770]">{category === 'STAY' || category === 'ACTIVITY' ? 'minimum 5 to publish' : category === 'RENTAL' ? 'minimum 3 to publish' : 'minimum 2 to publish'}</span></p><p className="mt-1 text-[11px] text-[#6c7770]">Use clear photos of the actual listing. Avoid text overlays.</p></div><label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#173f35] px-3 py-2 text-xs font-bold text-white"><Upload size={14} /> {uploading ? 'Uploading...' : 'Upload photos'}<input type="file" accept="image/jpeg,image/png,image/webp" multiple disabled={uploading} onChange={upload} className="hidden" /></label></div>
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row"><label className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-[#d6d9d1] bg-white px-3 focus-within:border-[#24584a]"><LinkIcon size={14} className="shrink-0 text-[#6c7770]" /><input type="url" value={imageUrl} onChange={(event) => { setImageUrl(event.target.value); if (uploadMessage) setUploadMessage(''); }} onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); addImageUrl(); } }} placeholder="Paste an image URL" className="h-10 min-w-0 flex-1 outline-none" /></label><button type="button" onClick={addImageUrl} className="inline-flex h-10 items-center justify-center rounded-xl border border-[#173f35] px-4 text-xs font-bold text-[#173f35] hover:bg-[#eef4ef]">Add URL</button></div>
           {uploadMessage && <p className="mt-2 text-xs text-[#a44a4a]">{uploadMessage}</p>}
           <div className="mt-3 grid gap-3 sm:grid-cols-3 lg:grid-cols-5">{form.images.map((image, index) => <div key={`${image}-${index}`} className="relative overflow-hidden rounded-xl border border-[#d9d9dc] bg-[#f6f6f4]"><img src={image} alt={`${index === 0 ? 'Featured ' : ''}listing photo`} className="aspect-square w-full object-cover" /><div className="flex items-center justify-between gap-1 p-1"><button type="button" title="Move image left" aria-label="Move image left" disabled={index === 0} onClick={() => moveImage(index, -1)} className="p-1 disabled:opacity-30"><GripVertical size={14} /></button><button type="button" onClick={() => setFeatured(index)} className={`px-1 text-[10px] font-semibold ${index === 0 ? 'text-[#16704a]' : 'text-[#616161]'}`}>{index === 0 ? 'Cover' : 'Set cover'}</button><button type="button" title="Remove image" aria-label="Remove image" onClick={() => removeImage(index)} className="p-1 text-[#a44a4a]"><Trash2 size={14} /></button></div></div>)}</div>
           {form.images.length > 0 && form.images.length < 10 && <p className="mt-2 text-[11px] text-[#8a5a00]">Add {10 - form.images.length} more photo{10 - form.images.length === 1 ? '' : 's'} for a stronger listing gallery. Publishing is allowed once the minimum is met.</p>}

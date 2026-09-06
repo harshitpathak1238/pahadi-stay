@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { Bath, BedDouble, BedSingle, CircleParking, ConciergeBell, Flower2, Info, Languages, Monitor, UserRound, Wifi } from "lucide-react";
 import { getPublicListing, getPublicListings } from "@/lib/listings";
+import { defaultStayFacilities, stayFacilityGroups } from "@/lib/stay-facilities";
 import { Button } from "@/components/ui/Button";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { StayTripPanel } from "@/components/trip/StayTripPanel";
+
+const facilityIcons = { 'Great for your stay': UserRound, Bathroom: Bath, Bedroom: BedDouble, Outdoors: Flower2, 'Room amenities': BedSingle, 'Media & Technology': Monitor, Internet: Wifi, Parking: CircleParking, Services: ConciergeBell, General: Info, 'Languages spoken': Languages };
 export async function generateStaticParams() {
   return (await getPublicListings('STAY')).map((stay) => ({ slug: stay.slug }));
 }
@@ -54,14 +58,16 @@ export default async function StayDetail({ params }: { params: { slug: string } 
               {stay.description}
             </p>
             <StayTripPanel slug={stay.slug} title={stay.title} price={stay.price} />
-            <h2 className="mt-10 text-2xl md:mt-12">What you will find</h2>
-            <div className="mt-5 grid grid-cols-1 gap-2 sans text-sm sm:grid-cols-2">
-              {stay.amenities.map((item) => (
-                <div key={item} className="rounded-xl bg-white px-4 py-3">
-                  ✓ {item}
-                </div>
-              ))}
+            <h2 className="mt-10 text-2xl md:mt-12">Facilities</h2>
+            <div className="mt-5 grid gap-8 md:grid-cols-3">
+              {stayFacilityGroups.map((group) => {
+                const enabledItems = group.items.filter((item) => (stay.facilities ?? defaultStayFacilities)[item.key] ?? true);
+                if (!enabledItems.length) return null;
+                const Icon = facilityIcons[group.title as keyof typeof facilityIcons] || Info;
+                return <section key={group.title} aria-labelledby={`facility-${group.title}`}><h3 id={`facility-${group.title}`} className="flex items-center gap-3 text-lg font-bold text-[#173f35]"><Icon size={22} strokeWidth={1.7} />{group.title}</h3><ul className="mt-3 grid gap-2 sans text-sm text-[#526057]">{enabledItems.map((item) => <li key={`${group.title}-${item.key}`} className="flex items-start gap-3"><span aria-hidden="true" className="text-[#24584a]">✓</span><span>{item.label}</span></li>)}</ul>{group.title === 'Internet' && <p className="mt-3 sans text-sm text-[#6c7770]">WiFi is available in all areas and is free of charge.</p>}</section>;
+              })}
             </div>
+            {stay.amenities.length > 0 && <div className="mt-8 rounded-xl bg-white p-4 sans text-sm"><p className="font-bold text-[#173f35]">Additional amenities</p><p className="mt-2 text-[#526057]">{stay.amenities.join(' · ')}</p></div>}
             <h2 className="mt-12 text-2xl">A note from guests</h2>
             <p className="mt-4 text-lg italic">
               “The kind of place that makes you extend your trip by one more
