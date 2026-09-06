@@ -13,6 +13,8 @@ import { useEffect, useState } from 'react';
 import { ArrowLeft, Bold, Code2, ImagePlus, Italic, Link as LinkIcon, List, ListOrdered, Pencil, Plus, Quote, Save, Search, Trash2, X, type LucideIcon } from 'lucide-react';
 import { prepareImageForUpload } from '@/lib/client-image-upload';
 import { ResizableImage } from './ResizableImage';
+import { GenericArticle, GenericDiv, GenericSpan } from './BlogEditorExtensions';
+import { TextSelection } from '@tiptap/pm/state';
 
 type Author = { id: string; name: string | null; email: string | null };
 type Blog = { id: string; slug: string; title: string; metaTitle: string; metaDescription: string; excerpt: string; body: string; authorName: string; authorId: string | null; category: string; primaryKeyword: string; tags: string[]; featuredImage: string | null; imageAltText: string | null; status: 'DRAFT' | 'SCHEDULED' | 'PUBLISHED' | 'ARCHIVED'; scheduledAt: string | null; publishedAt: string | null };
@@ -142,11 +144,23 @@ function Editor({ form, change, authors, save, upload, removeUploadedImage, busy
   const [picker, setPicker] = useState<'inline' | 'featured' | null>(null);
   const [sourceNotice, setSourceNotice] = useState(false);
     const [selectionVersion, setSelectionVersion] = useState(0);
-  const editor = useEditor({ extensions: [StarterKit.configure({ link: false }), ResizableImage, Link.configure({ openOnClick: false }), Table.configure({ resizable: true }), TableRow, TableHeader, TableCell, Youtube.configure({ controls: true, nocookie: true })], content: normalizeBlogHtml(form.body || '<p></p>'), onUpdate: ({ editor: current }) => { if (!source) { change('body', current.getHTML()); setDirty(true); setSelectionVersion((version) => version + 1); } }, onSelectionUpdate: () => setSelectionVersion((version) => version + 1), editorProps: { attributes: { class: 'prose min-h-[300px] max-w-none p-4 outline-none' } } });
+  const editor = useEditor({ extensions: [StarterKit.configure({ link: false }), GenericArticle, GenericDiv, GenericSpan, ResizableImage, Link.configure({ openOnClick: false }), Table.configure({ resizable: true }), TableRow, TableHeader, TableCell, Youtube.configure({ controls: true, nocookie: true })], content: normalizeBlogHtml(form.body || '<p></p>'), onUpdate: ({ editor: current }) => { if (!source) { change('body', current.getHTML()); setDirty(true); setSelectionVersion((version) => version + 1); } }, onSelectionUpdate: () => setSelectionVersion((version) => version + 1), editorProps: { attributes: { class: 'prose min-h-[300px] max-w-none p-4 outline-none' } } });
   useEffect(() => { if (!documentMode && !source && editor) { const content = normalizeHtml(form.body || '<p></p>'); if (editor.getHTML() !== content) editor.commands.setContent(content, { emitUpdate: false }); if (content !== form.body) change('body', content); } }, [documentMode, editor, form.body, source]);
   const active = (name: string) => { void selectionVersion; return Boolean(editor?.isActive(name)); };
-  const toggleSource = () => { if (source && editor) { const normalized = normalizeBlogHtml(form.body || '<p></p>'); editor.commands.setContent(normalized, { emitUpdate: false }); change('body', normalized); setSourceNotice(documentMode); } setSource((value) => !value); };
-  const selectInlineImage = (url: string) => { if (source) change('body', `${form.body}\n<img src="${url}" alt="">`); else editor?.chain().focus().setImage({ src: url }).run(); setDirty(true); setPicker(null); };
+  const toggleSource = () => { if (source && editor) { const normalized = normalizeBlogHtml(form.body || '<p></p>'); editor.commands.setContent(normalized, { emitUpdate: false }); change('body', normalized); setSourceNotice(normalized !== form.body); } setSource((value) => !value); };
+  const selectInlineImage = (url: string) => {
+    if (source) {
+      change('body', `${form.body}\n<img src="${url}" alt="">`);
+    } else if (editor) {
+      const { state, view } = editor;
+      const mappedPosition = state.tr.mapping.map(state.selection.from);
+      const selection = TextSelection.near(state.doc.resolve(mappedPosition));
+      const image = state.schema.nodes.image.create({ src: url });
+      view.dispatch(state.tr.setSelection(selection).replaceSelectionWith(image).scrollIntoView());
+    }
+    setDirty(true);
+    setPicker(null);
+  };
   const selectFeaturedImage = (url: string) => { change('featuredImage', url); setDirty(true); setPicker(null); };
   const field = (key: keyof Form, label: string, _required = false, minLength?: number, maxLength?: number) => { const optionalMeta = ['metaTitle', 'metaDescription', 'primaryKeyword'].includes(String(key)); return <label className="grid gap-1 text-[12px] font-semibold">{label}<input required={false} minLength={optionalMeta ? undefined : minLength} maxLength={maxLength} value={String(form[key] ?? '')} onChange={(event) => { const value = event.target.value; change(key, value); if (key === 'title' && !form.id) change('slug', slugify(value)); setDirty(true); }} className="h-9 border border-[#d9d9dc] bg-white px-2 text-[13px] font-normal" /></label>; };
   const tools: [LucideIcon, string, string, () => void][] = [[Bold, 'Bold', 'bold', () => editor?.chain().focus().toggleBold().run()], [Italic, 'Italic', 'italic', () => editor?.chain().focus().toggleItalic().run()], [List, 'Bulleted list', 'bulletList', () => editor?.chain().focus().toggleBulletList().run()], [ListOrdered, 'Numbered list', 'orderedList', () => editor?.chain().focus().toggleOrderedList().run()], [Quote, 'Quote', 'blockquote', () => editor?.chain().focus().toggleBlockquote().run()], [LinkIcon, 'Link', 'link', () => { const url = window.prompt('Link URL'); if (url) editor?.chain().focus().setLink({ href: url }).run(); }], [Bold, 'Insert table', 'table', () => editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()], [Italic, 'Embed video', 'video', () => { const url = window.prompt('YouTube or Vimeo URL'); if (url) editor?.chain().focus().setYoutubeVideo({ src: url, width: 640, height: 360 }).run(); }]];

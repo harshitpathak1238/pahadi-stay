@@ -28,8 +28,7 @@ export function normalizeBlogHtml(html: string) {
 export function sanitizeBlogHtml(html: string) {
   return sanitizeHtml(html, {
     allowedTags: ['p', 'br', 'strong', 'b', 'em', 'i', 'h2', 'h3', 'ul', 'ol', 'li', 'blockquote', 'a', 'img', 'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td', 'div', 'span', 'iframe'],
-    allowedAttributes: { a: ['href', 'target', 'rel', 'class'], img: ['src', 'alt', 'title', 'class', 'width', 'height', 'style'], div: ['class'], span: ['class'], table: ['class'], th: ['colspan', 'rowspan', 'class'], td: ['colspan', 'rowspan', 'class'], iframe: ['src', 'width', 'height', 'allow', 'allowfullscreen', 'class'] },
-    allowedClasses: { '*': ['cta-box', 'cta-btn', 'responsive-image', 'video-embed'] },
+    allowedAttributes: { a: ['href', 'target', 'rel', 'class'], img: ['src', 'alt', 'title', 'class', 'width', 'height', 'style'], div: ['class', 'style'], span: ['class', 'style'], table: ['class'], th: ['colspan', 'rowspan', 'class'], td: ['colspan', 'rowspan', 'class'], iframe: ['src', 'width', 'height', 'allow', 'allowfullscreen', 'class'] },
     allowedSchemes: ['http', 'https'],
     allowedSchemesByTag: { img: ['http', 'https'] },
   });
