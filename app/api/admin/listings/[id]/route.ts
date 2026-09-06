@@ -3,7 +3,7 @@ import { z } from 'zod';
 import type { Prisma } from '@prisma/client';
 import { db } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin';
-import { sanitizeBlogHtml } from '@/lib/sanitize-html';
+import { isFullBlogDocument, sanitizeBlogHtml } from '@/lib/sanitize-html';
 
 const updateStatus = z.preprocess((value) => typeof value === 'string' ? value.trim().toUpperCase() : value, z.enum(['DRAFT', 'LIVE', 'PAUSED', 'PENDING_REVIEW']).optional());
 const optionalStringList = z.array(z.string().trim().max(500)).optional().transform((items) => items ? items.map((item) => item.trim()).filter(Boolean) : items);
@@ -16,7 +16,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   const existing = await db.listing.findUnique({ where: { id: params.id }, select: { category: true, title: true, description: true, basePrice: true, sellPrice: true, images: true, location: true } });
   if (!existing) return NextResponse.json({ error: 'Listing not found.' }, { status: 404 });
   const { category, partnerId, details, ...fields } = parsed.data;
-  const data = { ...fields, ...(fields.description !== undefined ? { description: sanitizeBlogHtml(fields.description) } : {}), ...(details ? { details: details as Prisma.InputJsonObject } : {}), ...(category ? { category } : {}), ...(partnerId ? { partner: { connect: { id: partnerId } } } : {}) };
+  const data = { ...fields, ...(fields.description !== undefined ? { description: isFullBlogDocument(fields.description) ? fields.description : sanitizeBlogHtml(fields.description) } : {}), ...(details ? { details: details as Prisma.InputJsonObject } : {}), ...(category ? { category } : {}), ...(partnerId ? { partner: { connect: { id: partnerId } } } : {}) };
   const listing = await db.listing.update({ where: { id: params.id }, data });
   return NextResponse.json(listing);
 }

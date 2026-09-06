@@ -1,15 +1,20 @@
 'use client';
 
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
-import { ArrowLeft, Bath, BedDouble, BedSingle, Bold, CircleParking, Code2, ConciergeBell, Flower2, GripVertical, ImagePlus, Info, Italic, Languages, Link as LinkIcon, List, ListOrdered, Monitor, Quote, Save, Trash2, Upload, UserRound, Wifi, type LucideIcon } from 'lucide-react';
+import { ArrowLeft, Bath, BedDouble, BedSingle, Bold, CircleParking, Code2, ConciergeBell, Flower2, GripVertical, ImagePlus, Info, Italic, Languages, Link as LinkIcon, List, ListOrdered, Monitor, Quote, Save, Search, Trash2, Upload, UserRound, Wifi, type LucideIcon } from 'lucide-react';
 import type { ListingForm } from './ContentManager';
 import { stayFacilityGroups } from '@/lib/stay-facilities';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import TiptapLink from '@tiptap/extension-link';
-import ImageExtension from '@tiptap/extension-image';
+import { Table } from '@tiptap/extension-table';
+import TableRow from '@tiptap/extension-table-row';
+import TableCell from '@tiptap/extension-table-cell';
+import TableHeader from '@tiptap/extension-table-header';
+import Youtube from '@tiptap/extension-youtube';
 import { GenericArticle, GenericDiv, GenericSpan } from './BlogEditorExtensions';
-import { normalizeBlogHtml } from '@/lib/sanitize-html';
+import { ResizableImage } from './ResizableImage';
+import { isFullBlogDocument, normalizeBlogHtml, splitFullBlogDocument, type FullBlogDocumentParts } from '@/lib/sanitize-html';
 
 const categoryNames = { STAY: 'Stay', RIDE: 'Ride', RENTAL: 'Rental', ACTIVITY: 'Activity' } as const;
 const valueOf = (details: Record<string, string>, name: string) => details[name] || '';
@@ -50,27 +55,35 @@ export function CategoryListingEditor({ category, form, setForm, busy, message, 
   const [uploadMessage, setUploadMessage] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const setDetail = (name: string, value: string) => setForm((current) => ({ ...current, details: { ...current.details, [name]: value } }));
+  const documentMode = isFullBlogDocument(form.description);
   const [source, setSource] = useState(false);
+  const [fullDocumentParts, setFullDocumentParts] = useState<FullBlogDocumentParts | null>(() => documentMode ? splitFullBlogDocument(form.description) : null);
+  const [fullBodyChanged, setFullBodyChanged] = useState(false);
   const editor = useEditor({
-    extensions: [StarterKit.configure({ link: false }), GenericArticle, GenericDiv, GenericSpan, ImageExtension, TiptapLink.configure({ openOnClick: false })],
-    content: normalizeBlogHtml(form.description || '<p></p>'),
-    onUpdate: ({ editor: current }) => { if (!source) setForm((currentForm) => ({ ...currentForm, description: current.getHTML() })); },
+    extensions: [StarterKit.configure({ link: false }), GenericArticle, GenericDiv, GenericSpan, ResizableImage, TiptapLink.configure({ openOnClick: false }), Table.configure({ resizable: true }), TableRow, TableHeader, TableCell, Youtube.configure({ controls: true, nocookie: true })],
+    content: documentMode ? fullDocumentParts?.body || '<p></p>' : normalizeBlogHtml(form.description || '<p></p>'),
+    onUpdate: ({ editor: current }) => { if (!source) setForm((currentForm) => ({ ...currentForm, description: documentMode && fullDocumentParts ? `${fullDocumentParts.prefix}${current.getHTML()}${fullDocumentParts.suffix}` : current.getHTML() })); if (!source && documentMode) setFullBodyChanged(true); },
     editorProps: { attributes: { class: 'prose min-h-[220px] max-w-none p-4 outline-none' } },
   });
   useEffect(() => {
-    if (!source && editor) {
+    if (!source && editor && !documentMode) {
       const content = normalizeBlogHtml(form.description || '<p></p>');
       if (editor.getHTML() !== content) editor.commands.setContent(content, { emitUpdate: false });
       if (content !== form.description) setForm((current) => ({ ...current, description: content }));
     }
-  }, [editor, form.description, source, setForm]);
+  }, [documentMode, editor, form.description, source, setForm]);
+  useEffect(() => { if (!source && editor && documentMode && !fullBodyChanged && fullDocumentParts && editor.getHTML() !== fullDocumentParts.body) editor.commands.setContent(fullDocumentParts.body, { emitUpdate: false }); }, [documentMode, editor, fullDocumentParts, fullBodyChanged, source]);
   const toggleSource = () => {
-    if (source && editor) {
-      const content = normalizeBlogHtml(form.description || '<p></p>');
-      editor.commands.setContent(content, { emitUpdate: false });
-      setForm((current) => ({ ...current, description: content }));
+    if (source) {
+      if (isFullBlogDocument(form.description)) {
+        const parts = splitFullBlogDocument(form.description);
+        setFullDocumentParts(parts); setFullBodyChanged(false); editor?.commands.setContent(parts.body, { emitUpdate: false });
+      } else if (editor) {
+        const content = normalizeBlogHtml(form.description || '<p></p>'); editor.commands.setContent(content, { emitUpdate: false }); setForm((current) => ({ ...current, description: content }));
+      }
     } else if (editor) {
-      setForm((current) => ({ ...current, description: editor.getHTML() }));
+      const content = documentMode && fullDocumentParts ? (fullBodyChanged ? editor.getHTML() : fullDocumentParts.body) : editor.getHTML();
+      setForm((current) => ({ ...current, description: documentMode && fullDocumentParts ? `${fullDocumentParts.prefix}${content}${fullDocumentParts.suffix}` : content }));
     }
     setSource((current) => !current);
   };
@@ -85,7 +98,7 @@ export function CategoryListingEditor({ category, form, setForm, busy, message, 
       data.append('file', file);
       const response = await fetch('/api/admin/media', { method: 'POST', body: data });
       const result = await response.json().catch(() => ({}));
-      if (response.ok && typeof result.asset?.url === 'string') editor.chain().focus().setImage({ src: result.asset.url }).run();
+      if (response.ok && typeof result.asset?.url === 'string') { const pos = editor.state.selection.from; editor.chain().focus().insertContentAt(pos, { type: 'image', attrs: { src: result.asset.url } }).run(); }
     };
     input.click();
   };
@@ -96,7 +109,10 @@ export function CategoryListingEditor({ category, form, setForm, busy, message, 
     [ListOrdered, 'Numbered list', 'orderedList', () => editor?.chain().focus().toggleOrderedList().run()],
     [Quote, 'Quote', 'blockquote', () => editor?.chain().focus().toggleBlockquote().run()],
     [LinkIcon, 'Link', 'link', () => { const url = window.prompt('Link URL'); if (url) editor?.chain().focus().setLink({ href: url }).run(); }],
+    [Bold, 'Insert table', 'table', () => editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()],
+    [Italic, 'Embed video', 'video', () => { const url = window.prompt('YouTube or Vimeo URL'); if (url) editor?.chain().focus().setYoutubeVideo({ src: url, width: 640, height: 360 }).run(); }],
   ];
+  const editorStyles = (fullDocumentParts?.styles || '').replace(/\b(?:html|body)\b/gi, '.full-stay-editor');
 
   const upload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
@@ -177,7 +193,7 @@ export function CategoryListingEditor({ category, form, setForm, busy, message, 
               <button type="button" title="Insert image" aria-label="Insert image" onClick={insertImage} className="grid h-8 w-8 place-items-center hover:bg-[#e9e9eb]"><ImagePlus size={15} /></button>
               <button type="button" title="HTML source" aria-label="HTML source" aria-pressed={source} onClick={toggleSource} className={`grid h-8 w-8 place-items-center text-xs font-bold ${source ? 'bg-[#dcefe2] text-[#24584a]' : 'hover:bg-[#e9e9eb]'}`}><Code2 size={15} /></button>
             </div>
-            {source ? <textarea value={form.description} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} className="min-h-[220px] w-full p-4 font-mono text-[12px] outline-none" /> : <EditorContent editor={editor} />}
+            {source ? <textarea value={form.description} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} className="min-h-[220px] w-full p-4 font-mono text-[12px] outline-none" /> : <div className={documentMode ? 'full-stay-editor' : undefined}>{documentMode && editorStyles && <style dangerouslySetInnerHTML={{ __html: editorStyles }} />}<EditorContent editor={editor} /></div>}
           </div>
         </div>
         <div className="md:col-span-2">

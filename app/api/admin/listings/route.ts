@@ -3,7 +3,7 @@ import { z } from 'zod';
 import type { Prisma } from '@prisma/client';
 import { db } from '@/lib/db';
 import { getAdminPartner, requireAdmin } from '@/lib/admin';
-import { sanitizeBlogHtml } from '@/lib/sanitize-html';
+import { isFullBlogDocument, sanitizeBlogHtml } from '@/lib/sanitize-html';
 
 const listingStatus = z.preprocess((value) => typeof value === 'string' ? value.trim().toUpperCase() : value, z.enum(['DRAFT', 'LIVE', 'PAUSED', 'PENDING_REVIEW']).default('DRAFT'));
 const optionalStringList = z.array(z.string().trim().max(500)).default([]).transform((items) => items.map((item) => item.trim()).filter(Boolean));
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     const title = parsed.data.title || 'Untitled listing';
     const slug = parsed.data.slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || `listing-${Date.now()}`;
     const { details, ...fields } = parsed.data;
-    fields.description = sanitizeBlogHtml(fields.description);
+    fields.description = isFullBlogDocument(fields.description) ? fields.description : sanitizeBlogHtml(fields.description);
     const listing = await db.listing.create({ data: { ...fields, details: details as Prisma.InputJsonObject, slug, title, partnerId: partner.id, basePrice: parsed.data.basePrice, sellPrice: parsed.data.sellPrice, category: (parsed.data.category || 'STAY') as 'STAY' | 'RIDE' | 'RENTAL' | 'ACTIVITY' } });
     return NextResponse.json(listing, { status: 201 });
   } catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : 'Could not create listing.' }, { status: 500 }); }

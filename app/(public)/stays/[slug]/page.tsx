@@ -6,7 +6,7 @@ import { defaultStayFacilities, stayFacilityGroups } from "@/lib/stay-facilities
 import { Button } from "@/components/ui/Button";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { StayTripPanel } from "@/components/trip/StayTripPanel";
-import { sanitizeBlogHtml } from "@/lib/sanitize-html";
+import { isFullBlogDocument, sanitizeBlogHtml } from "@/lib/sanitize-html";
 
 const facilityIcons = { 'Great for your stay': UserRound, Bathroom: Bath, Bedroom: BedDouble, Outdoors: Flower2, 'Room amenities': BedSingle, 'Media & Technology': Monitor, Internet: Wifi, Parking: CircleParking, Services: ConciergeBell, General: Info, 'Languages spoken': Languages };
 export async function generateStaticParams() {
@@ -51,7 +51,7 @@ export default async function StayDetail({ params }: { params: { slug: string } 
             <h1 className="mt-3 text-4xl leading-tight md:text-5xl">
               {stay.title}
             </h1>
-            <div className="prose mt-6 max-w-2xl text-base leading-7 text-[#526057] md:mt-7 md:text-lg md:leading-8" dangerouslySetInnerHTML={{ __html: sanitizeBlogHtml(stay.description) }} />
+            {isFullBlogDocument(stay.description) ? <iframe title={`${stay.title} description`} srcDoc={stay.description} sandbox="allow-same-origin" className="mt-6 min-h-[900px] w-full border-0" /> : <div className="prose mt-6 max-w-2xl text-base leading-7 text-[#526057] md:mt-7 md:text-lg md:leading-8" dangerouslySetInnerHTML={{ __html: sanitizeBlogHtml(stay.description) }} />}
             <StayTripPanel slug={stay.slug} title={stay.title} price={stay.price} />
             <h2 className="mt-10 text-2xl md:mt-12">Facilities</h2>
             <div className="mt-5 grid gap-8 md:grid-cols-3">
