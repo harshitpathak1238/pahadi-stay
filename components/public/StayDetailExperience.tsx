@@ -25,7 +25,7 @@ export function StayDetailExperience({ stay }: { stay: Listing }) {
   const facilities = stayFacilityGroups.flatMap((group) =>
     group.items
       .filter((item) => (stay.facilities ?? defaultStayFacilities)[item.key] ?? true)
-      .map((item) => ({ label: item.label, group: group.name }))
+      .map((item) => ({ label: item.label, group: group.title }))
   );
 
   const faqs = [
