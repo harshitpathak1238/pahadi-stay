@@ -36,13 +36,6 @@ export function FilterSidebar({
     ).length;
   });
 
-  // Property type counts (example; can be extended based on category field)
-  const propertyTypeCounts = {
-    Hotels: results.filter((stay) => stay.category === 'HOTEL' || stay.category?.includes('hotel')).length,
-    Homestays: results.filter((stay) => stay.category === 'HOMESTAY' || stay.category?.includes('home')).length,
-    Apartments: results.filter((stay) => stay.category === 'APARTMENT' || stay.category?.includes('apart')).length,
-  };
-
   // Star rating counts
   const ratingCounts = {
     '5 stars': results.filter((stay) => stay.rating >= 4.5).length,
@@ -95,18 +88,6 @@ export function FilterSidebar({
               <label key={rating} className="mt-3 flex items-center gap-2 text-sm">
                 <input type="checkbox" />
                 {rating}
-                <span className="ml-auto text-xs text-[#718096]">{count}</span>
-              </label>
-            ))}
-          </div>
-
-          {/* Property type filter */}
-          <div className="mt-5 border-t border-[#e5e7eb] pt-4">
-            <h3 className="text-sm font-bold">Property type</h3>
-            {Object.entries(propertyTypeCounts).map(([type, count]) => (
-              <label key={type} className="mt-3 flex items-center gap-2 text-sm">
-                <input type="checkbox" />
-                {type}
                 <span className="ml-auto text-xs text-[#718096]">{count}</span>
               </label>
             ))}
