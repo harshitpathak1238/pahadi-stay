@@ -13,6 +13,13 @@ async function proxy(request: Request, init: RequestInit = {}) {
   return fetch(target, { ...init, signal: AbortSignal.timeout(30000), headers: { ...(init.headers || {}), 'X-Media-Secret': secret, 'X-Forwarded-Host': new URL(request.url).host } });
 }
 
+async function multipartBody(request: Request): Promise<FormData> {
+  const source = await request.formData();
+  const body = new FormData();
+  source.forEach((value, key) => body.append(key, value));
+  return body;
+}
+
 function normalizeLegacyUrls(value: unknown, apiUrl: string): unknown {
   if (typeof value === 'string') return value.replace(`${new URL(apiUrl).origin}/uploads/images/media-api.php?file=`, `${new URL(apiUrl).origin}/media-api.php?file=`);
   if (Array.isArray(value)) return value.map((item) => normalizeLegacyUrls(item, apiUrl));
@@ -43,7 +50,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
   try {
-    const response = await proxy(request, { method: 'POST', body: await request.arrayBuffer(), headers: { 'Content-Type': request.headers.get('Content-Type') || '' } });
+    const response = await proxy(request, { method: 'POST', body: await multipartBody(request) });
     return responseFromMedia(response);
   } catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : 'Media upload failed.' }, { status: 503 }); }
 }
@@ -51,8 +58,8 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
   try {
-    // PHP only parses multipart form fields for POST, so preserve the body but use POST upstream.
-    const response = await proxy(request, { method: 'POST', body: await request.arrayBuffer(), headers: { 'Content-Type': request.headers.get('Content-Type') || '' } });
+    // PHP only parses multipart form fields for POST; rebuild the body so $_POST and $_FILES are populated.
+    const response = await proxy(request, { method: 'POST', body: await multipartBody(request) });
     return responseFromMedia(response);
   } catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : 'Media update failed.' }, { status: 503 }); }
 }
@@ -60,7 +67,8 @@ export async function PATCH(request: Request) {
 export async function DELETE(request: Request) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
   try {
-    const response = await proxy(request, { method: 'DELETE', body: await request.arrayBuffer(), headers: { 'Content-Type': 'application/json' } });
+    const body = await request.text();
+    const response = await proxy(request, { method: 'DELETE', body, headers: { 'Content-Type': 'application/json' } });
     return responseFromMedia(response);
   } catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : 'Media deletion failed.' }, { status: 503 }); }
 }
