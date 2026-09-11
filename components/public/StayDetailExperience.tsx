@@ -6,6 +6,7 @@ import { ChevronDown, Heart, MapPin, Share2, Star, Wifi, Car, Utensils, ShieldCh
 import type { Listing } from '@/lib/mock-data';
 import { defaultStayFacilities, stayFacilityGroups } from '@/lib/stay-facilities';
 import { isFullBlogDocument, sanitizeBlogHtml } from '@/lib/sanitize-html';
+import { AutoHeightIframe } from '@/components/public/AutoHeightIframe';
 import { StayTripPanel } from '@/components/trip/StayTripPanel';
 
 export function StayDetailExperience({ stay }: { stay: Listing }) {
@@ -159,11 +160,11 @@ export function StayDetailExperience({ stay }: { stay: Listing }) {
             <section id="overview" className="scroll-mt-24 rounded-lg border border-[#d9e0e8] bg-white p-5 md:p-7">
               <h2 className="text-2xl font-bold">About this property</h2>
               {isFullBlogDocument(stay.description) ? (
-                <iframe
+                <AutoHeightIframe
                   title={`${stay.title} description`}
                   srcDoc={stay.description}
-                  sandbox="allow-same-origin"
-                  className="mt-4 min-h-[700px] w-full border-0"
+                  minHeight={700}
+                  className="mt-4 min-h-[700px]"
                 />
               ) : (
                 <div

@@ -1,27 +1,85 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { CalendarDays, LayoutGrid, List, MapPin, Search, Users, X } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { LayoutGrid, List } from 'lucide-react';
 import type { Listing } from '@/lib/mock-data';
 import { FilterSidebar } from './FilterSidebar';
 import { ResultCard } from './ResultCard';
+import { StaysSearchBar } from './StaysSearchBar';
 
 const filters = ['Free WiFi', 'Breakfast included', 'Parking', 'Lake view', 'Pet friendly'];
 
-export function StaysSearchPage({ stays }: { stays: Listing[] }) {
-  const [destination, setDestination] = useState('Bhimtal, Uttarakhand');
-  const [dates, setDates] = useState('18 Sep - 21 Sep');
-  const [guests, setGuests] = useState('2 adults · 1 room');
+type StaysSearchPageProps = {
+  stays: Listing[];
+  initialLocation: string;
+  initialCheckIn: string;
+  initialCheckOut: string;
+  initialGuests: number;
+  initialMinPrice?: number;
+  initialMaxPrice?: number;
+};
+
+export function StaysSearchPage({ stays, initialLocation, initialCheckIn, initialCheckOut, initialGuests, initialMinPrice, initialMaxPrice }: StaysSearchPageProps) {
+  const router = useRouter();
+  const prices = stays.map((stay) => stay.price).filter((price) => Number.isFinite(price));
+  const datasetMinPrice = prices.length ? Math.min(...prices) : 0;
+  const datasetMaxPrice = prices.length ? Math.max(...prices) : 0;
+  const [destination, setDestination] = useState(initialLocation);
+  const [checkIn, setCheckIn] = useState(initialCheckIn);
+  const [checkOut, setCheckOut] = useState(initialCheckOut);
+  const [guestCount, setGuestCount] = useState(initialGuests);
+  const [minPrice, setMinPrice] = useState(initialMinPrice);
   const [sort, setSort] = useState('Recommended');
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [filterOpen, setFilterOpen] = useState(false);
   const [view, setView] = useState<'list' | 'grid'>('list');
-  const [maxPrice, setMaxPrice] = useState(Math.max(...stays.map((stay) => stay.price), 10000));
+  const [maxPrice, setMaxPrice] = useState(initialMaxPrice ?? datasetMaxPrice);
+
+  useEffect(() => {
+    setDestination(initialLocation);
+    setCheckIn(initialCheckIn);
+    setCheckOut(initialCheckOut);
+    setGuestCount(initialGuests);
+    setMinPrice(initialMinPrice);
+    setMaxPrice(initialMaxPrice ?? datasetMaxPrice);
+  }, [datasetMaxPrice, initialCheckIn, initialCheckOut, initialGuests, initialLocation, initialMaxPrice, initialMinPrice]);
+
+  // Keep the URL in sync with active filters (router.replace so refresh/back
+  // behaviour stays clean) — refreshed or shared links restore the same view.
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const params = new URLSearchParams();
+      if (destination.trim()) params.set('location', destination.trim());
+      if (checkIn) params.set('checkIn', checkIn);
+      if (checkOut) params.set('checkOut', checkOut);
+      params.set('guests', String(guestCount));
+      if (minPrice !== undefined) params.set('minPrice', String(minPrice));
+      if (maxPrice !== undefined && maxPrice !== datasetMaxPrice) params.set('maxPrice', String(maxPrice));
+      const query = params.toString();
+      router.replace(query ? `/stays?${query}` : '/stays', { scroll: false });
+    }, 400);
+    return () => window.clearTimeout(timer);
+  }, [checkIn, checkOut, destination, guestCount, maxPrice, minPrice, datasetMaxPrice, router]);
+
+  const handleLocationChange = useCallback((value: string) => setDestination(value), []);
+  const handlePriceChange = useCallback((nextMinPrice?: number, nextMaxPrice?: number) => {
+    setMinPrice(nextMinPrice);
+    setMaxPrice(nextMaxPrice ?? datasetMaxPrice);
+  }, [datasetMaxPrice]);
+  const handleSearch = useCallback((values: { location: string; checkIn: string; checkOut: string; guests: number }) => {
+    setDestination(values.location);
+    setCheckIn(values.checkIn);
+    setCheckOut(values.checkOut);
+    setGuestCount(values.guests);
+  }, []);
 
   const results = useMemo(() => {
     const filtered = stays.filter(
       (stay) =>
+        (!destination || `${stay.title} ${stay.location}`.toLowerCase().includes(destination.toLowerCase())) &&
+        (minPrice === undefined || stay.price >= minPrice) &&
         stay.price <= maxPrice &&
         activeFilters.every((filter) =>
           stay.amenities.some((amenity) =>
@@ -32,7 +90,7 @@ export function StaysSearchPage({ stays }: { stays: Listing[] }) {
     return [...filtered].sort((a, b) =>
       sort === 'Price: low to high' ? a.price - b.price : sort === 'Guest rating' ? b.rating - a.rating : 0
     );
-  }, [activeFilters, maxPrice, sort, stays]);
+  }, [activeFilters, destination, maxPrice, minPrice, sort, stays]);
 
   const toggleFilter = (filter: string) =>
     setActiveFilters((current) => (current.includes(filter) ? current.filter((item) => item !== filter) : [...current, filter]));
@@ -42,42 +100,18 @@ export function StaysSearchPage({ stays }: { stays: Listing[] }) {
   return (
     <div className="bg-[#f5f7fa] text-[#1f2937]">
       <main className="mx-auto w-full max-w-[1280px] px-3 py-4 sm:px-4 sm:py-5 md:px-6">
-        {/* Search bar */}
-        <div className="rounded-xl bg-[#feba02] p-2 shadow-sm">
-          <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-[1.2fr_1fr_1fr_auto]">
-            <label className="flex items-center gap-2 rounded border border-[#c98e00] bg-white px-3 py-3 text-sm text-[#374151]">
-              <MapPin size={17} className="text-[#1a3a2a]" />
-              <input
-                value={destination}
-                onChange={(event) => setDestination(event.target.value)}
-                className="min-w-0 flex-1 outline-none"
-                aria-label="Destination"
-              />
-              <X size={15} />
-            </label>
-            <label className="flex items-center gap-2 rounded border border-[#c98e00] bg-white px-3 py-3 text-sm text-[#374151]">
-              <CalendarDays size={17} className="text-[#1a3a2a]" />
-              <input
-                value={dates}
-                onChange={(event) => setDates(event.target.value)}
-                className="min-w-0 flex-1 outline-none"
-                aria-label="Dates"
-              />
-            </label>
-            <label className="flex items-center gap-2 rounded border border-[#c98e00] bg-white px-3 py-3 text-sm text-[#374151]">
-              <Users size={17} className="text-[#1a3a2a]" />
-              <input
-                value={guests}
-                onChange={(event) => setGuests(event.target.value)}
-                className="min-w-0 flex-1 outline-none"
-                aria-label="Guests"
-              />
-            </label>
-            <button className="rounded bg-[#1a3a2a] px-7 py-3 font-bold text-white hover:bg-[#0f2818] sm:col-span-2 md:col-span-1">
-              <Search size={18} className="mx-auto" />
-            </button>
-          </div>
-        </div>
+        <StaysSearchBar
+          stays={stays}
+          initialLocation={initialLocation}
+          initialCheckIn={initialCheckIn}
+          initialCheckOut={initialCheckOut}
+          initialGuests={initialGuests}
+          initialMinPrice={initialMinPrice}
+          initialMaxPrice={initialMaxPrice}
+          onLocationChange={handleLocationChange}
+          onPriceChange={handlePriceChange}
+          onSearch={handleSearch}
+        />
 
         {/* Breadcrumb */}
         <div className="mt-4 overflow-x-auto whitespace-nowrap text-xs text-[#536274]">
@@ -109,7 +143,7 @@ export function StaysSearchPage({ stays }: { stays: Listing[] }) {
                   {destination}: {results.length} properties found
                 </h1>
                 <p className="mt-1 text-sm text-[#536274]">
-                  {dates} · {guests}
+                  {checkIn && checkOut ? `${checkIn} to ${checkOut}` : 'Choose dates to plan your stay'} · {guestCount} {guestCount === 1 ? 'guest' : 'guests'}
                 </p>
               </div>
 
@@ -168,7 +202,8 @@ export function StaysSearchPage({ stays }: { stays: Listing[] }) {
                 <button
                   onClick={() => {
                     setActiveFilters([]);
-                    setMaxPrice(Math.max(...stays.map((stay) => stay.price), 10000));
+                    setMinPrice(undefined);
+                    setMaxPrice(datasetMaxPrice);
                   }}
                   className="mt-3 text-sm font-bold text-[#1a3a2a] hover:underline"
                 >

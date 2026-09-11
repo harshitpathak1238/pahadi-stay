@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getPublishedBlog, getPublishedBlogs, normalizeBlogImageSources } from '@/lib/blog';
+import { AutoHeightIframe } from '@/components/public/AutoHeightIframe';
 
 export async function generateStaticParams() { return (await getPublishedBlogs()).map((blog) => ({ slug: blog.slug })); }
 
@@ -20,11 +21,11 @@ export default async function Article({ params }: { params: { slug: string } }) 
   return (
     <div className="w-full">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <iframe
+      <AutoHeightIframe
         title={blog.title}
         srcDoc={normalizeBlogImageSources(blog.body)}
-        sandbox="allow-same-origin"
-        className="block min-h-[1600px] w-full border-0"
+        minHeight={1600}
+        className="min-h-[1600px]"
       />
     </div>
   );

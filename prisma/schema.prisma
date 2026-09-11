@@ -117,7 +117,7 @@ model Listing {
 	partnerId    String
 	category     ListingCategory
 	title        String
-	description  String
+	description  String           @db.LongText
 	location     String
 	basePrice    Decimal          @db.Decimal(10, 2)
 	sellPrice    Decimal          @db.Decimal(10, 2)
@@ -257,7 +257,7 @@ model Review {
 model Package {
 	id         String   @id @default(cuid())
 	title      String
-	description String
+	description String  @db.LongText
 	listingIds Json
 	price      Decimal  @db.Decimal(10, 2)
 	details    Json     @default("{}")

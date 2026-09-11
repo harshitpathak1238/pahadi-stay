@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { Heart, Star } from 'lucide-react';
 import type { Listing } from '@/lib/mock-data';
 
@@ -12,15 +13,12 @@ interface ResultCardProps {
 }
 
 export function ResultCard({ stay, isWishlisted, onToggleWishlist, view }: ResultCardProps) {
-  // Placeholder distance calculation (in real app, would use geolocation)
-  const distance = Math.floor(Math.random() * 15) + 1; // 1-15 km random placeholder
-
   if (view === 'grid') {
     return (
-      <article className="overflow-hidden rounded-lg border border-[#d9e0e8] bg-white shadow-sm transition hover:shadow-md">
+      <article className="overflow-hidden rounded-2xl border border-[#dfe3d8] bg-white shadow-[0_8px_24px_rgba(23,63,53,.06)] transition hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(23,63,53,.1)]">
         {/* Image with wishlist */}
-        <div className="relative">
-          <img src={stay.image} alt={stay.title} className="h-44 w-full object-cover sm:h-48" />
+        <div className="relative h-44 w-full sm:h-48">
+          <Image src={stay.image} alt={stay.title} fill sizes="(max-width: 768px) 92vw, 33vw" className="object-cover" />
           <button
             aria-label={`Save ${stay.title}`}
             onClick={() => onToggleWishlist(stay.slug)}
@@ -36,7 +34,7 @@ export function ResultCard({ stay, isWishlisted, onToggleWishlist, view }: Resul
 
         {/* Info */}
         <div className="p-4">
-          <Link href={`/stays/${stay.slug}`} className="line-clamp-2 font-semibold text-[#1f2937] hover:text-[#1a3a2a]">
+          <Link href={`/stays/${stay.slug}`} className="line-clamp-2 text-lg font-bold text-[#173f35] hover:text-[#24584a]">
             {stay.title}
           </Link>
 
@@ -47,12 +45,11 @@ export function ResultCard({ stay, isWishlisted, onToggleWishlist, view }: Resul
                 <Star key={i} size={14} fill="currentColor" />
               ))}
             </div>
-            <span className="text-xs font-semibold text-[#1f2937]">{stay.rating.toFixed(1)}</span>
-            <span className="text-xs text-[#536274]">(128 reviews)</span>
+            <span className="text-xs font-bold text-[#173f35]">{stay.rating.toFixed(1)} Excellent</span>
           </div>
 
           {/* Location */}
-          <p className="mt-2 text-xs text-[#536274]">{stay.location}</p>
+          <p className="mt-2 text-sm text-[#536274]">{stay.location}</p>
 
           {/* Description */}
           <p className="mt-2 line-clamp-2 text-xs text-[#536274]">{stay.description.replace(/<[^>]+>/g, '')}</p>
@@ -63,7 +60,7 @@ export function ResultCard({ stay, isWishlisted, onToggleWishlist, view }: Resul
               <p className="text-xs text-[#536274]">From</p>
               <p className="font-bold text-[#1f2937]">₹{stay.price.toLocaleString('en-IN')}</p>
             </div>
-            <button className="rounded bg-[#1a3a2a] px-3 py-2 text-xs font-bold text-white hover:bg-[#0f2818]">
+            <button className="rounded-xl bg-[#173f35] px-3 py-2 text-xs font-bold text-white hover:bg-[#24584a]">
               See prices
             </button>
           </div>
@@ -74,10 +71,10 @@ export function ResultCard({ stay, isWishlisted, onToggleWishlist, view }: Resul
 
   // List view - horizontal card
   return (
-    <article className="grid min-w-0 overflow-hidden rounded-lg border border-[#d9e0e8] bg-white shadow-sm transition hover:shadow-md md:gap-4 md:grid-cols-[200px_minmax(0,1fr)_150px]">
+    <article className="grid min-w-0 overflow-hidden rounded-2xl border border-[#dfe3d8] bg-white shadow-[0_8px_24px_rgba(23,63,53,.06)] transition hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(23,63,53,.1)] md:gap-4 md:grid-cols-[220px_minmax(0,1fr)_170px]">
       {/* Image with wishlist */}
-      <div className="relative">
-        <img src={stay.image} alt={stay.title} className="h-36 w-full object-cover sm:h-40 md:h-48" />
+      <div className="relative h-36 w-full sm:h-40 md:h-48">
+        <Image src={stay.image} alt={stay.title} fill sizes="(max-width: 768px) 92vw, 220px" className="object-cover" />
         <button
           aria-label={`Save ${stay.title}`}
           onClick={() => onToggleWishlist(stay.slug)}
@@ -92,11 +89,11 @@ export function ResultCard({ stay, isWishlisted, onToggleWishlist, view }: Resul
       </div>
 
       {/* Info - center column */}
-      <div className="flex flex-col justify-between p-3 sm:p-4">
+      <div className="flex flex-col justify-between p-4 sm:p-5">
         <div>
           <Link
             href={`/stays/${stay.slug}`}
-            className="line-clamp-2 font-semibold text-[#1f2937] hover:text-[#1a3a2a]"
+            className="line-clamp-2 text-lg font-bold text-[#173f35] hover:text-[#24584a]"
           >
             {stay.title}
           </Link>
@@ -108,13 +105,11 @@ export function ResultCard({ stay, isWishlisted, onToggleWishlist, view }: Resul
                 <Star key={i} size={13} fill="currentColor" />
               ))}
             </div>
-            <span className="text-xs font-semibold text-[#1f2937]">{stay.rating.toFixed(1)}</span>
+            <span className="text-xs font-bold text-[#173f35]">{stay.rating.toFixed(1)} Excellent</span>
           </div>
 
           {/* Location and distance */}
-          <p className="mt-1 text-xs text-[#536274]">
-            {stay.location} · <span className="font-semibold">{distance} km away</span>
-          </p>
+          <p className="mt-1 text-sm text-[#536274]">{stay.location}</p>
 
           {/* Description */}
           <p className="mt-2 line-clamp-2 text-xs text-[#536274]">{stay.description.replace(/<[^>]+>/g, '')}</p>
@@ -124,7 +119,7 @@ export function ResultCard({ stay, isWishlisted, onToggleWishlist, view }: Resul
       {/* Right column - pricing and CTA */}
       <div className="flex flex-row items-center justify-between gap-3 border-t border-[#e5e7eb] p-3 md:flex-col md:items-end md:justify-between md:border-l md:border-t-0 md:p-4">
         {/* Rating badge */}
-        <div className="rounded bg-[#1a3a2a] p-2 text-center text-white">
+        <div className="rounded-xl bg-[#173f35] p-2 text-center text-white">
           <div className="text-sm font-bold">{stay.rating.toFixed(1)}</div>
           <div className="text-xs">Excellent</div>
         </div>
@@ -134,7 +129,7 @@ export function ResultCard({ stay, isWishlisted, onToggleWishlist, view }: Resul
           <p className="text-xs text-[#536274]">From</p>
           <p className="font-bold text-[#1f2937]">₹{stay.price.toLocaleString('en-IN')}</p>
           <p className="text-xs text-[#536274]">/ night</p>
-          <button className="mt-2 rounded bg-[#1a3a2a] px-4 py-2 text-xs font-bold text-white hover:bg-[#0f2818]">
+          <button className="mt-2 rounded-xl bg-[#173f35] px-4 py-2 text-xs font-bold text-white hover:bg-[#24584a]">
             Show prices
           </button>
         </div>

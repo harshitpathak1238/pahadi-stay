@@ -7,7 +7,15 @@ import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import ImageExtension from '@tiptap/extension-image';
 import TiptapLink from '@tiptap/extension-link';
+import { Table } from '@tiptap/extension-table';
+import TableRow from '@tiptap/extension-table-row';
+import TableCell from '@tiptap/extension-table-cell';
+import TableHeader from '@tiptap/extension-table-header';
+import Youtube from '@tiptap/extension-youtube';
 import { CategoryListingEditor } from './CategoryListingEditor';
+import { GenericArticle, GenericDiv, GenericSpan } from './BlogEditorExtensions';
+import { ResizableImage } from './ResizableImage';
+import { isFullBlogDocument, normalizeBlogHtml, splitFullBlogDocument, type FullBlogDocumentParts } from '@/lib/sanitize-html';
 import { defaultStayFacilities } from '@/lib/stay-facilities';
 
 type Category = 'STAY' | 'RIDE' | 'RENTAL' | 'ACTIVITY';
@@ -15,7 +23,6 @@ type Section = Category | 'PACKAGE';
 type Listing = { id: string; title: string; slug: string; category: Category; location: string; sellPrice: string | number; basePrice: string | number; status: string; description: string; images?: string[]; amenities?: string[]; details?: Record<string, unknown> };
 type TravelPackage = { id: string; title: string; description: string; price: string | number; listingIds?: string[]; status?: string; details?: Record<string, unknown> };
 export type ListingForm = { slug: string; title: string; description: string; location: string; basePrice: string; sellPrice: string; images: string[]; amenities: string; status: string; price: string; listingIds: string[]; details: Record<string, string>; stayFacilities: Record<string, boolean> };
-type LegacyForm = Omit<ListingForm, 'images'> & { images: string; bikeQuantity: string; scootyQuantity: string };
 
 const tabs: { key: Section; label: string }[] = [
   { key: 'STAY', label: 'Stays' },
@@ -40,13 +47,6 @@ const freshForm = (): ListingForm => ({
   details: {},
   stayFacilities: { ...defaultStayFacilities },
 });
-
-const normalizeHtml = (html: string) => {
-  if (typeof DOMParser === 'undefined') return html;
-  const document = new DOMParser().parseFromString(html || '<p></p>', 'text/html');
-  document.querySelectorAll('script, style, link, meta, title, head').forEach((element) => element.remove());
-  return document.body.innerHTML.trim() || '<p></p>';
-};
 
 export function ContentManager({ initialSection = 'STAY' }: { initialSection?: Section }) {
   const [section, setSection] = useState<Section>(initialSection);
@@ -308,119 +308,43 @@ function Field({ label, value, onChange, placeholder, type = 'text', multiline =
   );
 }
 
-function ListingEditor({ form, setForm, busy, message, cancel, save }: { form: LegacyForm; setForm: Dispatch<SetStateAction<LegacyForm>>; busy: boolean; message: string; cancel: () => void; save: (event: React.FormEvent) => void }) {
-  const [uploading, setUploading] = useState(false);
-  const [uploadMessage, setUploadMessage] = useState('');
-  const [source, setSource] = useState(() => /<!doctype\s+html|<html[\s>]/i.test(form.description));
-  const editor = useEditor({
-    extensions: [StarterKit.configure({ link: false }), ImageExtension, TiptapLink.configure({ openOnClick: false })],
-    content: form.description || '<p></p>',
-    onUpdate: ({ editor: current }) => setForm((currentForm) => ({ ...currentForm, description: current.getHTML() })),
-    editorProps: { attributes: { class: 'prose min-h-[220px] max-w-none p-4 outline-none' } },
-  });
-  useEffect(() => {
-    if (!source && editor) {
-      const content = normalizeHtml(form.description || '<p></p>');
-      if (editor.getHTML() !== content) editor.commands.setContent(content, { emitUpdate: false });
-      if (content !== form.description) setForm((current) => ({ ...current, description: content }));
-    }
-  }, [editor, form.description, source, setForm]);
-  const uploadImages = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || []);
-    event.target.value = '';
-    if (!files.length) return;
-    setUploading(true);
-    setUploadMessage('');
-    const uploadedUrls: string[] = [];
-    for (const file of files) {
-      const data = new FormData();
-      data.append('file', file);
-      try {
-        const response = await fetch('/api/admin/media', { method: 'POST', body: data });
-        const result = await response.json().catch(() => ({}));
-        if (response.ok && typeof result.asset?.url === 'string') uploadedUrls.push(result.asset.url);
-        else setUploadMessage(result.error || `Could not upload ${file.name}.`);
-      } catch {
-        setUploadMessage(`Could not upload ${file.name}.`);
-      }
-    }
-    if (uploadedUrls.length) setForm((current) => ({ ...current, images: [current.images, ...uploadedUrls].filter(Boolean).join(', ') }));
-    setUploading(false);
-  };
-  const imageUrls = form.images.split(',').map((image) => image.trim()).filter(Boolean);
-  const tools: [LucideIcon, string, string, () => void][] = [
-    [Bold, 'Bold', 'bold', () => editor?.chain().focus().toggleBold().run()],
-    [Italic, 'Italic', 'italic', () => editor?.chain().focus().toggleItalic().run()],
-    [List, 'Bulleted list', 'bulletList', () => editor?.chain().focus().toggleBulletList().run()],
-    [ListOrdered, 'Numbered list', 'orderedList', () => editor?.chain().focus().toggleOrderedList().run()],
-    [Quote, 'Quote', 'blockquote', () => editor?.chain().focus().toggleBlockquote().run()],
-    [LinkIcon, 'Link', 'link', () => { const url = window.prompt('Link URL'); if (url) editor?.chain().focus().setLink({ href: url }).run(); }],
-  ];
-  return (
-    <form onSubmit={save} className="rounded-2xl border border-[#dfe3d8] bg-white p-5 md:p-7">
-      {message && <p className="mb-4 rounded-xl bg-[#e2eee7] p-3 sans text-sm text-[#24584a]">{message}</p>}
-      <div className="mb-5 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3 text-[12px] text-[#616161]">
-          <button type="button" onClick={cancel} className="inline-flex items-center gap-2 border border-[#d9d9dc] bg-white px-3 py-2 font-semibold"><ArrowLeft size={14} /> Back</button>
-          <span>/ listing editor</span>
-        </div>
-        <button type="submit" disabled={busy} className="inline-flex items-center gap-2 bg-[#173f35] px-4 py-2 text-[12px] font-semibold text-white disabled:opacity-60"><Save size={14} /> Save</button>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <Field label="Title" value={form.title} onChange={(value) => setForm((current) => ({ ...current, title: value }))} placeholder="Enter listing title" />
-        <Field label="Slug" value={form.slug} onChange={(value) => setForm((current) => ({ ...current, slug: value }))} placeholder="listing-slug" />
-        <Field label="Location" value={form.location} onChange={(value) => setForm((current) => ({ ...current, location: value }))} placeholder="Basital, Kumaon" />
-        <Field label="Status" value={form.status} onChange={(value) => setForm((current) => ({ ...current, status: value }))} placeholder="DRAFT" />
-        <Field label="Base price" type="number" value={form.basePrice} onChange={(value) => setForm((current) => ({ ...current, basePrice: value }))} placeholder="0" />
-        <Field label="Selling price" type="number" value={form.sellPrice} onChange={(value) => setForm((current) => ({ ...current, sellPrice: value }))} placeholder="0" />
-        <Field label="Bike quantity" type="number" value={form.bikeQuantity} onChange={(value) => setForm((current) => ({ ...current, bikeQuantity: value }))} placeholder="0" />
-        <Field label="Scooty quantity" type="number" value={form.scootyQuantity} onChange={(value) => setForm((current) => ({ ...current, scootyQuantity: value }))} placeholder="0" />
-        <div className="grid gap-2 md:col-span-2">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <label className="sans text-sm font-bold text-[#173f35]">Images</label>
-            <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[#173f35] px-3 py-2 sans text-xs font-bold text-white hover:bg-[#24584a]">
-              <Upload size={14} /> {uploading ? 'Uploading...' : 'Upload images'}
-              <input type="file" accept="image/jpeg,image/png,image/webp" multiple disabled={uploading} onChange={uploadImages} className="hidden" />
-            </label>
-          </div>
-          {uploadMessage && <p className="text-xs text-[#a44a4a]">{uploadMessage}</p>}
-          {imageUrls.length > 0 && <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-5">{imageUrls.map((image, index) => <div key={`${image}-${index}`} className="relative overflow-hidden rounded-xl border border-[#d9d9dc] bg-[#f6f6f4]"><img src={image} alt={`Listing image ${index + 1}`} className="aspect-square w-full object-cover" /><button type="button" aria-label={`Remove image ${index + 1}`} onClick={() => setForm((current) => ({ ...current, images: imageUrls.filter((_, imageIndex) => imageIndex !== index).join(', ') }))} className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-white/95 text-[#a44a4a] shadow-sm"><X size={14} /></button></div>)}</div>}
-          <textarea value={form.images} onChange={(event) => setForm((current) => ({ ...current, images: event.target.value }))} placeholder="Upload images or paste image URLs, separated by commas" className="min-h-20 rounded-xl border border-[#d6d9d1] bg-white p-3 font-normal" />
-        </div>
-        <Field label="Amenities" value={form.amenities} onChange={(value) => setForm((current) => ({ ...current, amenities: value }))} placeholder="WiFi, Mountain view" hint="comma-separated" />
-        <div className="md:col-span-2 grid gap-2">
-          <label className="sans text-sm font-bold text-[#173f35]">Description</label>
-          <div className="rounded-2xl border border-[#d9d9dc] bg-white">
-            <div className="flex flex-wrap items-center gap-1 border-b border-[#e1e1e3] bg-[#fafafa] p-2">
-              {tools.map(([Icon, label, mark, onClick]) => <button type="button" key={label} title={label} aria-label={label} aria-pressed={Boolean(editor?.isActive(mark))} onClick={onClick} className="grid h-8 w-8 place-items-center hover:bg-[#e9e9eb]"><Icon size={15} /></button>)}
-              <button type="button" title="Heading 2" aria-label="Heading 2" onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()} className="h-8 w-8 text-xs font-bold hover:bg-[#e9e9eb]">H2</button>
-              <button type="button" title="HTML source" aria-label="HTML source" aria-pressed={source} onClick={() => setSource((value) => !value)} className={`grid h-8 w-8 place-items-center text-xs font-bold ${source ? 'bg-[#dcefe2] text-[#24584a]' : 'hover:bg-[#e9e9eb]'}`}><Code2 size={15} /></button>
-            </div>
-            {source ? <textarea value={form.description} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} className="min-h-[220px] w-full p-4 font-mono text-[12px] outline-none" /> : <EditorContent editor={editor} />}
-          </div>
-        </div>
-      </div>
-    </form>
-  );
-}
 
 function PackageEditor({ form, setForm, allListings, toggle, editing, busy, message, cancel, save }: { form: ListingForm; setForm: Dispatch<SetStateAction<ListingForm>>; allListings: Listing[]; toggle: (id: string) => void; editing: boolean; busy: boolean; message: string; cancel: () => void; save: (event: React.FormEvent) => void }) {
-  const [source, setSource] = useState(() => /<!doctype\s+html|<html[\s>]/i.test(form.description));
+  const documentMode = isFullBlogDocument(form.description);
+  const [source, setSource] = useState(documentMode);
+  const [fullDocumentParts, setFullDocumentParts] = useState<FullBlogDocumentParts | null>(() => documentMode ? splitFullBlogDocument(form.description) : null);
+  const [fullBodyChanged, setFullBodyChanged] = useState(false);
   const editor = useEditor({
-    extensions: [StarterKit.configure({ link: false }), ImageExtension, TiptapLink.configure({ openOnClick: false })],
-    content: form.description || '<p></p>',
-    onUpdate: ({ editor: current }) => setForm((currentForm) => ({ ...currentForm, description: current.getHTML() })),
+    extensions: [StarterKit.configure({ link: false }), GenericArticle, GenericDiv, GenericSpan, ResizableImage, ImageExtension, TiptapLink.configure({ openOnClick: false }), Table.configure({ resizable: true }), TableRow, TableHeader, TableCell, Youtube.configure({ controls: true, nocookie: true })],
+    content: documentMode ? fullDocumentParts?.body || '<p></p>' : normalizeBlogHtml(form.description || '<p></p>'),
+    onUpdate: ({ editor: current }) => { if (!source) { setForm((currentForm) => ({ ...currentForm, description: documentMode && fullDocumentParts ? `${fullDocumentParts.prefix}${current.getHTML()}${fullDocumentParts.suffix}` : current.getHTML() })); if (documentMode) setFullBodyChanged(true); } },
     editorProps: { attributes: { class: 'prose min-h-[220px] max-w-none p-4 outline-none' } },
   });
 
   useEffect(() => {
-    if (!source && editor) {
-      const content = normalizeHtml(form.description || '<p></p>');
+    if (!source && editor && !documentMode) {
+      const content = normalizeBlogHtml(form.description || '<p></p>');
       if (editor.getHTML() !== content) editor.commands.setContent(content, { emitUpdate: false });
       if (content !== form.description) setForm((current) => ({ ...current, description: content }));
     }
-  }, [editor, form.description, source, setForm]);
+  }, [documentMode, editor, form.description, source, setForm]);
+
+  useEffect(() => { if (!source && editor && documentMode && !fullBodyChanged && fullDocumentParts && editor.getHTML() !== fullDocumentParts.body) editor.commands.setContent(fullDocumentParts.body, { emitUpdate: false }); }, [documentMode, editor, fullDocumentParts, fullBodyChanged, source]);
+
+  const toggleSource = () => {
+    if (source) {
+      if (isFullBlogDocument(form.description)) {
+        const parts = splitFullBlogDocument(form.description);
+        setFullDocumentParts(parts); setFullBodyChanged(false); editor?.commands.setContent(parts.body, { emitUpdate: false });
+      } else if (editor) {
+        const content = normalizeBlogHtml(form.description || '<p></p>'); editor.commands.setContent(content, { emitUpdate: false }); setForm((current) => ({ ...current, description: content }));
+      }
+    } else if (editor) {
+      const content = documentMode && fullDocumentParts ? (fullBodyChanged ? editor.getHTML() : fullDocumentParts.body) : editor.getHTML();
+      setForm((current) => ({ ...current, description: documentMode && fullDocumentParts ? `${fullDocumentParts.prefix}${content}${fullDocumentParts.suffix}` : content }));
+    }
+    setSource((current) => !current);
+  };
 
   const active = (name: string) => Boolean(editor?.isActive(name));
   const uploadImage = async (file: File) => {
@@ -450,7 +374,11 @@ function PackageEditor({ form, setForm, allListings, toggle, editing, busy, mess
       const url = window.prompt('Link URL');
       if (url) editor?.chain().focus().setLink({ href: url }).run();
     }],
+    [Bold, 'Insert table', 'table', () => editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()],
+    [Italic, 'Embed video', 'video', () => { const url = window.prompt('YouTube or Vimeo URL'); if (url) editor?.chain().focus().setYoutubeVideo({ src: url, width: 640, height: 360 }).run(); }],
   ];
+
+  const editorStyles = (fullDocumentParts?.styles || '').replace(/\b(?:html|body)\b/gi, '.full-package-editor');
 
   return (
     <form onSubmit={save} className="rounded-2xl border border-[#dfe3d8] bg-white p-5 md:p-7">
@@ -489,14 +417,17 @@ function PackageEditor({ form, setForm, allListings, toggle, editing, busy, mess
                 <ImagePlus size={15} />
                 <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={insertUploadedImage} />
               </label>
-              <button type="button" title="HTML source" aria-pressed={source} onClick={() => setSource((value) => !value)} className={`grid h-8 w-8 place-items-center transition ${source ? 'bg-[#dcefe2] text-[#24584a] ring-1 ring-inset ring-[#8db9a0]' : 'hover:bg-[#e9e9eb]'}`}>
+              <button type="button" title="HTML source" aria-pressed={source} onClick={toggleSource} className={`grid h-8 w-8 place-items-center transition ${source ? 'bg-[#dcefe2] text-[#24584a] ring-1 ring-inset ring-[#8db9a0]' : 'hover:bg-[#e9e9eb]'}`}>
                 <Code2 size={15} />
               </button>
             </div>
             {source ? (
               <textarea value={form.description} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} className="min-h-[220px] w-full p-4 font-mono text-[12px] outline-none" />
             ) : (
-              <EditorContent editor={editor} />
+              <div className={documentMode ? 'full-package-editor' : undefined}>
+                {documentMode && editorStyles && <style dangerouslySetInnerHTML={{ __html: editorStyles }} />}
+                <EditorContent editor={editor} />
+              </div>
             )}
           </div>
         </div>

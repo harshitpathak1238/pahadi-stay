@@ -6,9 +6,14 @@ export const metadata = {
   description: "Book a scooty or bike for your Bhimtal and Kainchi Dham trip.",
 };
 export default async function Rentals() {
-  const rentals = await getPublicRentals();
+  const { data: rentals, degraded } = await getPublicRentals();
   return (
     <div className="mx-auto max-w-6xl px-5 pb-28 pt-10 md:py-20">
+      {degraded && (
+        <div className="mb-6 rounded-xl border border-[#e4d9bd] bg-[#fdf3e7] px-4 py-3 text-center text-sm font-semibold text-[#8a5a00]" role="status">
+          Our rental catalog is temporarily unavailable — please check back shortly.
+        </div>
+      )}
       <section className="py-6 md:py-10">
         <div className="flex items-end justify-between gap-5">
           <div>

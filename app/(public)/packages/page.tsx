@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { bhimtalPackage } from './package-data';
@@ -8,9 +9,14 @@ const packageExcerpt = (html: string) => html.replace(/<style[\s\S]*?<\/style>/g
 export const metadata = { title: 'Kumaon packages', description: 'Thoughtful stays and experiences bundled around Kumaon.' };
 
 export default async function Packages() {
-	const packages = await getPublicPackages();
+	const { data: packages, degraded } = await getPublicPackages();
 	return (
 		<div className="min-h-screen pb-20">
+			{degraded && (
+				<div className="border-b border-[#e4e3da] bg-[#fdf3e7] px-5 py-3 text-center text-sm font-semibold text-[#8a5a00]" role="status">
+					Our package catalog is temporarily unavailable — please check back shortly.
+				</div>
+			)}
 			<section className="mx-auto max-w-7xl px-5 pb-12 pt-28 md:pb-16 md:pt-36">
 				<div className="max-w-3xl">
 					<p className="sans text-xs font-bold uppercase tracking-[.2em] text-[#b66b45]">Curated escapes</p>
@@ -21,7 +27,7 @@ export default async function Packages() {
 
 			<section className="mx-auto grid max-w-7xl gap-6 px-5 md:grid-cols-2" aria-labelledby="package-heading">
 				{packages.map((packageItem) => <Link key={packageItem.id} href={`/packages/${packageItem.id}`} className="group overflow-hidden rounded-[2rem] bg-[#24584a] text-white shadow-[0_24px_60px_rgba(23,63,53,.16)]">
-					<div className="relative min-h-[260px] overflow-hidden"><img src={packageItem.image} alt={packageItem.title} className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" /><div className="absolute inset-0 bg-gradient-to-t from-[#102f27]/90 via-[#173f35]/20 to-transparent" /><span className="sans absolute bottom-5 left-5 rounded-full border border-white/35 bg-[#173f35]/55 px-3 py-1.5 text-xs font-semibold">{packageItem.location}</span></div>
+					<div className="relative min-h-[260px] overflow-hidden"><Image src={packageItem.image} alt={packageItem.title} fill sizes="(max-width: 768px) 92vw, 45vw" className="object-cover transition duration-500 group-hover:scale-105" /><div className="absolute inset-0 bg-gradient-to-t from-[#102f27]/90 via-[#173f35]/20 to-transparent" /><span className="sans absolute bottom-5 left-5 rounded-full border border-white/35 bg-[#173f35]/55 px-3 py-1.5 text-xs font-semibold">{packageItem.location}</span></div>
 					<div className="p-7"><p className="sans text-xs font-bold uppercase tracking-[.2em] text-[#e6b17e]">Travel package</p><h2 className="mt-3 text-3xl leading-tight">{packageItem.title}</h2><p className="sans mt-4 line-clamp-3 text-sm leading-7 text-white/75">{packageExcerpt(packageItem.description)}</p><div className="mt-7 flex items-end justify-between gap-4"><div><p className="sans text-xs uppercase tracking-[.16em] text-white/50">Package price</p><p className="mt-1 text-2xl">₹{packageItem.price.toLocaleString('en-IN')}</p></div><span className="sans text-sm font-bold text-[#f0c28f]">View package ↗</span></div></div>
 				</Link>)}
 				{packages.length === 0 && <p className="sans rounded-2xl border border-dashed border-[#dfe3d8] p-10 text-center text-[#526057]">Packages will appear here soon.</p>}
