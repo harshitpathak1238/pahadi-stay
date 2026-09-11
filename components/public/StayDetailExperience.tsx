@@ -66,28 +66,6 @@ export function StayDetailExperience({ stay }: { stay: Listing }) {
 
   return (
     <div className="bg-[#f5f7fa] text-[#1f2937]">
-      {/* Header */}
-      <div className="border-b border-[#d9e0e8] bg-[#003b95] text-white">
-        <div className="mx-auto max-w-[1180px] px-4 py-4 md:px-6">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="text-xl font-black">
-              Kainchi
-              <span className="text-[#feba02]">Darshan</span>
-            </Link>
-            <div className="flex items-center gap-3 text-xs font-bold">
-              <span>INR</span>
-              <span>🇮🇳</span>
-              <Link href="/partner/login" className="hidden md:block">
-                List your property
-              </Link>
-              <Link href="/login" className="rounded bg-white px-3 py-2 text-[#003b95]">
-                Sign in
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <main className="mx-auto max-w-[1180px] px-4 py-5 md:px-6">
         {/* Breadcrumb */}
         <div className="text-xs text-[#536274]">
