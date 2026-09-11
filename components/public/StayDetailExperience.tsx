@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
 import { ChevronDown, Heart, MapPin, Share2, Star, Wifi, Car, Utensils, ShieldCheck, Users, Plane, Check, ThumbsUp, X } from 'lucide-react';
 import type { Listing } from '@/lib/mock-data';
 import { defaultStayFacilities, stayFacilityGroups } from '@/lib/stay-facilities';
@@ -15,6 +16,12 @@ export function StayDetailExperience({ stay }: { stay: Listing }) {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [galleryOpen, setGalleryOpen] = useState<number | null>(null);
 
+  // Real uploaded photos first; falls back to the single cover image.
+  const gallery = [...new Set([...(stay.images ?? []), stay.image])].filter(Boolean);
+  const sideTiles = gallery.slice(1, 5);
+  const extraPhotoCount = gallery.length - 5;
+  const mapUrl = `https://www.google.com/maps?q=${encodeURIComponent(stay.location)}`;
+
   const tabs = [
     { id: 'overview', label: 'Overview' },
     { id: 'facilities', label: 'Facilities' },
@@ -22,7 +29,6 @@ export function StayDetailExperience({ stay }: { stay: Listing }) {
     { id: 'reviews', label: 'Guest reviews (28)' },
   ];
 
-  const gallery = [stay.image, stay.image, stay.image, stay.image, stay.image];
   const facilities = stayFacilityGroups.flatMap((group) =>
     group.items
       .filter((item) => (stay.facilities ?? defaultStayFacilities)[item.key] ?? true)
@@ -45,6 +51,18 @@ export function StayDetailExperience({ stay }: { stay: Listing }) {
       element.scrollIntoView({ behavior: 'smooth' });
     }
   };
+
+  // Lightbox keyboard support: Escape closes, arrows navigate.
+  useEffect(() => {
+    if (galleryOpen === null) return;
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setGalleryOpen(null);
+      if (event.key === 'ArrowLeft') setGalleryOpen((current) => ((current ?? 0) + gallery.length - 1) % gallery.length);
+      if (event.key === 'ArrowRight') setGalleryOpen((current) => ((current ?? 0) + 1) % gallery.length);
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [galleryOpen, gallery.length]);
 
   return (
     <div className="bg-[#f5f7fa] text-[#1f2937]">
@@ -81,17 +99,31 @@ export function StayDetailExperience({ stay }: { stay: Listing }) {
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1 text-[#f59e0b]">
+                <div className="flex items-center gap-1 text-[#f59e0b]" aria-label={`${stay.rating.toFixed(1)} out of 5 stars`}>
                   {[1, 2, 3, 4, 5].map((item) => (
-                    <Star key={item} size={14} fill="currentColor" />
+                    <Star
+                      key={item}
+                      size={15}
+                      fill={item <= Math.round(stay.rating) ? 'currentColor' : 'none'}
+                      className={item <= Math.round(stay.rating) ? 'text-[#f59e0b]' : 'text-[#d1d5db]'}
+                    />
                   ))}
                 </div>
                 <span className="rounded bg-[#003b95] px-2 py-1 text-xs font-bold text-white">{stay.rating.toFixed(1)}</span>
               </div>
-              <h1 className="mt-1 line-clamp-2 text-lg font-bold md:text-xl">{stay.title}</h1>
-              <p className="mt-1 text-xs text-[#536274]">
-                <MapPin size={13} className="mr-1 inline" />
-                {stay.location} · <button className="font-semibold text-[#0071c2]">Excellent location</button>
+              <h1 className="mt-1 line-clamp-2 text-2xl font-bold md:text-3xl">{stay.title}</h1>
+              <p className="mt-1 flex flex-wrap items-center gap-1 text-xs text-[#536274]">
+                <MapPin size={13} className="inline" />
+                <span>{stay.location}</span>
+                <span aria-hidden="true">·</span>
+                <a
+                  href={mapUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-[#0071c2] hover:underline"
+                >
+                  Excellent location — show map
+                </a>
               </p>
             </div>
 
@@ -135,22 +167,51 @@ export function StayDetailExperience({ stay }: { stay: Listing }) {
           ))}
         </nav>
 
-        {/* Gallery */}
-        <section className="relative mt-5 grid gap-2 md:grid-cols-[1.4fr_1fr] md:grid-rows-2">
-          {gallery.slice(0, 5).map((image, index) => (
-            <button
-              key={`${image}-${index}`}
-              onClick={() => setGalleryOpen(index)}
-              className={`${
-                index === 0 ? 'md:row-span-2 md:h-[430px] md:rounded-l-lg' : index === 1 ? 'hidden h-[214px] md:block md:rounded-tr-lg' : 'hidden md:block'
-              } overflow-hidden`}
-            >
-              <img src={image} alt={index === 0 ? stay.title : ''} className={`h-full w-full object-cover ${index > 1 ? 'h-48' : ''}`} />
-            </button>
-          ))}
-          <button onClick={() => setGalleryOpen(0)} className="absolute bottom-3 right-3 rounded bg-white px-3 py-2 text-xs font-bold">
-            See all {gallery.length} photos
+        {/* Gallery: hero + 2x2 side grid */}
+        <section className="mt-5 grid grid-cols-1 gap-2 md:grid-cols-[1.5fr_1fr]" aria-label={`Photos of ${stay.title}`}>
+          {/* Hero image */}
+          <button
+            type="button"
+            onClick={() => setGalleryOpen(0)}
+            aria-label={`Open photo gallery of ${stay.title}`}
+            className="group relative h-[260px] overflow-hidden rounded-2xl md:h-[480px]"
+          >
+            <Image src={gallery[0]} alt={stay.title} fill priority sizes="(max-width: 768px) 100vw, 60vw" className="object-cover transition duration-500 group-hover:scale-105" />
+            {gallery.length > 1 && (
+              <span className="absolute bottom-3 right-3 rounded-lg bg-white/95 px-3 py-2 text-xs font-bold shadow-sm">See all {gallery.length} photos</span>
+            )}
           </button>
+
+          {/* Side grid — only as many tiles as photos exist */}
+          {sideTiles.length > 0 && (
+            <div
+              className={`grid gap-2 md:h-[480px] ${
+                sideTiles.length === 1 ? 'grid-cols-1 grid-rows-1' : sideTiles.length === 2 ? 'grid-cols-2 grid-rows-1' : 'grid-cols-2 grid-rows-2'
+              }`}
+            >
+              {sideTiles.map((image, index) => {
+                const isFourthTile = index === 3;
+                return (
+                  <button
+                    key={`${image}-${index}`}
+                    type="button"
+                    onClick={() => setGalleryOpen(index + 1)}
+                    aria-label={`Open photo ${index + 2} of ${gallery.length}`}
+                    className={`group relative h-[150px] overflow-hidden rounded-2xl md:h-auto ${
+                      sideTiles.length === 3 && index === 2 ? 'col-span-2' : ''
+                    }`}
+                  >
+                    <Image src={image} alt={`${stay.title} photo ${index + 2}`} fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover transition duration-500 group-hover:scale-105" />
+                    {isFourthTile && extraPhotoCount > 0 && (
+                      <span className="absolute inset-0 flex items-center justify-center bg-black/50 text-sm font-bold text-white transition group-hover:bg-black/60">
+                        +{extraPhotoCount} photos
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </section>
 
         {/* Main content grid: left column (content) + right column (booking panel) */}
@@ -307,7 +368,14 @@ export function StayDetailExperience({ stay }: { stay: Listing }) {
                 <MapPin size={15} className="mr-1 inline" />
                 {stay.location}
               </p>
-              <button className="mt-3 text-sm font-bold text-[#0071c2] hover:underline">Show on map</button>
+              <a
+                href={mapUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-block text-sm font-bold text-[#0071c2] hover:underline"
+              >
+                Show on map
+              </a>
             </div>
 
             {/* Good to know */}
@@ -328,20 +396,30 @@ export function StayDetailExperience({ stay }: { stay: Listing }) {
 
       {/* Gallery lightbox */}
       {galleryOpen !== null && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/80 p-4" role="dialog" aria-modal="true">
-          <button aria-label="Close gallery" onClick={() => setGalleryOpen(null)} className="absolute right-5 top-5 rounded-full bg-white p-2 text-black">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4" role="dialog" aria-modal="true" aria-label={`${stay.title} photo gallery`}>
+          <button aria-label="Close gallery" onClick={() => setGalleryOpen(null)} className="absolute right-5 top-5 z-10 rounded-full bg-white p-2 text-black hover:bg-[#f5f7fa]">
             <X size={20} />
           </button>
-          <img src={gallery[galleryOpen]} alt={stay.title} className="max-h-[85vh] max-w-[90vw] object-contain" />
+          <div className="relative h-[80vh] w-full max-w-[1180px]">
+            <Image src={gallery[galleryOpen]} alt={`${stay.title} photo ${galleryOpen + 1}`} fill sizes="100vw" className="object-contain" />
+          </div>
           <button
-            onClick={() => setGalleryOpen((galleryOpen + gallery.length - 1) % gallery.length)}
-            className="absolute left-5 rounded-full bg-white p-3 text-black hover:bg-[#f5f7fa]"
+            aria-label="Previous photo"
+            onClick={() => setGalleryOpen((current) => ((current ?? 0) + gallery.length - 1) % gallery.length)}
+            className="absolute left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white p-3 text-black hover:bg-[#f5f7fa]"
           >
             ‹
           </button>
-          <button onClick={() => setGalleryOpen((galleryOpen + 1) % gallery.length)} className="absolute right-5 rounded-full bg-white p-3 text-black hover:bg-[#f5f7fa]">
+          <button
+            aria-label="Next photo"
+            onClick={() => setGalleryOpen((current) => ((current ?? 0) + 1) % gallery.length)}
+            className="absolute right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white p-3 text-black hover:bg-[#f5f7fa]"
+          >
             ›
           </button>
+          <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-black">
+            {galleryOpen + 1} / {gallery.length}
+          </span>
         </div>
       )}
     </div>

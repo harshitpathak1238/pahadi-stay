@@ -1,4 +1,4 @@
-export type Listing = { slug:string; title:string; location:string; price:number; rating:number; category:'stay'|'rental'|'activity'; image:string; description:string; amenities:string[]; facilities?: Record<string, boolean> };
+export type Listing = { slug:string; title:string; location:string; price:number; rating:number; category:'stay'|'rental'|'activity'; image:string; images?: string[]; description:string; amenities:string[]; facilities?: Record<string, boolean> };
 export type Rental = { slug:string; title:string; type:string; price:number; image:string; description:string; features:string[]; pickup:string; bikeQuantity?: number; scootyQuantity?: number };
 export const stays: Listing[] = [
  {slug:'oak-house-bhimtal', title:'Oak House by the Lake', location:'Bhimtal, Uttarakhand', price:4200, rating:4.9, category:'stay', image:'https://images.unsplash.com/photo-1601918774946-25832a4be0d6?auto=format&fit=crop&w=1000&q=85', description:'A sun-filled cedar home with lake views, a warm kitchen, and the quiet rhythm of the forest.', amenities:['Lake view','Breakfast included','Bonfire','Wi-Fi']},
