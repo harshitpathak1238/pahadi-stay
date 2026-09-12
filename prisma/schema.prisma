@@ -126,6 +126,9 @@ model Listing {
 	images       Json
 	amenities    Json
 	details      Json?
+	mealPlan     String?
+	breakfastIncluded Boolean @default(false)
+	cuisineNotes String?          @db.Text
 	houseRules   Json?           @default("[]")
 	status       ListingStatus    @default(DRAFT)
 	partner      Partner          @relation(fields: [partnerId], references: [id])
@@ -133,6 +136,9 @@ model Listing {
 	bookings     Booking[]
 	reviews      Review[]
 	faqs         ListingFaq[]
+	landmarks    ListingLandmark[]
+	services     ListingService[]
+	experiences  ListingExperience[]
 	createdAt    DateTime         @default(now())
 
 	@@index([category, status])
@@ -147,6 +153,39 @@ model ListingFaq {
 	order     Int      @default(0)
 	createdAt DateTime @default(now())
 	updatedAt DateTime @updatedAt
+
+	@@index([listingId])
+}
+
+model ListingLandmark {
+	id         String   @id @default(cuid())
+	listingId  String
+	listing    Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+	label      String
+	distanceKm Float
+	order      Int      @default(0)
+
+	@@index([listingId])
+}
+
+model ListingService {
+	id        String   @id @default(cuid())
+	listingId String
+	listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+	label     String
+	note      String?
+	order     Int      @default(0)
+
+	@@index([listingId])
+}
+
+model ListingExperience {
+	id        String   @id @default(cuid())
+	listingId String
+	listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+	title     String
+	note      String?
+	order     Int      @default(0)
 
 	@@index([listingId])
 }

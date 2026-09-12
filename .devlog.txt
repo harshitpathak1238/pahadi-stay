@@ -1,0 +1,94 @@
+
+> pahadi-stay@1.0.0 dev
+> next dev
+
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3000
+  - Environments: .env.local, .env
+
+ ✓ Starting...
+ ✓ Ready in 2.1s
+ ○ Compiling /stays/[slug] ...
+ ✓ Compiled /stays/[slug] in 6.7s (1208 modules)
+ ⨯ Error: Invalid src prop (https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrhEDTkmfwbL0okGvenlGcCxnwn7xOucSphlJT5Q8k8w&s=10) on `next/image`, hostname "encrypted-tbn0.gstatic.com" is not configured under images in your `next.config.js`
+See more info: https://nextjs.org/docs/messages/next-image-unconfigured-host
+    at Array.map (<anonymous>)
+digest: "3131903713"
+ GET /stays/oak-house-bhimtal 500 in 9370ms
+ GET /stays/sanobar-home-stay 200 in 730ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 963ms (1211 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 1391ms
+ GET /stays/sanobar-home-stay 200 in 524ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 112ms
+ GET /stays/sanobar-home-stay 200 in 666ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 75ms
+ GET /stays/sanobar-home-stay 200 in 1031ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 302ms
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 1383ms (177 modules)
+ ○ Compiling /admin/[section] ...
+ ✓ Compiled /admin/[section] in 3.3s (1435 modules)
+ GET /admin/stays 200 in 4887ms
+ ○ Compiling /api/admin/listings ...
+ ✓ Compiled /api/admin/listings in 1849ms (999 modules)
+ GET /api/admin/listings?category=STAY 200 in 4038ms
+ GET /api/admin/listings?category=STAY 200 in 4105ms
+ ✓ Compiled in 629ms (613 modules)
+ ✓ Compiled in 314ms (613 modules)
+ ✓ Compiled in 1033ms (1449 modules)
+ ✓ Compiled in 567ms (613 modules)
+ ✓ Compiled in 432ms (613 modules)
+ ✓ Compiled in 417ms (613 modules)
+ ✓ Compiled in 1216ms (1449 modules)
+ ✓ Compiled in 753ms (1449 modules)
+ ✓ Compiled in 917ms (1449 modules)
+ ✓ Compiled in 1028ms (1449 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename 'D:\TourAndTravel\.next\cache\webpack\client-development\0.pack.gz_' -> 'D:\TourAndTravel\.next\cache\webpack\client-development\0.pack.gz'
+ ⨯ Error: Invalid src prop (https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrhEDTkmfwbL0okGvenlGcCxnwn7xOucSphlJT5Q8k8w&s=10) on `next/image`, hostname "encrypted-tbn0.gstatic.com" is not configured under images in your `next.config.js`
+See more info: https://nextjs.org/docs/messages/next-image-unconfigured-host
+    at Array.map (<anonymous>)
+digest: "3131903713"
+ GET /stays/oak-house-bhimtal 500 in 890ms
+ ⨯ Error: Invalid src prop (https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrhEDTkmfwbL0okGvenlGcCxnwn7xOucSphlJT5Q8k8w&s=10) on `next/image`, hostname "encrypted-tbn0.gstatic.com" is not configured under images in your `next.config.js`
+See more info: https://nextjs.org/docs/messages/next-image-unconfigured-host
+    at Array.map (<anonymous>)
+digest: "3131903713"
+ GET /stays/oak-house-bhimtal 500 in 885ms
+ GET /stays/oak-house-bhimtal?warm=2 200 in 728ms
+ GET /stays/oak-house-bhimtal 200 in 350ms
+ ⚠ Found a change in next.config.mjs. Restarting the server to apply the changes...
+ ⚠ Port 3000 is in use, trying 3001 instead.
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3001
+  - Environments: .env.local, .env
+
+ ✓ Starting...
+ ✓ Ready in 2.6s
+ ⚠ Found a change in next.config.mjs. Restarting the server to apply the changes...
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3000
+  - Environments: .env.local, .env
+
+ ✓ Starting...
+ ✓ Ready in 2s
+ ○ Compiling /stays/[slug] ...
+ ✓ Compiled /stays/[slug] in 5.7s (1208 modules)
+ GET /stays/oak-house-bhimtal 200 in 7654ms
+ ○ Compiling /stays ...
+ ✓ Compiled /stays in 1810ms (1239 modules)
+ GET /stays 200 in 2145ms
+ GET /stays/test 404 in 512ms
+ GET /stays/sanobar-home-stay 200 in 526ms
+ GET /stays/oak-house-bhimtal 200 in 740ms
+ GET /stays/oak-house-bhimtal 200 in 683ms
+ GET /stays/oak-house-bhimtal 200 in 534ms
+ ✓ Compiled in 650ms (509 modules)
+ ✓ Compiled in 365ms (509 modules)
+ ✓ Compiled in 435ms (509 modules)
+ ✓ Compiled in 339ms (509 modules)
+ ✓ Compiled in 326ms (509 modules)
+ ✓ Compiled in 361ms (509 modules)
+ ✓ Compiled in 434ms (509 modules)
+ ✓ Compiled in 333ms (509 modules)
+ ✓ Compiled in 403ms (509 modules)

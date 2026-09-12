@@ -236,5 +236,5 @@ export function StayReviewsModal({ listingId, stayTitle, onClose }: { listingId:
     </div>,
     document.body,
   ) : null;
-  void portal;
+  return portal;
 }

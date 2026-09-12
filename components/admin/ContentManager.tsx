@@ -21,11 +21,14 @@ import { DefaultHouseRules, type HouseRule } from '@/lib/listings';
 
 type Category = 'STAY' | 'RIDE' | 'RENTAL' | 'ACTIVITY';
 type Section = Category | 'PACKAGE';
-type Listing = { id: string; title: string; slug: string; category: Category; location: string; sellPrice: string | number; basePrice: string | number; status: string; description: string; images?: string[]; amenities?: string[]; details?: Record<string, unknown> };
+type Listing = { id: string; title: string; slug: string; category: Category; location: string; sellPrice: string | number; basePrice: string | number; status: string; description: string; images?: string[]; amenities?: string[]; details?: Record<string, unknown>; mealPlan?: string | null; breakfastIncluded?: boolean; cuisineNotes?: string | null; landmarks?: AdminLandmarkRow[]; services?: AdminServiceRow[]; experiences?: AdminExperienceRow[] };
 type TravelPackage = { id: string; title: string; description: string; price: string | number; listingIds?: string[]; status?: string; details?: Record<string, unknown> };
 export type HouseRuleRow = { id?: string; title: string; text: string };
+export type AdminLandmarkRow = { id?: string; label: string; distanceKm: string };
+export type AdminServiceRow = { id?: string; label: string; note: string };
+export type AdminExperienceRow = { id?: string; title: string; note: string };
 
-export type ListingForm = { slug: string; title: string; description: string; location: string; basePrice: string; sellPrice: string; images: string[]; amenities: string; status: string; price: string; listingIds: string[]; details: Record<string, string>; stayFacilities: Record<string, boolean>; faqs: AdminFaqRow[]; houseRules: HouseRuleRow[] };
+export type ListingForm = { slug: string; title: string; description: string; location: string; basePrice: string; sellPrice: string; images: string[]; amenities: string; status: string; price: string; listingIds: string[]; details: Record<string, string>; mealPlan: string; breakfastIncluded: boolean; cuisineNotes: string; stayFacilities: Record<string, boolean>; faqs: AdminFaqRow[]; houseRules: HouseRuleRow[]; landmarks: AdminLandmarkRow[]; services: AdminServiceRow[]; experiences: AdminExperienceRow[] };
 
 export type AdminFaqRow = { id?: string; question: string; answer: string };
 
@@ -49,10 +52,16 @@ const freshForm = (): ListingForm => ({
   status: 'DRAFT',
   price: '',
   listingIds: [],
-    details: {},
+  details: {},
+  mealPlan: '',
+  breakfastIncluded: false,
+  cuisineNotes: '',
   stayFacilities: { ...defaultStayFacilities },
   faqs: [],
   houseRules: [...DefaultHouseRules],
+  landmarks: [],
+  services: [],
+  experiences: [],
 });
 
 export function ContentManager({ initialSection = 'STAY' }: { initialSection?: Section }) {
@@ -120,6 +129,9 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
         listingIds: packageItem.listingIds || [],
         status: packageItem.status || 'DRAFT',
         details: Object.fromEntries(Object.entries(packageItem.details || {}).map(([key, value]) => [key, String(value ?? '')])),
+        mealPlan: '',
+        breakfastIncluded: false,
+        cuisineNotes: '',
       });
     } else {
       const listing = item as Listing;
@@ -137,9 +149,15 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
         amenities: (listing.amenities || []).join(', '),
         status: listing.status,
         details: Object.fromEntries(Object.entries(rawDetails).filter(([key]) => key !== 'facilities').map(([key, value]) => [key, String(value ?? '')])),
+        mealPlan: listing.mealPlan ?? '',
+        breakfastIncluded: Boolean(listing.breakfastIncluded),
+        cuisineNotes: listing.cuisineNotes ?? '',
         stayFacilities: section === 'STAY' && rawFacilities && typeof rawFacilities === 'object' ? { ...defaultStayFacilities, ...Object.fromEntries(Object.entries(rawFacilities).filter(([, value]) => typeof value === 'boolean')) } : { ...defaultStayFacilities },
-                faqs: [],
+        faqs: [],
         houseRules: (listing as { houseRules?: HouseRule[] }).houseRules || [...DefaultHouseRules],
+        landmarks: (listing.landmarks || []).map((item) => ({ id: item.id, label: item.label, distanceKm: String(item.distanceKm ?? '') })),
+        services: (listing.services || []).map((item) => ({ id: item.id, label: item.label, note: item.note ?? '' })),
+        experiences: (listing.experiences || []).map((item) => ({ id: item.id, title: item.title, note: item.note ?? '' })),
       });
       void loadFaqs(item.id);
     }
@@ -207,6 +225,15 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
       return;
     }
     const asList = (value: string) => value.split(',').map((item) => item.trim()).filter(Boolean);
+    const landmarks = form.landmarks
+      .map((item, index) => ({ label: item.label.trim(), distanceKm: Number(item.distanceKm), order: index }))
+      .filter((item) => item.label || Number.isFinite(item.distanceKm));
+    const services = form.services
+      .map((item, index) => ({ label: item.label.trim(), note: item.note.trim(), order: index }))
+      .filter((item) => item.label || item.note);
+    const experiences = form.experiences
+      .map((item, index) => ({ title: item.title.trim(), note: item.note.trim(), order: index }))
+      .filter((item) => item.title || item.note);
     const payload = {
       slug: form.slug,
       category: section,
@@ -218,6 +245,7 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
       images: form.images,
       amenities: asList(form.amenities),
       details: section === 'STAY' ? { ...form.details, facilities: form.stayFacilities } : form.details,
+      ...(section === 'STAY' ? { mealPlan: form.mealPlan || null, breakfastIncluded: form.breakfastIncluded, cuisineNotes: form.cuisineNotes || null, landmarks, services, experiences } : {}),
       status: String(form.status || 'DRAFT').trim().toUpperCase(),
       ...(section === 'STAY' ? { houseRules: form.houseRules } : {}),
     };
