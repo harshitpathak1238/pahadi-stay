@@ -42,3 +42,22 @@
  GET /stays/oak-house-bhimtal 200 in 378ms
  GET /stays/oak-house-bhimtal 200 in 401ms
  GET /stays/oak-house-bhimtal 200 in 602ms
+ ○ Compiling /api/reviews ...
+ ✓ Compiled /api/reviews in 951ms (822 modules)
+ POST /api/reviews 404 in 2377ms
+ GET /stays/oak-house-bhimtal 200 in 896ms
+ GET /stays/oak-house-bhimtal 200 in 669ms
+ GET /stays/oak-house-bhimtal 200 in 631ms
+ POST /api/reviews 201 in 704ms
+ GET /stays/oak-house-bhimtal 200 in 728ms
+ POST /api/reviews 201 in 569ms
+ GET /stays/oak-house-bhimtal 200 in 827ms
+ ✓ Compiled in 652ms (713 modules)
+ ✓ Compiled in 1689ms (1208 modules)
+ GET /stays/oak-house-bhimtal 200 in 1181ms
+ ✓ Compiled /api/reviews in 420ms (822 modules)
+ POST /api/reviews 200 in 2717ms
+ GET /stays/oak-house-bhimtal?_rsc=1162o 200 in 2258ms
+ ✓ Compiled in 368ms (822 modules)
+ GET /stays/oak-house-bhimtal 200 in 1132ms
+ POST /api/reviews 201 in 626ms
