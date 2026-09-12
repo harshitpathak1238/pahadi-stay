@@ -152,7 +152,7 @@ function Form({ listingId, onDone, onCancel }: { listingId?: string; onDone: () 
       <input type="text" name="website" autoComplete="off" tabIndex={-1} className="hidden" aria-hidden="true" defaultValue="" />
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="grid gap-1.5 text-sm font-bold">Your name *
-          <input value={form.guestName} onChange={(e) => setForm((c) => ({ ...c, guestName: e.target.value }))} required minLength={2} maxLength={80} placeholder="e.g. Priya Sharma" className="rounded border border-[#b9c5d1] p-2.5 font-normal" />
+          <input value={form.guestName} onChange={(e) => setForm((c) => ({ ...c, guestName: e.target.value }))} required minLength={2} maxLength={80} placeholder="e.g. Bhumika Rawat" className="rounded border border-[#b9c5d1] p-2.5 font-normal" />
         </label>
         <label className="grid gap-1.5 text-sm font-bold">Email <span className="font-normal text-[#8a94a3]">(optional, moderation only)</span>
           <input type="email" value={form.guestEmail} onChange={(e) => setForm((c) => ({ ...c, guestEmail: e.target.value }))} placeholder="you@example.com" className="rounded border border-[#b9c5d1] p-2.5 font-normal" />

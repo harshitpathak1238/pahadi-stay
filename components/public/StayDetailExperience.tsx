@@ -44,7 +44,6 @@ export function StayDetailExperience({ stay, reviewData }: { stay: Listing; revi
 
   // Real uploaded photos first; falls back to the single cover image.
   const gallery = [...new Set([...(stay.images ?? []), stay.image])].filter(Boolean);
-  const sideTiles = gallery.slice(1, 5);
   const extraPhotoCount = gallery.length - 5;
   const mapUrl = `https://www.google.com/maps?q=${encodeURIComponent(stay.location)}`;
 
@@ -235,51 +234,73 @@ export function StayDetailExperience({ stay, reviewData }: { stay: Listing; revi
           )}
         </div>
 
-        {/* Gallery: hero + 2x2 side grid */}
-        <section className="mt-5 grid grid-cols-1 gap-2 md:grid-cols-[1.5fr_1fr]" aria-label={`Photos of ${stay.title}`}>
+        {/* Gallery: full-width hero on top + thumbnail row below.
+            Thumbnail count/layout depends on total photos:
+            1 -> hero only; 2 -> one full-width thumb; 3 -> two halves;
+            4 -> three thirds; 5 -> 2x2 all real; >5 -> 2x2 with +N overlay tile. */}
+        <section className="mt-5 space-y-2" aria-label={`Photos of ${stay.title}`}>
+          {gallery.length === 0 && (
+            <div className="flex h-[240px] items-center justify-center rounded-2xl border border-dashed border-[#c9c9cc] text-xs text-[#777] sm:h-[320px]">No photos yet</div>
+          )}
           {/* Hero image — compact on mobile so the gallery doesn't dominate the page */}
+          {gallery.length > 0 && (<>
           <button
             type="button"
             onClick={() => setGalleryOpen(0)}
             aria-label={`Open photo gallery of ${stay.title}`}
-            className="group relative h-40 w-full overflow-hidden rounded-2xl sm:h-56 md:h-[440px]"
+            className="group relative h-[240px] w-full overflow-hidden rounded-2xl sm:h-[320px] md:h-[400px]"
           >
-            <Image src={gallery[0]} alt={stay.title} fill priority sizes="(max-width: 768px) 100vw, 60vw" className="object-cover transition duration-500 group-hover:scale-105" />
+            <Image src={gallery[0]} alt={stay.title} fill priority sizes="100vw" className="object-cover transition duration-500 group-hover:scale-105" />
             {gallery.length > 1 && (
-              <span className="absolute bottom-2 right-2 rounded-lg bg-white/95 px-2.5 py-1.5 text-xs font-bold shadow-sm sm:bottom-3 sm:right-3 sm:px-3 sm:py-2">See all {gallery.length} photos</span>
+              <span className="absolute bottom-3 right-3 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold text-[#173f35] shadow-sm sm:text-sm">See all {gallery.length} photos</span>
             )}
           </button>
 
-          {/* Side grid — compact tiles so the gallery takes less vertical space on mobile */}
-          {sideTiles.length > 0 && (
-            <div
-              className={`grid gap-2 md:h-[380px] ${
-                sideTiles.length === 1 ? 'grid-cols-1 grid-rows-1' : sideTiles.length === 2 ? 'grid-cols-2 grid-rows-1' : 'grid-cols-2 grid-rows-2'
-              }`}
-            >
-              {sideTiles.map((image, index) => {
-                const isFourthTile = index === 3;
-                return (
-                  <button
-                    key={`${image}-${index}`}
-                    type="button"
-                    onClick={() => setGalleryOpen(index + 1)}
-                    aria-label={`Open photo ${index + 2} of ${gallery.length}`}
-                    className={`group relative h-16 w-full overflow-hidden rounded-xl sm:h-20 md:h-auto ${
-                      sideTiles.length === 3 && index === 2 ? 'col-span-2' : ''
-                    }`}
-                  >
-                    <Image src={image} alt={`${stay.title} photo ${index + 2}`} fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover transition duration-500 group-hover:scale-105" />
-                    {isFourthTile && extraPhotoCount > 0 && (
-                      <span className="absolute inset-0 flex items-center justify-center bg-black/50 text-sm font-bold text-white transition group-hover:bg-black/60">
-                        +{extraPhotoCount} photos
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
+          {gallery.length >= 2 && gallery.length <= 4 && (
+            <div className={`grid h-[110px] gap-2 sm:h-[140px] ${gallery.length === 2 ? 'grid-cols-1' : gallery.length === 3 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+              {gallery.slice(1).map((image, index) => (
+                <button
+                  key={`${image}-${index}`}
+                  type="button"
+                  onClick={() => setGalleryOpen(index + 1)}
+                  aria-label={`Open photo ${index + 2} of ${gallery.length}`}
+                  className="group relative w-full overflow-hidden rounded-2xl"
+                >
+                  <Image src={image} alt={`${stay.title} photo ${index + 2}`} fill sizes="(max-width: 768px) 50vw, 33vw" className="object-cover transition duration-500 group-hover:scale-105" />
+                </button>
+              ))}
             </div>
           )}
+
+          {gallery.length >= 5 && (
+            <div className="grid h-[228px] grid-cols-2 grid-rows-2 gap-2 sm:h-[288px]">
+              {gallery.slice(1, 4).map((image, index) => (
+                <button
+                  key={`${image}-${index}`}
+                  type="button"
+                  onClick={() => setGalleryOpen(index + 1)}
+                  aria-label={`Open photo ${index + 2} of ${gallery.length}`}
+                  className="group relative w-full overflow-hidden rounded-2xl"
+                >
+                  <Image src={image} alt={`${stay.title} photo ${index + 2}`} fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover transition duration-500 group-hover:scale-105" />
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() => setGalleryOpen(4)}
+                aria-label={extraPhotoCount > 0 ? `Show all ${gallery.length} photos` : `Open photo 5 of ${gallery.length}`}
+                className="group relative w-full overflow-hidden rounded-2xl"
+              >
+                <Image src={gallery[4]} alt={`${stay.title} photo 5`} fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover transition duration-500 group-hover:scale-105" />
+                {extraPhotoCount > 0 && (
+                  <span className="absolute inset-0 flex items-center justify-center bg-black/50 text-sm font-bold text-white transition group-hover:bg-black/60">
+                    +{extraPhotoCount} photos
+                  </span>
+                )}
+              </button>
+            </div>
+          )}
+          </>)}
         </section>
 
         {/* Main content grid: left column (content) + right column (booking panel) */}
