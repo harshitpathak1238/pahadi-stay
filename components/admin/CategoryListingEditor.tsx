@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
-import { ArrowLeft, Bath, BedDouble, BedSingle, Bold, CircleParking, Code2, ConciergeBell, Flower2, GripVertical, ImagePlus, Info, Italic, Languages, Link as LinkIcon, List, ListOrdered, Monitor, Quote, Save, Search, Trash2, Upload, UserRound, Wifi, type LucideIcon } from 'lucide-react';
-import type { ListingForm } from './ContentManager';
+import { ArrowLeft, ArrowDown, ArrowUp, Bath, BedDouble, BedSingle, Bold, CircleParking, Code2, ConciergeBell, Flower2, GripVertical, ImagePlus, Info, Italic, Languages, Link as LinkIcon, List, ListOrdered, Monitor, Plus, Quote, Save, Search, Trash2, Upload, UserRound, Wifi, type LucideIcon } from 'lucide-react';
+import type { AdminFaqRow, ListingForm } from './ContentManager';
 import { stayFacilityGroups } from '@/lib/stay-facilities';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -40,6 +40,23 @@ function DetailTextarea({ label, value, onChange, placeholder = '' }: DetailFiel
   );
 }
 
+function FaqRow({ faq, index, total, onChange, onMove, onRemove }: { faq: AdminFaqRow; index: number; total: number; onChange: (next: AdminFaqRow) => void; onMove: (direction: -1 | 1) => void; onRemove: () => void }) {
+  return (
+    <div className="grid gap-3 rounded-xl border border-[#e1e4dc] bg-white p-3">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-[11px] font-bold uppercase tracking-[.08em] text-[#7d847c]">FAQ {index + 1}</span>
+        <div className="flex items-center gap-1">
+          <button type="button" title="Move FAQ up" aria-label="Move FAQ up" disabled={index === 0} onClick={() => onMove(-1)} className="p-1 text-[#24584a] disabled:opacity-30"><ArrowUp size={14} /></button>
+          <button type="button" title="Move FAQ down" aria-label="Move FAQ down" disabled={index === total - 1} onClick={() => onMove(1)} className="p-1 text-[#24584a] disabled:opacity-30"><ArrowDown size={14} /></button>
+          <button type="button" title="Remove FAQ" aria-label="Remove FAQ" onClick={onRemove} className="p-1 text-[#a44a4a]"><Trash2 size={14} /></button>
+        </div>
+      </div>
+      <DetailInput label="Question" value={faq.question} onChange={(value) => onChange({ ...faq, question: value })} placeholder="What are the check-in times?" />
+      <DetailTextarea label="Answer" value={faq.answer} onChange={(value) => onChange({ ...faq, answer: value })} placeholder="Check-in is from 12 PM..." />
+    </div>
+  );
+}
+
 type Props = {
   category: keyof typeof categoryNames;
   form: ListingForm;
@@ -48,9 +65,10 @@ type Props = {
   message: string;
   cancel: () => void;
   save: (event: React.FormEvent) => void;
+  editingId?: string | null;
 };
 
-export function CategoryListingEditor({ category, form, setForm, busy, message, cancel, save }: Props) {
+export function CategoryListingEditor({ category, form, setForm, busy, message, cancel, save, editingId }: Props) {
   const [uploading, setUploading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState('');
   const [imageUrl, setImageUrl] = useState('');
@@ -184,6 +202,7 @@ export function CategoryListingEditor({ category, form, setForm, busy, message, 
         {category === 'RENTAL' && <><DetailInput label="Vehicle type" value={valueOf(form.details, 'vehicleType')} onChange={(value) => setDetail('vehicleType', value)} placeholder="Bike or scooty" /><DetailInput label="Make / model" value={valueOf(form.details, 'makeModel')} onChange={(value) => setDetail('makeModel', value)} /><DetailInput label="Year" value={valueOf(form.details, 'year')} onChange={(value) => setDetail('year', value)} type="number" /><DetailInput label="Registration / license plate" value={valueOf(form.details, 'registrationNumber')} onChange={(value) => setDetail('registrationNumber', value)} /><DetailInput label="Transmission" value={valueOf(form.details, 'transmission')} onChange={(value) => setDetail('transmission', value)} /><DetailInput label="Daily price" value={valueOf(form.details, 'dailyPrice')} onChange={(value) => setDetail('dailyPrice', value)} type="number" /><DetailInput label="Quantity available" value={valueOf(form.details, 'quantity')} onChange={(value) => setDetail('quantity', value)} type="number" /><DetailInput label="Mileage / odometer" value={valueOf(form.details, 'mileage')} onChange={(value) => setDetail('mileage', value)} /><DetailInput label="Fuel type" value={valueOf(form.details, 'fuelType')} onChange={(value) => setDetail('fuelType', value)} /><DetailInput label="Capacity" value={valueOf(form.details, 'capacity')} onChange={(value) => setDetail('capacity', value)} /><DetailInput label="Pickup / delivery options" value={valueOf(form.details, 'pickupOptions')} onChange={(value) => setDetail('pickupOptions', value)} /><DetailTextarea label="Notable features" value={valueOf(form.details, 'features')} onChange={(value) => setDetail('features', value)} placeholder="Helmet included, phone mount" /><DetailTextarea label="FAQ" value={valueOf(form.details, 'faq')} onChange={(value) => setDetail('faq', value)} placeholder="Question and answer pairs" /></>}
         {category === 'ACTIVITY' && <><DetailInput label="Minimum group size" value={valueOf(form.details, 'groupMin')} onChange={(value) => setDetail('groupMin', value)} type="number" /><DetailInput label="Maximum group size" value={valueOf(form.details, 'groupMax')} onChange={(value) => setDetail('groupMax', value)} type="number" /><DetailTextarea label="What is included" value={valueOf(form.details, 'included')} onChange={(value) => setDetail('included', value)} /><DetailTextarea label="Safety information" value={valueOf(form.details, 'safetyInformation')} onChange={(value) => setDetail('safetyInformation', value)} /><DetailTextarea label="About the guide/operator" value={valueOf(form.details, 'guideAbout')} onChange={(value) => setDetail('guideAbout', value)} /><DetailInput label="Duration" value={valueOf(form.details, 'duration')} onChange={(value) => setDetail('duration', value)} /><DetailInput label="Meeting point" value={valueOf(form.details, 'meetingPoint')} onChange={(value) => setDetail('meetingPoint', value)} /></>}
         {category === 'STAY' && <div className="md:col-span-2 rounded-2xl border border-[#dfe3d8] bg-[#f7f8f4] p-4"><div><p className="text-[13px] font-bold text-[#173f35]">Stay facilities</p><p className="mt-1 text-[11px] font-normal text-[#6c7770]">Choose the facilities guests can expect. New stays start with all facilities selected.</p></div><div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">{stayFacilityGroups.map((group) => { const Icon = facilityIcons[group.title as keyof typeof facilityIcons] || Info; return <fieldset key={group.title} className="rounded-xl border border-[#e1e4dc] bg-white p-3"><legend className="px-1 text-[12px] font-bold text-[#173f35]"><span className="inline-flex items-center gap-2"><Icon size={16} strokeWidth={1.8} />{group.title}</span></legend><div className="grid gap-2">{group.items.map((item) => <label key={`${group.title}-${item.key}`} className="flex items-start gap-2 text-[12px] font-normal text-[#526057]"><input type="checkbox" checked={form.stayFacilities[item.key] ?? true} onChange={(event) => setForm((current) => ({ ...current, stayFacilities: { ...current.stayFacilities, [item.key]: event.target.checked } }))} className="mt-0.5 accent-[#24584a]" /><span>{item.label}</span></label>)}</div></fieldset>; })}</div></div>}
+        {category === 'STAY' && <div className="md:col-span-2 rounded-2xl border border-[#dfe3d8] bg-[#f7f8f4] p-4"><div className="flex flex-wrap items-center justify-between gap-2"><div><p className="text-[13px] font-bold text-[#173f35]">Frequently Asked Questions</p><p className="mt-1 text-[11px] font-normal text-[#6c7770]">Shown on the public stay page under “Travelers are asking”. Saved together with this stay.</p></div><span className="rounded-full bg-[#eef4ef] px-2 py-1 text-[11px] font-bold text-[#24584a]">{form.faqs.length} added</span></div>{form.faqs.length === 0 && <p className="mt-3 rounded-xl border border-dashed border-[#c9c9cc] bg-white p-4 text-center text-xs text-[#777]">No FAQs yet — add one below</p>}<div className="mt-3 grid gap-3">{form.faqs.map((faq, index) => <FaqRow key={faq.id ?? `new-${index}`} faq={faq} index={index} total={form.faqs.length} onChange={(next) => setForm((current) => ({ ...current, faqs: current.faqs.map((row, rowIndex) => (rowIndex === index ? next : row)) }))} onMove={(direction) => setForm((current) => { const nextIndex = index + direction; if (nextIndex < 0 || nextIndex >= current.faqs.length) return current; const next = [...current.faqs]; const temp = next[index]; next[index] = next[nextIndex]; next[nextIndex] = temp; return { ...current, faqs: next }; })} onRemove={() => setForm((current) => ({ ...current, faqs: current.faqs.filter((_, rowIndex) => rowIndex !== index) }))} />)}</div><button type="button" onClick={() => setForm((current) => ({ ...current, faqs: [...current.faqs, { question: '', answer: '' }] }))} className="mt-3 inline-flex items-center gap-2 rounded-xl border border-[#173f35] px-4 py-2 text-xs font-bold text-[#173f35] hover:bg-[#eef4ef]"><Plus size={14} /> Add FAQ</button>{!editingId && form.faqs.length > 0 && <p className="mt-2 text-[11px] text-[#6c7770]">FAQs are saved when you save this new stay.</p>}</div>}
         <div className="grid gap-2 md:col-span-2">
           <label className="text-[12px] font-semibold text-[#173f35]">Description{category !== 'RENTAL' && <b className="ml-1 text-[#a44a4a]">*</b>}</label>
           <div className="rounded-2xl border border-[#d9d9dc] bg-white">

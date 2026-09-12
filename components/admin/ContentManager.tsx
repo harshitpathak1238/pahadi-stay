@@ -22,7 +22,9 @@ type Category = 'STAY' | 'RIDE' | 'RENTAL' | 'ACTIVITY';
 type Section = Category | 'PACKAGE';
 type Listing = { id: string; title: string; slug: string; category: Category; location: string; sellPrice: string | number; basePrice: string | number; status: string; description: string; images?: string[]; amenities?: string[]; details?: Record<string, unknown> };
 type TravelPackage = { id: string; title: string; description: string; price: string | number; listingIds?: string[]; status?: string; details?: Record<string, unknown> };
-export type ListingForm = { slug: string; title: string; description: string; location: string; basePrice: string; sellPrice: string; images: string[]; amenities: string; status: string; price: string; listingIds: string[]; details: Record<string, string>; stayFacilities: Record<string, boolean> };
+export type ListingForm = { slug: string; title: string; description: string; location: string; basePrice: string; sellPrice: string; images: string[]; amenities: string; status: string; price: string; listingIds: string[]; details: Record<string, string>; stayFacilities: Record<string, boolean>; faqs: AdminFaqRow[] };
+
+export type AdminFaqRow = { id?: string; question: string; answer: string };
 
 const tabs: { key: Section; label: string }[] = [
   { key: 'STAY', label: 'Stays' },
@@ -46,6 +48,7 @@ const freshForm = (): ListingForm => ({
   listingIds: [],
   details: {},
   stayFacilities: { ...defaultStayFacilities },
+  faqs: [],
 });
 
 export function ContentManager({ initialSection = 'STAY' }: { initialSection?: Section }) {
@@ -83,6 +86,15 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
     if (section === 'PACKAGE') loadAllListings();
   }, [section]);
 
+  const loadFaqs = async (listingId: string) => {
+    const response = await fetch(`/api/admin/listings/${listingId}/faqs`, { cache: 'no-store' });
+    if (!response.ok) return;
+    const rows = (await response.json().catch(() => [])) as { id: string; question: string; answer: string }[];
+    if (Array.isArray(rows)) {
+      setForm((current) => ({ ...current, faqs: rows.map((row) => ({ id: row.id, question: row.question, answer: row.answer })) }));
+    }
+  };
+
   const change = (key: keyof ListingForm, value: string | string[]) => setForm((current) => ({ ...current, [key]: value }));
 
   const add = () => {
@@ -108,7 +120,7 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
     } else {
       const listing = item as Listing;
       const rawDetails = listing.details || {};
-      const rawFacilities = rawDetails.facilities;
+      const rawFacilities = (rawDetails as Record<string, unknown>).facilities;
       setForm({
         ...freshForm(),
         slug: listing.slug,
@@ -122,7 +134,9 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
         status: listing.status,
         details: Object.fromEntries(Object.entries(rawDetails).filter(([key]) => key !== 'facilities').map(([key, value]) => [key, String(value ?? '')])),
         stayFacilities: section === 'STAY' && rawFacilities && typeof rawFacilities === 'object' ? { ...defaultStayFacilities, ...Object.fromEntries(Object.entries(rawFacilities).filter(([, value]) => typeof value === 'boolean')) } : { ...defaultStayFacilities },
+        faqs: [],
       });
+      void loadFaqs(item.id);
     }
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -175,6 +189,18 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
     event.preventDefault();
     setBusy(true);
     setMessage('');
+    const faqError = section === 'STAY'
+      ? (form.faqs.find((faq) => !faq.question.trim() || !faq.answer.trim())
+        ? 'Each FAQ needs both a question and an answer.'
+        : form.faqs.find((faq) => faq.question.trim().length > 500 || faq.answer.trim().length > 2000)
+          ? 'FAQ questions must be 500 characters or fewer and answers 2000 characters or fewer.'
+          : '')
+      : '';
+    if (faqError) {
+      setMessage(faqError);
+      setBusy(false);
+      return;
+    }
     const asList = (value: string) => value.split(',').map((item) => item.trim()).filter(Boolean);
     const payload = {
       slug: form.slug,
@@ -186,7 +212,7 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
       sellPrice: Number(form.sellPrice),
       images: form.images,
       amenities: asList(form.amenities),
-      details: form.details,
+      details: section === 'STAY' ? { ...form.details, facilities: form.stayFacilities } : form.details,
       status: String(form.status || 'DRAFT').trim().toUpperCase(),
     };
     const endpoint = `/api/admin/listings${editing ? `/${editing}` : ''}`;
@@ -197,6 +223,11 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
         setMessage(result.missing?.length ? `Can't publish yet: ${result.missing.join(', ')}.` : result.error || 'Could not save this listing.');
         return;
       }
+      const listingId: string = editing ?? result.id;
+      if (listingId && section === 'STAY') {
+        const saved = await syncFaqs(listingId, result.slug ?? form.slug);
+        if (!saved) return;
+      }
       cancel();
       setMessage(editing ? 'Listing updated successfully.' : 'Listing added successfully.');
       load();
@@ -204,6 +235,47 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
       setMessage('Could not reach the listing service.');
     } finally {
       setBusy(false);
+    }
+  };
+
+  const syncFaqs = async (listingId: string, slug?: string) => {
+    try {
+      const existingResponse = await fetch(`/api/admin/listings/${listingId}/faqs`, { cache: 'no-store' });
+      const existing = (await existingResponse.json().catch(() => [])) as { id: string }[];
+      const existingIds = new Set(Array.isArray(existing) ? existing.map((row) => row.id) : []);
+      const keptIds = new Set(form.faqs.map((faq) => faq.id).filter(Boolean) as string[]);
+      for (const row of existingIds) {
+        if (!keptIds.has(row)) {
+          const deleted = await fetch(`/api/admin/listings/${listingId}/faqs/${row}`, { method: 'DELETE' });
+          if (!deleted.ok) {
+            const failure = await deleted.json().catch(() => ({}));
+            setMessage(failure.error || 'Could not delete a removed FAQ.');
+            return false;
+          }
+        }
+      }
+      for (const [index, faq] of form.faqs.entries()) {
+        const body = JSON.stringify({ question: faq.question.trim(), answer: faq.answer.trim(), order: index });
+        const endpoint = faq.id ? `/api/admin/listings/${listingId}/faqs/${faq.id}` : `/api/admin/listings/${listingId}/faqs`;
+        const saved = await fetch(endpoint, { method: faq.id ? 'PATCH' : 'POST', headers: { 'Content-Type': 'application/json' }, body });
+        if (!saved.ok) {
+          const failure = await saved.json().catch(() => ({}));
+          const details = failure.details?.fieldErrors
+            ? (Object.values(failure.details.fieldErrors) as string[][]).flat().join(' ')
+            : '';
+          setMessage([failure.error, details].filter(Boolean).join(' ') || 'Could not save FAQs.');
+          return false;
+        }
+      }
+      if (slug) {
+        try {
+          await fetch('/api/admin/listings/revalidate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug }) });
+        } catch { /* revalidation is best-effort; FAQ routes already revalidate */ }
+      }
+      return true;
+    } catch {
+      setMessage('Could not save FAQs.');
+      return false;
     }
   };
 
@@ -237,7 +309,7 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
         save={submit}
       />
     ) : (
-      <CategoryListingEditor category={section} form={form} setForm={setForm} busy={busy} message={message} cancel={cancel} save={submit} />
+      <CategoryListingEditor category={section} form={form} setForm={setForm} busy={busy} message={message} cancel={cancel} save={submit} editingId={editing} />
     );
   }
 

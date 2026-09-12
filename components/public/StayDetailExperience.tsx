@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
-import { ChevronDown, Heart, MapPin, Share2, Star, Wifi, Car, Utensils, ShieldCheck, Users, Plane, Check, ThumbsUp, X } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { ChevronDown, Heart, MapPin, Share2, Star, Wifi, Car, Utensils, ShieldCheck, Users, Plane, ThumbsUp, X } from 'lucide-react';
 import type { Listing } from '@/lib/mock-data';
 import { defaultStayFacilities, stayFacilityGroups } from '@/lib/stay-facilities';
+import { facilityCategoryOrder, facilityMeta, defaultFacilityIcon, OTHER_FACILITY_CATEGORY } from '@/lib/facilityMeta';
 import { isFullBlogDocument, sanitizeBlogHtml } from '@/lib/sanitize-html';
 import { AutoHeightIframe } from '@/components/public/AutoHeightIframe';
 import { StayTripPanel } from '@/components/trip/StayTripPanel';
@@ -35,14 +36,31 @@ export function StayDetailExperience({ stay }: { stay: Listing }) {
       .map((item) => ({ label: item.label, group: group.title }))
   );
 
-  const faqs = [
-    'What are the check-in and check-out times?',
-    'How far is the property from the centre of Bhimtal?',
-    'Is parking available at the property?',
-    'Does the property offer breakfast?',
-    'Can I bring my pet?',
-    'What is the cancellation policy?',
-  ];
+  const groupedFacilities = useMemo(() => {
+    const knownLabels = new Set<string>();
+    const groups = new Map<string, { label: string }[]>();
+    for (const facility of facilities) {
+      knownLabels.add(facility.label);
+      const meta = facilityMeta[facility.label];
+      const category = meta?.category ?? OTHER_FACILITY_CATEGORY;
+      if (!groups.has(category)) groups.set(category, []);
+      groups.get(category)?.push({ label: facility.label });
+    }
+    // Anything in the stay's raw amenities list that the checkbox model doesn't
+    // know about still renders under "Other" instead of disappearing.
+    for (const amenity of stay.amenities ?? []) {
+      const label = amenity.trim();
+      if (!label || knownLabels.has(label)) continue;
+      const category = facilityMeta[label]?.category ?? OTHER_FACILITY_CATEGORY;
+      if (!groups.has(category)) groups.set(category, []);
+      groups.get(category)?.push({ label });
+    }
+    return facilityCategoryOrder
+      .filter((category) => groups.has(category))
+      .map((category) => ({ category, items: groups.get(category) ?? [] }));
+  }, [facilities, stay.amenities]);
+
+  const faqs = (stay.faqs ?? []).filter((faq) => faq.question.trim() && faq.answer.trim());
 
   const handleTabClick = (tabId: string) => {
     setActiveTab(tabId);
@@ -243,12 +261,22 @@ export function StayDetailExperience({ stay }: { stay: Listing }) {
             {/* Facilities tab section */}
             <section id="facilities" className="mt-5 scroll-mt-24 rounded-lg border border-[#d9e0e8] bg-white p-5 md:p-7">
               <h2 className="text-2xl font-bold">Facilities</h2>
-              <div className="mt-5 grid gap-x-8 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
-                {facilities.map(({ label }) => (
-                  <p key={label} className="text-sm text-[#536274]">
-                    <Check size={15} className="mr-2 inline text-[#16704a]" />
-                    {label}
-                  </p>
+              <div className="mt-5 grid gap-6">
+                {groupedFacilities.map((group) => (
+                  <div key={group.category}>
+                    <p className="text-sm font-semibold uppercase tracking-wide text-gray-500">{group.category}</p>
+                    <div className="mt-2 grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
+                      {group.items.map((item) => {
+                        const Icon = facilityMeta[item.label]?.icon ?? defaultFacilityIcon;
+                        return (
+                          <p key={item.label} className="flex items-start gap-2 text-sm text-[#536274]">
+                            <Icon size={15} className="mt-0.5 shrink-0 text-[#24584a]" />
+                            <span>{item.label}</span>
+                          </p>
+                        );
+                      })}
+                    </div>
+                  </div>
                 ))}
               </div>
             </section>
@@ -306,24 +334,27 @@ export function StayDetailExperience({ stay }: { stay: Listing }) {
             </section>
 
             {/* FAQ section */}
-            <section className="mt-5 rounded-lg border border-[#d9e0e8] bg-white p-5 md:p-7">
-              <h2 className="text-2xl font-bold">Travelers are asking</h2>
-              <div className="mt-4 grid gap-2 md:grid-cols-2">
-                {faqs.map((faq, index) => (
-                  <button
-                    key={faq}
-                    onClick={() => setOpenFaq(openFaq === index ? null : index)}
-                    className="flex items-center justify-between border-b border-[#e5e7eb] p-3 text-left text-sm hover:bg-[#f5f7fa]"
-                  >
-                    <span>
-                      {faq}
-                      {openFaq === index && <span className="mt-2 block text-xs text-[#536274]">We are happy to help. Contact the property team before booking for the latest details.</span>}
-                    </span>
-                    <ChevronDown size={16} className={`flex-shrink-0 transition ${openFaq === index ? 'rotate-180' : ''}`} />
-                  </button>
-                ))}
-              </div>
-            </section>
+            {faqs.length > 0 && (
+              <section className="mt-5 rounded-lg border border-[#d9e0e8] bg-white p-5 md:p-7">
+                <h2 className="text-2xl font-bold">Travelers are asking</h2>
+                <div className="mt-4 grid gap-2 md:grid-cols-2">
+                  {faqs.map((faq, index) => (
+                    <button
+                      key={`${faq.question}-${index}`}
+                      onClick={() => setOpenFaq(openFaq === index ? null : index)}
+                      aria-expanded={openFaq === index}
+                      className="flex items-center justify-between border-b border-[#e5e7eb] p-3 text-left text-sm hover:bg-[#f5f7fa]"
+                    >
+                      <span>
+                        {faq.question}
+                        {openFaq === index && <span className="mt-2 block text-xs text-[#536274]">{faq.answer}</span>}
+                      </span>
+                      <ChevronDown size={16} className={`flex-shrink-0 transition ${openFaq === index ? 'rotate-180' : ''}`} />
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
           </article>
 
           {/* Right sidebar: price panel + booking + map + info */}

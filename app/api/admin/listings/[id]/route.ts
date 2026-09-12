@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import type { Prisma } from '@prisma/client';
+import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin';
 import { isFullBlogDocument, sanitizeBlogHtml } from '@/lib/sanitize-html';
@@ -18,6 +19,12 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   const { category, partnerId, details, ...fields } = parsed.data;
   const data = { ...fields, ...(fields.description !== undefined ? { description: isFullBlogDocument(fields.description) ? fields.description : sanitizeBlogHtml(fields.description) } : {}), ...(details ? { details: details as Prisma.InputJsonObject } : {}), ...(category ? { category } : {}), ...(partnerId ? { partner: { connect: { id: partnerId } } } : {}) };
   const listing = await db.listing.update({ where: { id: params.id }, data });
+  try {
+    revalidatePath(`/stays/${listing.slug}`);
+    revalidatePath('/stays');
+  } catch {
+    /* revalidation is best-effort outside a request lifecycle */
+  }
   return NextResponse.json(listing);
 }
 

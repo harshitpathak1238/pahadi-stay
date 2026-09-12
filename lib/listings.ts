@@ -5,11 +5,21 @@ import { defaultStayFacilities } from '@/lib/stay-facilities';
 
 export type PublicResult<T> = { data: T; degraded: boolean };
 
+export type ListingFaqItem = { question: string; answer: string };
+
 function strings(value: unknown): string[] { return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []; }
-function mapRecord(record: { slug: string; title: string; location: string; sellPrice: unknown; category: ListingCategory; images: unknown; amenities: unknown; details?: unknown }): Listing {
+function faqs(value: unknown): ListingFaqItem[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((item): item is Record<string, unknown> => typeof item === 'object' && item !== null)
+    .map((item) => ({ question: String(item.question ?? ''), answer: String(item.answer ?? '') }))
+    .filter((item) => item.question.trim() && item.answer.trim());
+}
+function mapRecord(record: { slug: string; title: string; location: string; sellPrice: unknown; category: ListingCategory; images: unknown; amenities: unknown; details?: unknown; faqs?: unknown }): Listing {
   const details = record.details && typeof record.details === 'object' ? record.details as Record<string, unknown> : {};
   const facilities = details.facilities && typeof details.facilities === 'object' ? Object.fromEntries(Object.entries(details.facilities).filter(([, value]) => typeof value === 'boolean')) as Record<string, boolean> : { ...defaultStayFacilities };
-  return { slug: record.slug, title: record.title, location: record.location, price: Number(record.sellPrice), rating: 5, category: record.category === 'RENTAL' ? 'rental' : record.category === 'ACTIVITY' ? 'activity' : 'stay', image: strings(record.images)[0] || '/images/Logo.png', images: strings(record.images), description: '', amenities: strings(record.amenities), facilities };
+  const recordFaqs = (record as { faqs?: unknown }).faqs;
+  return { slug: record.slug, title: record.title, location: record.location, price: Number(record.sellPrice), rating: 5, category: record.category === 'RENTAL' ? 'rental' : record.category === 'ACTIVITY' ? 'activity' : 'stay', image: strings(record.images)[0] || '/images/Logo.png', images: strings(record.images), description: '', amenities: strings(record.amenities), facilities, faqs: faqs(recordFaqs) };
 }
 
 const localRentals = (): Listing[] => rentals.map((rental) => ({ slug: rental.slug, title: rental.title, location: rental.pickup, price: rental.price, rating: 5, category: 'rental' as const, image: rental.image, description: rental.description, amenities: rental.features }));
@@ -29,7 +39,7 @@ export async function getPublicListings(category: ListingCategory): Promise<Publ
 
 export async function getPublicListing(slug: string): Promise<PublicResult<Listing | null>> {
   try {
-    const record = await db.listing.findFirst({ where: { slug, status: 'LIVE' } });
+    const record = await db.listing.findFirst({ where: { slug, status: 'LIVE' }, include: { faqs: { orderBy: { order: 'asc' } } } });
     if (record) return { data: { ...mapRecord(record), description: record.description }, degraded: false };
   } catch { /* fall through to the degraded fallback below */ }
   if (process.env.NODE_ENV === 'production') return { data: null, degraded: true };

@@ -131,9 +131,23 @@ model Listing {
 	availability Availability[]
 	bookings     Booking[]
 	reviews      Review[]
+	faqs         ListingFaq[]
 	createdAt    DateTime         @default(now())
 
 	@@index([category, status])
+}
+
+model ListingFaq {
+	id        String   @id @default(cuid())
+	listingId String
+	listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+	question  String
+	answer    String   @db.Text
+	order     Int      @default(0)
+	createdAt DateTime @default(now())
+	updatedAt DateTime @updatedAt
+
+	@@index([listingId])
 }
 
 model Availability {
