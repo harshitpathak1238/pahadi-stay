@@ -61,3 +61,4 @@
  ✓ Compiled in 368ms (822 modules)
  GET /stays/oak-house-bhimtal 200 in 1132ms
  POST /api/reviews 201 in 626ms
+^C^C
