@@ -11,3 +11,24 @@
  ○ Compiling /stays/[slug] ...
  ✓ Compiled /stays/[slug] in 23.7s (1208 modules)
  GET /stays/oak-house-bhimtal 200 in 3416ms
+ ○ Compiling /_not-found ...
+ GET /stays/sanobar-home-stay 200 in 10252ms
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../typescript/lib/typescript' in d:\TourAndTravel\node_modules\next\dist\build for build dependencies doesn't lead to expected result 'D:\TourAndTravel\node_modules\typescript\lib\typescript.js', but to 'd:\TourAndTravel\node_modules\typescript\lib\typescript.js' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../typescript/lib/typescript (expected D:\TourAndTravel\node_modules\typescript\lib\typescript.js)
+<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\load-jsconfig.js
+<w>  at file d:\TourAndTravel\node_modules\next\dist\build\load-jsconfig.js
+<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\webpack-config.js
+<w>  at file d:\TourAndTravel\node_modules\next\dist\build\webpack-config.js
+<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
+<w>  at file d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
+<w>  at resolve commonjs d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../typescript/lib/typescript' in d:\TourAndTravel\node_modules\next\dist\build for build dependencies doesn't lead to expected result 'D:\TourAndTravel\node_modules\typescript\lib\typescript.js', but to 'd:\TourAndTravel\node_modules\typescript\lib\typescript.js' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../typescript/lib/typescript (expected D:\TourAndTravel\node_modules\typescript\lib\typescript.js)
+<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\load-jsconfig.js
+<w>  at file d:\TourAndTravel\node_modules\next\dist\build\load-jsconfig.js
+<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\webpack-config.js
+<w>  at file d:\TourAndTravel\node_modules\next\dist\build\webpack-config.js
+<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
+<w>  at file d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
+<w>  at resolve commonjs d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
+ GET /stays/oak-house-bhimtal 200 in 2024ms
