@@ -2,7 +2,8 @@
 
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
 import { ArrowLeft, ArrowDown, ArrowUp, Bath, BedDouble, BedSingle, Bold, CircleParking, Code2, ConciergeBell, Flower2, GripVertical, ImagePlus, Info, Italic, Languages, Link as LinkIcon, List, ListOrdered, Monitor, Plus, Quote, Save, Search, Trash2, Upload, UserRound, Wifi, type LucideIcon } from 'lucide-react';
-import type { AdminFaqRow, ListingForm } from './ContentManager';
+import type { AdminFaqRow, ListingForm, HouseRuleRow } from './ContentManager';
+import { DefaultHouseRules } from '@/lib/listings';
 import { stayFacilityGroups } from '@/lib/stay-facilities';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -57,6 +58,23 @@ function FaqRow({ faq, index, total, onChange, onMove, onRemove }: { faq: AdminF
   );
 }
 
+function HouseRulesRow({ rule, index, total, onChange, onMove, onRemove }: { rule: HouseRuleRow; index: number; total: number; onChange: (next: HouseRuleRow) => void; onMove: (direction: -1 | 1) => void; onRemove: () => void }) {
+  return (
+    <div className="grid gap-3 rounded-xl border border-[#e1e4dc] bg-white p-3">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-[11px] font-bold uppercase tracking-[.08em] text-[#7d847c]">Rule {index + 1}</span>
+        <div className="flex items-center gap-1">
+          <button type="button" title="Move rule up" aria-label="Move rule up" disabled={index === 0} onClick={() => onMove(-1)} className="p-1 text-[#24584a] disabled:opacity-30"><ArrowUp size={14} /></button>
+          <button type="button" title="Move rule down" aria-label="Move rule down" disabled={index === total - 1} onClick={() => onMove(1)} className="p-1 text-[#24584a] disabled:opacity-30"><ArrowDown size={14} /></button>
+          <button type="button" title="Remove rule" aria-label="Remove rule" onClick={onRemove} className="p-1 text-[#a44a4a]"><Trash2 size={14} /></button>
+        </div>
+      </div>
+      <DetailInput label="Title" value={rule.title} onChange={(value) => onChange({ ...rule, title: value })} placeholder="e.g. Quiet hours" />
+      <DetailTextarea label="Description" value={rule.text} onChange={(value) => onChange({ ...rule, text: value })} placeholder="e.g. Quiet hours between 22:00 and 07:00." />
+    </div>
+  );
+}
+
 type Props = {
   category: keyof typeof categoryNames;
   form: ListingForm;
@@ -73,6 +91,14 @@ export function CategoryListingEditor({ category, form, setForm, busy, message, 
   const [uploadMessage, setUploadMessage] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const setDetail = (name: string, value: string) => setForm((current) => ({ ...current, details: { ...current.details, [name]: value } }));
+
+  const resetHouseRules = () => setForm((current) => ({ ...current, houseRules: [...DefaultHouseRules] }));
+  const addHouseRule = () => setForm((current) => ({ ...current, houseRules: [...current.houseRules, { title: '', text: '' }] }));
+  const clearHouseRules = () => {
+    if (window.confirm('Remove all house rules? This can be undone by resetting to template.')) {
+      setForm((current) => ({ ...current, houseRules: [] }));
+    }
+  };
   const documentMode = isFullBlogDocument(form.description);
   const [source, setSource] = useState(false);
   const [fullDocumentParts, setFullDocumentParts] = useState<FullBlogDocumentParts | null>(() => documentMode ? splitFullBlogDocument(form.description) : null);
@@ -203,6 +229,8 @@ export function CategoryListingEditor({ category, form, setForm, busy, message, 
         {category === 'ACTIVITY' && <><DetailInput label="Minimum group size" value={valueOf(form.details, 'groupMin')} onChange={(value) => setDetail('groupMin', value)} type="number" /><DetailInput label="Maximum group size" value={valueOf(form.details, 'groupMax')} onChange={(value) => setDetail('groupMax', value)} type="number" /><DetailTextarea label="What is included" value={valueOf(form.details, 'included')} onChange={(value) => setDetail('included', value)} /><DetailTextarea label="Safety information" value={valueOf(form.details, 'safetyInformation')} onChange={(value) => setDetail('safetyInformation', value)} /><DetailTextarea label="About the guide/operator" value={valueOf(form.details, 'guideAbout')} onChange={(value) => setDetail('guideAbout', value)} /><DetailInput label="Duration" value={valueOf(form.details, 'duration')} onChange={(value) => setDetail('duration', value)} /><DetailInput label="Meeting point" value={valueOf(form.details, 'meetingPoint')} onChange={(value) => setDetail('meetingPoint', value)} /></>}
         {category === 'STAY' && <div className="md:col-span-2 rounded-2xl border border-[#dfe3d8] bg-[#f7f8f4] p-4"><div><p className="text-[13px] font-bold text-[#173f35]">Stay facilities</p><p className="mt-1 text-[11px] font-normal text-[#6c7770]">Choose the facilities guests can expect. New stays start with all facilities selected.</p></div><div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">{stayFacilityGroups.map((group) => { const Icon = facilityIcons[group.title as keyof typeof facilityIcons] || Info; return <fieldset key={group.title} className="rounded-xl border border-[#e1e4dc] bg-white p-3"><legend className="px-1 text-[12px] font-bold text-[#173f35]"><span className="inline-flex items-center gap-2"><Icon size={16} strokeWidth={1.8} />{group.title}</span></legend><div className="grid gap-2">{group.items.map((item) => <label key={`${group.title}-${item.key}`} className="flex items-start gap-2 text-[12px] font-normal text-[#526057]"><input type="checkbox" checked={form.stayFacilities[item.key] ?? true} onChange={(event) => setForm((current) => ({ ...current, stayFacilities: { ...current.stayFacilities, [item.key]: event.target.checked } }))} className="mt-0.5 accent-[#24584a]" /><span>{item.label}</span></label>)}</div></fieldset>; })}</div></div>}
         {category === 'STAY' && <div className="md:col-span-2 rounded-2xl border border-[#dfe3d8] bg-[#f7f8f4] p-4"><div className="flex flex-wrap items-center justify-between gap-2"><div><p className="text-[13px] font-bold text-[#173f35]">Frequently Asked Questions</p><p className="mt-1 text-[11px] font-normal text-[#6c7770]">Shown on the public stay page under “Travelers are asking”. Saved together with this stay.</p></div><span className="rounded-full bg-[#eef4ef] px-2 py-1 text-[11px] font-bold text-[#24584a]">{form.faqs.length} added</span></div>{form.faqs.length === 0 && <p className="mt-3 rounded-xl border border-dashed border-[#c9c9cc] bg-white p-4 text-center text-xs text-[#777]">No FAQs yet — add one below</p>}<div className="mt-3 grid gap-3">{form.faqs.map((faq, index) => <FaqRow key={faq.id ?? `new-${index}`} faq={faq} index={index} total={form.faqs.length} onChange={(next) => setForm((current) => ({ ...current, faqs: current.faqs.map((row, rowIndex) => (rowIndex === index ? next : row)) }))} onMove={(direction) => setForm((current) => { const nextIndex = index + direction; if (nextIndex < 0 || nextIndex >= current.faqs.length) return current; const next = [...current.faqs]; const temp = next[index]; next[index] = next[nextIndex]; next[nextIndex] = temp; return { ...current, faqs: next }; })} onRemove={() => setForm((current) => ({ ...current, faqs: current.faqs.filter((_, rowIndex) => rowIndex !== index) }))} />)}</div><button type="button" onClick={() => setForm((current) => ({ ...current, faqs: [...current.faqs, { question: '', answer: '' }] }))} className="mt-3 inline-flex items-center gap-2 rounded-xl border border-[#173f35] px-4 py-2 text-xs font-bold text-[#173f35] hover:bg-[#eef4ef]"><Plus size={14} /> Add FAQ</button>{!editingId && form.faqs.length > 0 && <p className="mt-2 text-[11px] text-[#6c7770]">FAQs are saved when you save this new stay.</p>}</div>}
+        {category === 'STAY' && <div className="md:col-span-2 rounded-2xl border border-[#dfe3d8] bg-[#f7f8f4] p-4"><div className="flex flex-wrap items-center justify-between gap-2"><div><p className="text-[13px] font-bold text-[#173f35]">House rules <span className="font-normal text-[#6c7770]">(template editor)</span></p><p className="mt-1 text-[11px] font-normal text-[#6c7770]">Saved per listing. Reset to the standard template, then edit to taste. Shown on the public stay page under the House rules tab.</p></div><button type="button" onClick={resetHouseRules} className="rounded-full bg-[#eef4ef] px-2.5 py-1 text-[11px] font-bold text-[#24584a] hover:bg-[#dcefe2]">Reset to template</button></div>{form.houseRules.length === 0 && <p className="mt-3 rounded-xl border border-dashed border-[#c9c9cc] bg-white p-4 text-center text-xs text-[#777]">No house rules yet — use the template below</p>}<div className="mt-3 grid gap-3">{form.houseRules.map((rule, index) => <HouseRulesRow key={rule.id ?? `new-${index}`} rule={rule} index={index} total={form.houseRules.length} onChange={(next) => setForm((current) => ({ ...current, houseRules: current.houseRules.map((row, rowIndex) => (rowIndex === index ? next : row)) }))} onMove={(direction) => setForm((current) => { const nextIndex = index + direction; if (nextIndex < 0 || nextIndex >= current.houseRules.length) return current; const next = [...current.houseRules]; const temp = next[index]; next[index] = next[nextIndex]; next[nextIndex] = temp; return { ...current, houseRules: next }; })} onRemove={() => setForm((current) => ({ ...current, houseRules: current.houseRules.filter((_, rowIndex) => rowIndex !== index) }))} />)}</div><div className="mt-3 flex gap-2"><button type="button" onClick={addHouseRule} className="inline-flex items-center gap-2 rounded-xl border border-[#173f35] px-4 py-2 text-xs font-bold text-[#173f35] hover:bg-[#eef4ef]"><Plus size={14} /> Add rule</button><button type="button" onClick={!editingId ? clearHouseRules : undefined} className="disabled:opacity-30 inline-flex items-center gap-2 rounded-xl border border-[#d9d9dc] px-4 py-2 text-xs font-bold text-[#6c7770] hover:bg-white"><Trash2 size={14} /> Clear all</button></div></div>}
+
         <div className="grid gap-2 md:col-span-2">
           <label className="text-[12px] font-semibold text-[#173f35]">Description{category !== 'RENTAL' && <b className="ml-1 text-[#a44a4a]">*</b>}</label>
           <div className="rounded-2xl border border-[#d9d9dc] bg-white">

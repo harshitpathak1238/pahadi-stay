@@ -7,7 +7,29 @@ export type PublicResult<T> = { data: T; degraded: boolean };
 
 export type ListingFaqItem = { question: string; answer: string };
 
-function strings(value: unknown): string[] { return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []; }
+export type HouseRule = { title: string; text: string };
+
+export const DefaultHouseRules: HouseRule[] = [
+  { title: 'Check-in & check-out', text: 'Check-in from 14:00. Check-out by 11:00.' },
+  { title: 'Pets', text: 'No pets allowed.' },
+  { title: 'Parties & events', text: 'No parties or events.' },
+  { title: 'Smoking', text: 'No smoking indoors.' },
+  { title: 'Quiet hours', text: 'Quiet hours between 22:00 and 07:00.' },
+  { title: 'Extra guests', text: 'Guests may not bring extra people without prior approval.' },
+];
+
+export function parseHouseRules(value: unknown): HouseRule[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((item): item is Record<string, unknown> => typeof item === 'object' && item !== null)
+    .map((item) => ({ title: String(item.title ?? ''), text: String(item.text ?? '') }))
+    .filter((item) => item.title.trim() && item.text.trim());
+}
+
+function strings(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
+}
+
 function faqs(value: unknown): ListingFaqItem[] {
   if (!Array.isArray(value)) return [];
   return value
@@ -15,11 +37,12 @@ function faqs(value: unknown): ListingFaqItem[] {
     .map((item) => ({ question: String(item.question ?? ''), answer: String(item.answer ?? '') }))
     .filter((item) => item.question.trim() && item.answer.trim());
 }
-function mapRecord(record: { slug: string; title: string; location: string; sellPrice: unknown; category: ListingCategory; images: unknown; amenities: unknown; details?: unknown; faqs?: unknown }): Listing {
+function mapRecord(record: { slug: string; title: string; location: string; sellPrice: unknown; category: ListingCategory; images: unknown; amenities: unknown; details?: unknown; faqs?: unknown; houseRules?: unknown }): Listing {
   const details = record.details && typeof record.details === 'object' ? record.details as Record<string, unknown> : {};
   const facilities = details.facilities && typeof details.facilities === 'object' ? Object.fromEntries(Object.entries(details.facilities).filter(([, value]) => typeof value === 'boolean')) as Record<string, boolean> : { ...defaultStayFacilities };
   const recordFaqs = (record as { faqs?: unknown }).faqs;
-  return { slug: record.slug, title: record.title, location: record.location, price: Number(record.sellPrice), rating: 5, category: record.category === 'RENTAL' ? 'rental' : record.category === 'ACTIVITY' ? 'activity' : 'stay', image: strings(record.images)[0] || '/images/Logo.png', images: strings(record.images), description: '', amenities: strings(record.amenities), facilities, faqs: faqs(recordFaqs) };
+  const recordHouseRules = (record as { houseRules?: unknown }).houseRules;
+  return { slug: record.slug, title: record.title, location: record.location, price: Number(record.sellPrice), rating: 5, category: record.category === 'RENTAL' ? 'rental' : record.category === 'ACTIVITY' ? 'activity' : 'stay', image: strings(record.images)[0] || '/images/Logo.png', images: strings(record.images), description: '', amenities: strings(record.amenities), facilities, faqs: faqs(recordFaqs), houseRules: parseHouseRules(recordHouseRules) };
 }
 
 const localRentals = (): Listing[] => rentals.map((rental) => ({ slug: rental.slug, title: rental.title, location: rental.pickup, price: rental.price, rating: 5, category: 'rental' as const, image: rental.image, description: rental.description, amenities: rental.features }));

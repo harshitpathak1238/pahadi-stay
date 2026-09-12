@@ -3,11 +3,12 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { BarChart3, BookOpen, ClipboardList, ExternalLink, FileImage, LayoutDashboard, Menu, Settings, Truck, UserRound, Users, WalletCards, X } from 'lucide-react';
+import { BarChart3, BookOpen, ClipboardList, ExternalLink, FileImage, LayoutDashboard, Menu, MessageSquareHeart, Settings, Truck, UserRound, Users, WalletCards, X } from 'lucide-react';
 
 const navigation = [
   ['Dashboard', LayoutDashboard, '/admin'],
   ['Orders', ClipboardList, '/admin/orders'],
+  ['Reviews', MessageSquareHeart, '/admin/reviews'],
   ['Listings', ClipboardList, '/admin/listings'],
   ['Stays', ClipboardList, '/admin/stays'],
   ['Rides', ClipboardList, '/admin/rides'],

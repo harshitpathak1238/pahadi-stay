@@ -2,20 +2,45 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useEffect, useMemo, useState } from 'react';
-import { ChevronDown, Heart, MapPin, Share2, Star, Wifi, Car, Utensils, ShieldCheck, Users, Plane, ThumbsUp, X } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { ChevronDown, Heart, MapPin, Share2, Star, Wifi, Car, Utensils, ShieldCheck, Users, Plane, X } from 'lucide-react';
 import type { Listing } from '@/lib/mock-data';
+import type { StayReviewData } from '@/lib/reviews';
 import { defaultStayFacilities, stayFacilityGroups } from '@/lib/stay-facilities';
 import { facilityCategoryOrder, facilityMeta, defaultFacilityIcon, OTHER_FACILITY_CATEGORY } from '@/lib/facilityMeta';
 import { isFullBlogDocument, sanitizeBlogHtml } from '@/lib/sanitize-html';
 import { AutoHeightIframe } from '@/components/public/AutoHeightIframe';
 import { StayTripPanel } from '@/components/trip/StayTripPanel';
+import { StayReviews } from '@/components/public/StayReviews';
+import { StayBottomBar } from '@/components/public/StayBottomBar';
+import { useIsMobile } from '@/hooks/use-is-mobile';
 
-export function StayDetailExperience({ stay }: { stay: Listing }) {
+export function StayDetailExperience({ stay, reviewData }: { stay: Listing; reviewData?: StayReviewData | null }) {
   const [saved, setSaved] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+  const [reviewCount, setReviewCount] = useState<number | null>(reviewData ? reviewData.reviews.length : null);
+  // Header rating follows approved reviews once they exist. When there are no
+  // approved reviews at all we hide the star badge entirely rather than faking
+  // a 5.0 from the stale listing seed. The seed rating is kept only as an
+  // editor-level courtesy until real reviews exist.
+  const hasRealRating = !!(reviewData?.stats);
+  const headerRating = hasRealRating ? reviewData!.stats!.overall5 : stay.rating;
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [showAllFacilities, setShowAllFacilities] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState<number | null>(null);
+  const tabNavRef = useRef<HTMLElement>(null);
+  const [tabCanScroll, setTabCanScroll] = useState(false);
+  const isMobile = useIsMobile();
+  const updateTabFade = () => {
+    const el = tabNavRef.current;
+    if (!el) return;
+    setTabCanScroll(el.scrollWidth - el.clientWidth > 8);
+  };
+  useEffect(() => {
+    updateTabFade();
+    window.addEventListener('resize', updateTabFade);
+    return () => window.removeEventListener('resize', updateTabFade);
+  }, []);
 
   // Real uploaded photos first; falls back to the single cover image.
   const gallery = [...new Set([...(stay.images ?? []), stay.image])].filter(Boolean);
@@ -23,11 +48,19 @@ export function StayDetailExperience({ stay }: { stay: Listing }) {
   const extraPhotoCount = gallery.length - 5;
   const mapUrl = `https://www.google.com/maps?q=${encodeURIComponent(stay.location)}`;
 
+  // Live review count (starts from SSR data, updates when reviews load).
+  useEffect(() => {
+    if (reviewData) setReviewCount(reviewData.reviews.length);
+    const listener = (event: Event) => setReviewCount((event as CustomEvent<{ count: number }>).detail.count);
+    window.addEventListener('stay-review-count', listener);
+    return () => window.removeEventListener('stay-review-count', listener);
+  }, [reviewData]);
+
   const tabs = [
     { id: 'overview', label: 'Overview' },
     { id: 'facilities', label: 'Facilities' },
     { id: 'house-rules', label: 'House rules' },
-    { id: 'reviews', label: 'Guest reviews (28)' },
+    { id: 'reviews', label: reviewCount === null ? 'Guest reviews' : `Guest reviews (${reviewCount})` },
   ];
 
   const facilities = stayFacilityGroups.flatMap((group) =>
@@ -60,10 +93,29 @@ export function StayDetailExperience({ stay }: { stay: Listing }) {
       .map((category) => ({ category, items: groups.get(category) ?? [] }));
   }, [facilities, stay.amenities]);
 
+  // Flat, category-ordered list used by the compact "first N + View more" view.
+  const flatFacilities = useMemo(() => {
+    const out: { category: string; label: string }[] = [];
+    for (const group of groupedFacilities) {
+      for (const item of group.items) out.push({ category: group.category, label: item.label });
+    }
+    return out;
+  }, [groupedFacilities]);
+
   const faqs = (stay.faqs ?? []).filter((faq) => faq.question.trim() && faq.answer.trim());
+
+  // Compact facilities UI: show the first N items inline; the rest hide behind "View more".
+  const defaultVisibleCount = 4;
+  const visibleFacilities = useMemo(() => {
+    return flatFacilities.slice(0, showAllFacilities ? flatFacilities.length : defaultVisibleCount);
+  }, [flatFacilities, showAllFacilities]);
+  const hiddenFacilities = flatFacilities.slice(defaultVisibleCount);
 
   const handleTabClick = (tabId: string) => {
     setActiveTab(tabId);
+    // Keep the tapped tab fully visible inside the horizontally scrollable
+    // bar (inline:center) without jumping the page vertically (block:nearest).
+    document.getElementById(`tab-${tabId}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     const element = document.getElementById(tabId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
@@ -86,7 +138,7 @@ export function StayDetailExperience({ stay }: { stay: Listing }) {
     <div className="bg-[#f5f7fa] text-[#1f2937]">
       <main className="mx-auto max-w-[1180px] px-4 py-5 md:px-6">
         {/* Breadcrumb */}
-        <div className="text-xs text-[#536274]">
+        <div className="pt-3 text-xs leading-relaxed text-[#536274]">
           Home <span className="mx-2">›</span> Stays <span className="mx-2">›</span> {stay.location} <span className="mx-2">›</span> {stay.title}
         </div>
 
@@ -95,21 +147,28 @@ export function StayDetailExperience({ stay }: { stay: Listing }) {
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1 text-[#f59e0b]" aria-label={`${stay.rating.toFixed(1)} out of 5 stars`}>
-                  {[1, 2, 3, 4, 5].map((item) => (
-                    <Star
-                      key={item}
-                      size={15}
-                      fill={item <= Math.round(stay.rating) ? 'currentColor' : 'none'}
-                      className={item <= Math.round(stay.rating) ? 'text-[#f59e0b]' : 'text-[#d1d5db]'}
-                    />
-                  ))}
-                </div>
-                <span className="rounded bg-[#003b95] px-2 py-1 text-xs font-bold text-white">{stay.rating.toFixed(1)}</span>
+                {hasRealRating && (
+                  <div className="flex items-center gap-1 text-[#f59e0b]" aria-label={`${headerRating.toFixed(1)} out of 5 stars`}>
+                    {[1, 2, 3, 4, 5].map((item) => (
+                      <Star
+                        key={item}
+                        size={15}
+                        fill={item <= Math.round(headerRating) ? 'currentColor' : 'none'}
+                        className={item <= Math.round(headerRating) ? 'text-[#f59e0b]' : 'text-[#d1d5db]'}
+                      />
+                    ))}
+                  </div>
+                )}
+                {hasRealRating && (
+                  <span className="rounded bg-[#003b95] px-2 py-1 text-xs font-bold text-white">{headerRating.toFixed(1)}</span>
+                )}
+                {!hasRealRating && (
+                  <span className="rounded bg-[#eef7ff] px-2 py-1 text-xs font-medium text-[#24584a]">New</span>
+                )}
               </div>
-              <h1 className="mt-1 line-clamp-2 text-2xl font-bold md:text-3xl">{stay.title}</h1>
-              <p className="mt-1 flex flex-wrap items-center gap-1 text-xs text-[#536274]">
-                <MapPin size={13} className="inline" />
+              <h1 className="mt-1 line-clamp-2 text-xl font-bold sm:text-2xl md:text-3xl">{stay.title}</h1>
+              <p className="mt-1.5 flex flex-wrap items-center gap-1.5 text-sm leading-relaxed text-[#536274]">
+                <MapPin size={13} className="inline shrink-0" />
                 <span>{stay.location}</span>
                 <span aria-hidden="true">·</span>
                 <a
@@ -128,7 +187,7 @@ export function StayDetailExperience({ stay }: { stay: Listing }) {
               <button
                 aria-label="Save property"
                 onClick={() => setSaved(!saved)}
-                className="rounded border border-[#b9c5d1] bg-white p-2 hover:bg-[#f5f7fa]"
+                className="grid h-10 w-10 place-items-center rounded border border-[#b9c5d1] bg-white hover:bg-[#f5f7fa]"
               >
                 <Heart
                   size={17}
@@ -136,52 +195,67 @@ export function StayDetailExperience({ stay }: { stay: Listing }) {
                   className={saved ? 'text-rose-600' : ''}
                 />
               </button>
-              <button aria-label="Share property" className="rounded border border-[#b9c5d1] bg-white p-2 hover:bg-[#f5f7fa]">
+              <button aria-label="Share property" className="grid h-10 w-10 place-items-center rounded border border-[#b9c5d1] bg-white hover:bg-[#f5f7fa]">
                 <Share2 size={17} />
               </button>
-              <Link href="#trip-builder" className="rounded bg-[#0071c2] px-4 py-2 text-xs font-bold text-white hover:bg-[#005b9d]">
+              <Link href="#trip-builder" className="rounded bg-[#0071c2] px-4 py-2.5 text-xs font-bold text-white hover:bg-[#005b9d]">
                 Reserve
               </Link>
             </div>
           </div>
         </div>
 
-        {/* Tab navigation */}
-        <nav className="sticky top-14 z-10 -mx-4 flex gap-5 overflow-x-auto border-b border-[#d9e0e8] bg-[#f5f7fa] px-4 py-2 text-sm font-bold md:-mx-6 md:px-6">
-          {tabs.map(({ id, label }) => (
-            <button
-              key={id}
-              onClick={() => handleTabClick(id)}
-              className={`whitespace-nowrap border-b-4 px-1 py-2 transition ${
-                activeTab === id
-                  ? 'border-[#0071c2] text-[#0071c2]'
-                  : 'border-transparent text-[#536274] hover:text-[#1f2937]'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </nav>
+        {/* Tab navigation — horizontally scrollable on mobile with snap + fade */}
+        <div className="relative">
+          <nav
+            ref={tabNavRef}
+            onScroll={updateTabFade}
+            className="-mx-4 flex gap-3 overflow-x-auto border-b border-[#d9e0e8] bg-[#f5f7fa] px-4 py-2.5 text-sm font-bold no-scrollbar snap-x snap-mandatory md:-mx-6 md:gap-5 md:px-6 lg:sticky lg:top-14"
+            aria-label="Stay page sections"
+          >
+            {tabs.map(({ id, label }) => (
+              <button
+                key={id}
+                id={`tab-${id}`}
+                onClick={() => handleTabClick(id)}
+                className={`snap-start whitespace-nowrap border-b-4 px-3 py-2 transition ${
+                  activeTab === id
+                    ? 'border-[#0071c2] text-[#0071c2]'
+                    : 'border-transparent text-[#536274] hover:text-[#1f2937]'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+            <span aria-hidden="true" className="snap-start w-4 shrink-0" />
+          </nav>
+          {tabCanScroll && (
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-0 -right-4 w-14 bg-gradient-to-l from-[#f5f7fa] via-[#f5f7fa]/60 to-transparent"
+            />
+          )}
+        </div>
 
         {/* Gallery: hero + 2x2 side grid */}
         <section className="mt-5 grid grid-cols-1 gap-2 md:grid-cols-[1.5fr_1fr]" aria-label={`Photos of ${stay.title}`}>
-          {/* Hero image */}
+          {/* Hero image — compact on mobile so the gallery doesn't dominate the page */}
           <button
             type="button"
             onClick={() => setGalleryOpen(0)}
             aria-label={`Open photo gallery of ${stay.title}`}
-            className="group relative h-[260px] overflow-hidden rounded-2xl md:h-[480px]"
+            className="group relative h-40 w-full overflow-hidden rounded-2xl sm:h-56 md:h-[440px]"
           >
             <Image src={gallery[0]} alt={stay.title} fill priority sizes="(max-width: 768px) 100vw, 60vw" className="object-cover transition duration-500 group-hover:scale-105" />
             {gallery.length > 1 && (
-              <span className="absolute bottom-3 right-3 rounded-lg bg-white/95 px-3 py-2 text-xs font-bold shadow-sm">See all {gallery.length} photos</span>
+              <span className="absolute bottom-2 right-2 rounded-lg bg-white/95 px-2.5 py-1.5 text-xs font-bold shadow-sm sm:bottom-3 sm:right-3 sm:px-3 sm:py-2">See all {gallery.length} photos</span>
             )}
           </button>
 
-          {/* Side grid — only as many tiles as photos exist */}
+          {/* Side grid — compact tiles so the gallery takes less vertical space on mobile */}
           {sideTiles.length > 0 && (
             <div
-              className={`grid gap-2 md:h-[480px] ${
+              className={`grid gap-2 md:h-[380px] ${
                 sideTiles.length === 1 ? 'grid-cols-1 grid-rows-1' : sideTiles.length === 2 ? 'grid-cols-2 grid-rows-1' : 'grid-cols-2 grid-rows-2'
               }`}
             >
@@ -193,7 +267,7 @@ export function StayDetailExperience({ stay }: { stay: Listing }) {
                     type="button"
                     onClick={() => setGalleryOpen(index + 1)}
                     aria-label={`Open photo ${index + 2} of ${gallery.length}`}
-                    className={`group relative h-[150px] overflow-hidden rounded-2xl md:h-auto ${
+                    className={`group relative h-16 w-full overflow-hidden rounded-xl sm:h-20 md:h-auto ${
                       sideTiles.length === 3 && index === 2 ? 'col-span-2' : ''
                     }`}
                   >
@@ -213,26 +287,25 @@ export function StayDetailExperience({ stay }: { stay: Listing }) {
         {/* Main content grid: left column (content) + right column (booking panel) */}
         <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1fr)_330px]">
           <article className="min-w-0">
-            {/* Overview tab section */}
-            <section id="overview" className="scroll-mt-24 rounded-lg border border-[#d9e0e8] bg-white p-5 md:p-7">
-              <h2 className="text-2xl font-bold">About this property</h2>
+            <section id="overview" className="scroll-mt-24 rounded-lg border border-[#d9e0e8] bg-white p-4 sm:p-5 md:p-7">
+              <h2 className="text-xl font-bold sm:text-2xl">About this property</h2>
               {isFullBlogDocument(stay.description) ? (
                 <AutoHeightIframe
                   title={`${stay.title} description`}
                   srcDoc={stay.description}
-                  minHeight={700}
-                  className="mt-4 min-h-[700px]"
+                  minHeight={0}
+                  className="mt-3 sm:mt-4"
                 />
               ) : (
                 <div
-                  className="prose mt-4 max-w-none text-sm leading-7 text-[#536274]"
+                  className="prose mt-3 max-w-none text-sm leading-7 text-[#536274] sm:mt-4"
                   dangerouslySetInnerHTML={{ __html: sanitizeBlogHtml(stay.description) }}
                 />
               )}
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
                 <div className="rounded bg-[#eef7ff] p-4">
                   <p className="font-bold">Property highlights</p>
-                  <p className="mt-2 text-sm text-[#536274]">Top-rated location, comfortable rooms, and thoughtful local hosting.</p>
+                  <p className="mt-2 text-xs text-[#536274] sm:text-sm">Top-rated location, comfortable rooms, and thoughtful local hosting.</p>
                 </div>
                 <div className="rounded bg-[#eef7ff] p-4">
                   <p className="font-bold">Most popular facilities</p>
@@ -258,19 +331,48 @@ export function StayDetailExperience({ stay }: { stay: Listing }) {
               </div>
             </section>
 
-            {/* Facilities tab section */}
-            <section id="facilities" className="mt-5 scroll-mt-24 rounded-lg border border-[#d9e0e8] bg-white p-5 md:p-7">
-              <h2 className="text-2xl font-bold">Facilities</h2>
-              <div className="mt-5 grid gap-6">
+            {/* Facilities tab section — compact by default, expandable via View more */}
+          <section id="facilities" className="mt-5 scroll-mt-24 rounded-lg border border-[#d9e0e8] bg-white p-4 sm:p-4 sm:p-5 md:p-7">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-xl font-bold sm:text-2xl">Facilities</h2>
+              {flatFacilities.length > defaultVisibleCount && (
+                <button
+                  type="button"
+                  onClick={() => setShowAllFacilities((current) => !current)}
+                  aria-expanded={showAllFacilities}
+                  className="shrink-0 rounded-full border border-[#d9e0e8] bg-white px-4 py-1.5 text-xs font-semibold text-[#24584a] hover:bg-[#f5f7fa]"
+                >
+                  {showAllFacilities ? 'Show fewer' : 'View more (' + (flatFacilities.length - defaultVisibleCount) + ' more)'}
+                </button>
+              )}
+            </div>
+            {!showAllFacilities && (
+              <div className="mt-3 grid grid-cols-2 gap-1.5 sm:mt-4 sm:gap-2.5">
+                {visibleFacilities.map((facility) => {
+                  const Icon = facilityMeta[facility.label]?.icon ?? defaultFacilityIcon;
+                  return (
+                    <div key={facility.label} className="flex min-w-0 items-center gap-1.5 rounded-lg border border-[#e5e7eb] bg-[#fafbfa] px-2 py-1.5 sm:gap-3 sm:rounded-xl sm:px-4 sm:py-3">
+                      <Icon size={14} className="shrink-0 text-[#24584a]" />
+                      <span className="min-w-0 flex-1 truncate text-[11px] text-[#23332e] sm:whitespace-normal sm:text-sm">{facility.label}</span>
+                      <span className="hidden rounded-full bg-[#eef3ef] px-2 py-0.5 text-xs font-semibold text-[#24584a] sm:inline">
+                        {facility.category}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            {showAllFacilities && (
+              <div className="mt-3 grid gap-3 sm:mt-4 sm:gap-4">
                 {groupedFacilities.map((group) => (
-                  <div key={group.category}>
-                    <p className="text-sm font-semibold uppercase tracking-wide text-gray-500">{group.category}</p>
-                    <div className="mt-2 grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
+                  <div key={group.category} className="rounded-xl border border-[#eef1f4] bg-[#fdfdfc] p-3 sm:p-3.5">
+                    <p className="text-[11px] font-bold uppercase tracking-[.08em] text-[#8a94a3] sm:text-xs">{group.category}</p>
+                    <div className="mt-1.5 grid grid-cols-1 gap-x-6 gap-y-1.5 sm:mt-2 sm:grid-cols-2 sm:gap-y-2">
                       {group.items.map((item) => {
                         const Icon = facilityMeta[item.label]?.icon ?? defaultFacilityIcon;
                         return (
-                          <p key={item.label} className="flex items-start gap-2 text-sm text-[#536274]">
-                            <Icon size={15} className="mt-0.5 shrink-0 text-[#24584a]" />
+                          <p key={item.label} className="flex items-start gap-2 text-xs text-[#536274] sm:text-sm">
+                            <Icon size={14} className="mt-0.5 shrink-0 text-[#24584a]" />
                             <span>{item.label}</span>
                           </p>
                         );
@@ -279,64 +381,57 @@ export function StayDetailExperience({ stay }: { stay: Listing }) {
                   </div>
                 ))}
               </div>
-            </section>
+            )}
+          </section>
 
-            {/* House rules tab section */}
-            <section id="house-rules" className="mt-5 scroll-mt-24 rounded-lg border border-[#d9e0e8] bg-white p-5 md:p-7">
-              <h2 className="text-2xl font-bold">House rules</h2>
-              <div className="mt-4 grid gap-3 text-sm text-[#536274]">
-                <p>Check-in from 14:00 · Check-out by 11:00</p>
-                <p>Quiet hours are observed after 22:00.</p>
-                <p>Contact the host for cancellation and pet policies.</p>
-              </div>
-            </section>
-
-            {/* Reviews tab section */}
-            <section id="reviews" className="mt-5 scroll-mt-24 rounded-lg border border-[#d9e0e8] bg-white p-5 md:p-7">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold">Guest reviews</h2>
-                  <p className="mt-1 text-sm text-[#536274]">Guests love the location and warm hospitality.</p>
+          {/* House rules tab section — live from backend, shown uniquely per rule */}
+            {stay.houseRules && stay.houseRules.length > 0 ? (
+              <section id="house-rules" className="mt-5 scroll-mt-24 rounded-lg border border-[#d9e0e8] bg-white p-4 sm:p-4 sm:p-5 md:p-7">
+                <h2 className="flex items-center gap-2 text-xl font-bold sm:text-2xl">
+                  <ShieldCheck size={20} className="text-[#24584a]" />
+                  House rules
+                </h2>
+                <p className="mt-2 text-xs text-[#536274] sm:text-sm">
+                  These rules are set by the host for this property. Always check with the host if anything is unclear before you arrive.
+                </p>
+                <div className="mt-3 grid gap-2 sm:mt-5 sm:gap-3">
+                  {stay.houseRules.map((rule, index) => (
+                    <div
+                      key={index}
+                      className="group flex gap-2.5 rounded-xl border border-[#e5e7eb] bg-[#fafbfa] p-3 transition hover:border-[#c9d6cf] hover:bg-white sm:gap-3 sm:p-4"
+                    >
+                      <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#eef3ef] text-xs font-bold text-[#24584a] sm:h-7 sm:w-7 sm:text-sm">
+                        {index + 1}
+                      </span>
+                      <div>
+                        <p className="text-xs font-semibold text-[#23332e] sm:text-sm">{rule.title}</p>
+                        <p className="mt-0.5 text-xs text-[#536274] sm:text-sm">{rule.text}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="rounded bg-[#003b95] p-3 text-center text-white">
-                  <strong className="text-2xl">{stay.rating.toFixed(1)}</strong>
-                  <span className="block text-xs">Wonderful</span>
-                </div>
-              </div>
-
-              {/* Review score bars */}
-              <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                {['Staff', 'Facilities', 'Cleanliness', 'Comfort', 'Value for money', 'Location'].map((label, index) => (
-                  <div key={label} className="text-sm">
-                    <div className="flex justify-between">
-                      <span>{label}</span>
-                      <b>{(9.1 - index * 0.1).toFixed(1)}</b>
-                    </div>
-                    <div className="mt-1 h-2 rounded bg-[#e5e7eb]">
-                      <div className="h-2 rounded bg-[#0071c2]" style={{ width: `${91 - index}%` }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Sample review quotes */}
-              <div className="mt-6 grid gap-3 md:grid-cols-3">
-                {['"Beautiful stay with an even better view."', '"Very clean, peaceful, and easy to reach."', '"The team made our weekend effortless."'].map(
-                  (quote) => (
-                    <div key={quote} className="rounded border border-[#e5e7eb] p-4 text-sm text-[#536274]">
-                      <ThumbsUp size={15} className="text-[#0071c2]" />
-                      <p className="mt-3">{quote}</p>
-                      <p className="mt-3 text-xs font-bold text-[#1f2937]">Verified guest</p>
-                    </div>
-                  )
+                {stay.houseRules.length === 0 && (
+                  <p className="mt-3 text-sm text-[#536274]">House rules are coming soon — please contact the host for the latest information.</p>
                 )}
-              </div>
-            </section>
+              </section>
+            ) : (
+              /* Fallback when no rules are stored yet */
+              <section id="house-rules" className="mt-5 scroll-mt-24 rounded-lg border border-[#d9e0e8] bg-white p-4 sm:p-4 sm:p-5 md:p-7">
+                <h2 className="flex items-center gap-2 text-xl font-bold sm:text-2xl">
+                  <ShieldCheck size={20} className="text-[#24584a]" />
+                  House rules
+                </h2>
+                <p className="mt-2 text-xs text-[#536274] sm:text-sm">This property&apos;s house rules are being finalised. Please contact the host for the latest information.</p>
+              </section>
+            )}
+
+            {/* Reviews tab section — live data with hardcoded blocks removed. */}
+            <StayReviews initial={reviewData ?? null} />
 
             {/* FAQ section */}
             {faqs.length > 0 && (
-              <section className="mt-5 rounded-lg border border-[#d9e0e8] bg-white p-5 md:p-7">
-                <h2 className="text-2xl font-bold">Travelers are asking</h2>
+              <section className="mt-5 rounded-lg border border-[#d9e0e8] bg-white p-4 sm:p-5 md:p-7">
+                <h2 className="text-xl font-bold sm:text-2xl">Travelers are asking</h2>
                 <div className="mt-4 grid gap-2 md:grid-cols-2">
                   {faqs.map((faq, index) => (
                     <button
@@ -358,7 +453,7 @@ export function StayDetailExperience({ stay }: { stay: Listing }) {
           </article>
 
           {/* Right sidebar: price panel + booking + map + info */}
-          <aside className="h-fit lg:sticky lg:top-48">
+          <aside className="h-fit min-w-0 lg:sticky lg:top-48">
             {/* Price and booking panel */}
             <div id="trip-builder" className="rounded-lg border border-[#d9e0e8] bg-white p-5 shadow-sm">
               <p className="text-sm text-[#536274]">From</p>
@@ -430,6 +525,11 @@ export function StayDetailExperience({ stay }: { stay: Listing }) {
             {galleryOpen + 1} / {gallery.length}
           </span>
         </div>
+      )}
+
+      {/* Mobile bottom static bar: price + Add-to-trip shortcut, sticky to screen */}
+      {isMobile && stay.category === 'stay' && (
+        <StayBottomBar slug={stay.slug} price={stay.price} />
       )}
     </div>
   );

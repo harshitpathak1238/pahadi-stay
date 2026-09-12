@@ -7,7 +7,9 @@ import { isFullBlogDocument, sanitizeBlogHtml } from '@/lib/sanitize-html';
 
 const listingStatus = z.preprocess((value) => typeof value === 'string' ? value.trim().toUpperCase() : value, z.enum(['DRAFT', 'LIVE', 'PAUSED', 'PENDING_REVIEW']).default('DRAFT'));
 const optionalStringList = z.array(z.string().trim().max(500)).default([]).transform((items) => items.map((item) => item.trim()).filter(Boolean));
-const listingSchema = z.object({ slug: z.string().trim().max(160).default(''), category: z.enum(['STAY', 'RIDE', 'RENTAL', 'ACTIVITY']).default('STAY'), title: z.string().trim().max(120).default('Untitled listing'), description: z.string().trim().default(''), location: z.string().trim().max(160).default(''), basePrice: z.coerce.number().nonnegative().default(0), sellPrice: z.coerce.number().nonnegative().default(0), images: optionalStringList, amenities: optionalStringList, details: z.record(z.string(), z.unknown()).default({}), status: listingStatus });
+const houseRuleSchema = z.object({ title: z.string().trim().max(120), text: z.string().trim().max(500) });
+const optionalHouseRules = z.array(houseRuleSchema).max(30).optional().transform((rules) => rules ? rules.map((rule) => ({ title: rule.title.trim(), text: rule.text.trim() })).filter((rule) => rule.title && rule.text) : rules);
+const listingSchema = z.object({ slug: z.string().trim().max(160).default(''), category: z.enum(['STAY', 'RIDE', 'RENTAL', 'ACTIVITY']).default('STAY'), title: z.string().trim().max(120).default('Untitled listing'), description: z.string().trim().default(''), location: z.string().trim().max(160).default(''), basePrice: z.coerce.number().nonnegative().default(0), sellPrice: z.coerce.number().nonnegative().default(0), images: optionalStringList, amenities: optionalStringList, details: z.record(z.string(), z.unknown()).default({}), houseRules: optionalHouseRules, status: listingStatus });
 
 export async function GET(request: Request) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
@@ -28,9 +30,9 @@ export async function POST(request: Request) {
     const partner = await getAdminPartner();
     const title = parsed.data.title || 'Untitled listing';
     const slug = parsed.data.slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || `listing-${Date.now()}`;
-    const { details, ...fields } = parsed.data;
+    const { details, houseRules, ...fields } = parsed.data;
     fields.description = isFullBlogDocument(fields.description) ? fields.description : sanitizeBlogHtml(fields.description);
-    const listing = await db.listing.create({ data: { ...fields, details: details as Prisma.InputJsonObject, slug, title, partnerId: partner.id, basePrice: parsed.data.basePrice, sellPrice: parsed.data.sellPrice, category: (parsed.data.category || 'STAY') as 'STAY' | 'RIDE' | 'RENTAL' | 'ACTIVITY' } });
+    const listing = await db.listing.create({ data: { ...fields, details: details as Prisma.InputJsonObject, ...(houseRules ? { houseRules: houseRules as Prisma.InputJsonValue } : {}), slug, title, partnerId: partner.id, basePrice: parsed.data.basePrice, sellPrice: parsed.data.sellPrice, category: (parsed.data.category || 'STAY') as 'STAY' | 'RIDE' | 'RENTAL' | 'ACTIVITY' } });
     return NextResponse.json(listing, { status: 201 });
   } catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : 'Could not create listing.' }, { status: 500 }); }
 }

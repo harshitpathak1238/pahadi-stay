@@ -17,12 +17,15 @@ import { GenericArticle, GenericDiv, GenericSpan } from './BlogEditorExtensions'
 import { ResizableImage } from './ResizableImage';
 import { isFullBlogDocument, normalizeBlogHtml, splitFullBlogDocument, type FullBlogDocumentParts } from '@/lib/sanitize-html';
 import { defaultStayFacilities } from '@/lib/stay-facilities';
+import { DefaultHouseRules, type HouseRule } from '@/lib/listings';
 
 type Category = 'STAY' | 'RIDE' | 'RENTAL' | 'ACTIVITY';
 type Section = Category | 'PACKAGE';
 type Listing = { id: string; title: string; slug: string; category: Category; location: string; sellPrice: string | number; basePrice: string | number; status: string; description: string; images?: string[]; amenities?: string[]; details?: Record<string, unknown> };
 type TravelPackage = { id: string; title: string; description: string; price: string | number; listingIds?: string[]; status?: string; details?: Record<string, unknown> };
-export type ListingForm = { slug: string; title: string; description: string; location: string; basePrice: string; sellPrice: string; images: string[]; amenities: string; status: string; price: string; listingIds: string[]; details: Record<string, string>; stayFacilities: Record<string, boolean>; faqs: AdminFaqRow[] };
+export type HouseRuleRow = { id?: string; title: string; text: string };
+
+export type ListingForm = { slug: string; title: string; description: string; location: string; basePrice: string; sellPrice: string; images: string[]; amenities: string; status: string; price: string; listingIds: string[]; details: Record<string, string>; stayFacilities: Record<string, boolean>; faqs: AdminFaqRow[]; houseRules: HouseRuleRow[] };
 
 export type AdminFaqRow = { id?: string; question: string; answer: string };
 
@@ -46,9 +49,10 @@ const freshForm = (): ListingForm => ({
   status: 'DRAFT',
   price: '',
   listingIds: [],
-  details: {},
+    details: {},
   stayFacilities: { ...defaultStayFacilities },
   faqs: [],
+  houseRules: [...DefaultHouseRules],
 });
 
 export function ContentManager({ initialSection = 'STAY' }: { initialSection?: Section }) {
@@ -134,7 +138,8 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
         status: listing.status,
         details: Object.fromEntries(Object.entries(rawDetails).filter(([key]) => key !== 'facilities').map(([key, value]) => [key, String(value ?? '')])),
         stayFacilities: section === 'STAY' && rawFacilities && typeof rawFacilities === 'object' ? { ...defaultStayFacilities, ...Object.fromEntries(Object.entries(rawFacilities).filter(([, value]) => typeof value === 'boolean')) } : { ...defaultStayFacilities },
-        faqs: [],
+                faqs: [],
+        houseRules: (listing as { houseRules?: HouseRule[] }).houseRules || [...DefaultHouseRules],
       });
       void loadFaqs(item.id);
     }
@@ -214,6 +219,7 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
       amenities: asList(form.amenities),
       details: section === 'STAY' ? { ...form.details, facilities: form.stayFacilities } : form.details,
       status: String(form.status || 'DRAFT').trim().toUpperCase(),
+      ...(section === 'STAY' ? { houseRules: form.houseRules } : {}),
     };
     const endpoint = `/api/admin/listings${editing ? `/${editing}` : ''}`;
     try {

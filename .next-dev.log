@@ -1,0 +1,12 @@
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3000
+  - Environments: .env.local, .env
+
+ ✓ Starting...
+ ✓ Ready in 2.3s
+ ○ Compiling /api/reviews ...
+ ✓ Compiled /api/reviews in 3.8s (140 modules)
+ GET /api/reviews 405 in 5975ms
+ ○ Compiling /api/listings ...
+ ✓ Compiled /api/listings in 1319ms (145 modules)
+ GET /api/listings 200 in 1984ms

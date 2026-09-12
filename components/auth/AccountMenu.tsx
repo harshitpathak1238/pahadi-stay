@@ -18,7 +18,7 @@ export function AccountMenu({ name, email, isAdmin = false }: { name?: string | 
   }, []);
 
   return <details ref={menuRef} className="account-menu relative">
-    <summary className="flex h-10 cursor-pointer list-none items-center gap-2 rounded-full border border-[#d6d9d1] bg-white px-2 text-[#173f35] shadow-sm" aria-label="Open account menu">
+    <summary className="flex h-11 cursor-pointer list-none items-center gap-2 rounded-full border border-[#d6d9d1] bg-white px-2 text-[#173f35] shadow-sm" aria-label="Open account menu">
       <span className="grid h-7 w-7 place-items-center rounded-full bg-[#e7eadf] text-xs font-bold text-[#24584a]">{initials}</span>
       <span className="hidden max-w-24 truncate text-xs font-bold sm:block">{name || 'Account'}</span>
     </summary>
