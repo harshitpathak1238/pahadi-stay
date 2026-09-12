@@ -10,7 +10,11 @@ const optionalEmail = z
 // checkout is guest checkout). Always created as PENDING — never auto-approved.
 export const publicReviewSchema = z
   .object({
-    listingId: z.string().min(1),
+    listingId: z
+      .string({
+        message: 'This stay could not be identified. Please reload the page and try again.',
+      })
+      .min(1, 'This stay could not be identified. Please reload the page and try again.'),
     guestName: z.string().trim().min(2).max(80),
     guestEmail: optionalEmail,
     comment: z.string().trim().min(10).max(2000),

@@ -40,16 +40,20 @@ export function StayReviews({ initial }: { initial: StayReviewData | null }) {
       )}
       <div className="mt-5 border-t border-[#e5e7eb] pt-4 sm:mt-6 sm:pt-5">
         {!formOpen && !done && (
-          <button type="button" onClick={() => setFormOpen(true)} className="rounded bg-[#0071c2] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#005b9d]">
-            Write a review
-          </button>
+          data?.listingId ? (
+            <button type="button" onClick={() => setFormOpen(true)} className="rounded bg-[#0071c2] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#005b9d]">
+              Write a review
+            </button>
+          ) : (
+            <p className="text-sm text-[#536274]">Reviews are temporarily unavailable — please reload the page and try again.</p>
+          )
         )}
         {done && (
           <p role="status" className="rounded border border-[#b9d5c5] bg-[#f1f8f3] p-4 text-sm font-semibold text-[#24584a]">
             Thanks — your review is pending approval and will appear here once a moderator approves it.
           </p>
         )}
-        {formOpen && !done && <Form listingId={data?.listingId} onDone={() => { setDone(true); setFormOpen(false); }} onCancel={() => setFormOpen(false)} />}
+        {formOpen && !done && data?.listingId && <Form listingId={data.listingId} onDone={() => { setDone(true); setFormOpen(false); }} onCancel={() => setFormOpen(false)} />}
       </div>
     </section>
   );
