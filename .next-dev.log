@@ -32,3 +32,13 @@
 <w>  at file d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
 <w>  at resolve commonjs d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
  GET /stays/oak-house-bhimtal 200 in 2024ms
+ ✓ Compiled /_not-found in 23s (1211 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 24253ms
+ GET /stays/sanobar-home-stay?_rsc=186kw 200 in 648ms
+ GET /stays/oak-house-bhimtal 200 in 414ms
+ GET /stays/oak-house-bhimtal 200 in 642ms
+ GET /stays/oak-house-bhimtal 200 in 857ms
+ GET /stays/oak-house-bhimtal 200 in 855ms
+ GET /stays/oak-house-bhimtal 200 in 378ms
+ GET /stays/oak-house-bhimtal 200 in 401ms
+ GET /stays/oak-house-bhimtal 200 in 602ms
