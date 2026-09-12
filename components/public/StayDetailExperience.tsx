@@ -138,70 +138,68 @@ export function StayDetailExperience({ stay, reviewData }: { stay: Listing; revi
     <div className="bg-[#f5f7fa] text-[#1f2937]">
       <main className="mx-auto max-w-[1180px] px-4 py-5 md:px-6">
         {/* Breadcrumb */}
-        <div className="pt-3 text-xs leading-relaxed text-[#536274]">
+        <div className="mb-4 pt-3 text-xs leading-relaxed text-[#536274]">
           Home <span className="mx-2">›</span> Stays <span className="mx-2">›</span> {stay.location} <span className="mx-2">›</span> {stay.title}
         </div>
 
-        {/* Sticky header block with title, rating, location, actions */}
-        <div className="sticky top-0 z-10 -mx-4 -mb-5 bg-white px-4 py-3 shadow-sm md:-mx-6 md:px-6 md:py-4">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                {hasRealRating && (
-                  <div className="flex items-center gap-1 text-[#f59e0b]" aria-label={`${headerRating.toFixed(1)} out of 5 stars`}>
-                    {[1, 2, 3, 4, 5].map((item) => (
-                      <Star
-                        key={item}
-                        size={15}
-                        fill={item <= Math.round(headerRating) ? 'currentColor' : 'none'}
-                        className={item <= Math.round(headerRating) ? 'text-[#f59e0b]' : 'text-[#d1d5db]'}
-                      />
-                    ))}
-                  </div>
-                )}
-                {hasRealRating && (
-                  <span className="rounded bg-[#003b95] px-2 py-1 text-xs font-bold text-white">{headerRating.toFixed(1)}</span>
-                )}
-                {!hasRealRating && (
-                  <span className="rounded bg-[#eef7ff] px-2 py-1 text-xs font-medium text-[#24584a]">New</span>
-                )}
-              </div>
-              <h1 className="mt-1 line-clamp-2 text-xl font-bold sm:text-2xl md:text-3xl">{stay.title}</h1>
-              <p className="mt-1.5 flex flex-wrap items-center gap-1.5 text-sm leading-relaxed text-[#536274]">
-                <MapPin size={13} className="inline shrink-0" />
-                <span>{stay.location}</span>
-                <span aria-hidden="true">·</span>
-                <a
-                  href={mapUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-semibold text-[#0071c2] hover:underline"
-                >
-                  Excellent location — show map
-                </a>
-              </p>
+        {/* Title, rating, location, and actions — sits flush on the page background; spacing (not a card) separates it from the breadcrumb above and the tab row below. Stacked on mobile (actions wrap below the title block), row from sm up. */}
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-x-6 md:mb-8">
+          <div className="min-w-0 sm:flex-1">
+            <div className="mb-2 flex items-center gap-2">
+              {hasRealRating && (
+                <div className="flex items-center gap-1 text-[#f59e0b]" aria-label={`${headerRating.toFixed(1)} out of 5 stars`}>
+                  {[1, 2, 3, 4, 5].map((item) => (
+                    <Star
+                      key={item}
+                      size={15}
+                      fill={item <= Math.round(headerRating) ? 'currentColor' : 'none'}
+                      className={item <= Math.round(headerRating) ? 'text-[#f59e0b]' : 'text-[#d1d5db]'}
+                    />
+                  ))}
+                </div>
+              )}
+              {hasRealRating && (
+                <span className="rounded-full bg-[#003b95] px-2.5 py-1 text-xs font-bold text-white">{headerRating.toFixed(1)}</span>
+              )}
+              {!hasRealRating && (
+                <span className="rounded-full border border-[#d5e5ef] bg-[#eef7ff] px-2.5 py-1 text-xs font-semibold text-[#24584a]">New</span>
+              )}
             </div>
-
-            {/* Actions: wishlist, share, reserve */}
-            <div className="flex gap-2">
-              <button
-                aria-label="Save property"
-                onClick={() => setSaved(!saved)}
-                className="grid h-10 w-10 place-items-center rounded border border-[#b9c5d1] bg-white hover:bg-[#f5f7fa]"
+            <h1 className="mb-2 line-clamp-2 text-2xl font-bold leading-tight sm:text-3xl md:text-4xl">{stay.title}</h1>
+            <p className="flex flex-wrap items-center gap-1.5 text-sm leading-relaxed text-[#536274]">
+              <MapPin size={13} className="inline shrink-0" />
+              <span>{stay.location}</span>
+              <span aria-hidden="true">·</span>
+              <a
+                href={mapUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-[#0071c2] hover:underline"
               >
-                <Heart
-                  size={17}
-                  fill={saved ? '#e11d48' : 'none'}
-                  className={saved ? 'text-rose-600' : ''}
-                />
-              </button>
-              <button aria-label="Share property" className="grid h-10 w-10 place-items-center rounded border border-[#b9c5d1] bg-white hover:bg-[#f5f7fa]">
-                <Share2 size={17} />
-              </button>
-              <Link href="#trip-builder" className="rounded bg-[#0071c2] px-4 py-2.5 text-xs font-bold text-white hover:bg-[#005b9d]">
-                Reserve
-              </Link>
-            </div>
+                Excellent location — show map
+              </a>
+            </p>
+          </div>
+
+          {/* Actions: wishlist, share, reserve — top-aligned with the badge/title block on desktop, wrapping below it (right-aligned) on mobile */}
+          <div className="ml-auto flex gap-2">
+            <button
+              aria-label="Save property"
+              onClick={() => setSaved(!saved)}
+              className="grid h-10 w-10 place-items-center rounded border border-[#b9c5d1] bg-white hover:bg-[#f5f7fa]"
+            >
+              <Heart
+                size={17}
+                fill={saved ? '#e11d48' : 'none'}
+                className={saved ? 'text-rose-600' : ''}
+              />
+            </button>
+            <button aria-label="Share property" className="grid h-10 w-10 place-items-center rounded border border-[#b9c5d1] bg-white hover:bg-[#f5f7fa]">
+              <Share2 size={17} />
+            </button>
+            <Link href="#trip-builder" className="flex items-center rounded bg-[#0071c2] px-4 py-2.5 text-xs font-bold text-white hover:bg-[#005b9d]">
+              Reserve
+            </Link>
           </div>
         </div>
 

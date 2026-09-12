@@ -1,13 +1,13 @@
+
+> pahadi-stay@1.0.0 dev
+> next dev
+
   ▲ Next.js 14.2.35
   - Local:        http://localhost:3000
   - Environments: .env.local, .env
 
  ✓ Starting...
- ✓ Ready in 2.1s
- ○ Compiling /stays ...
- ✓ Compiled /stays in 5.4s (986 modules)
- GET /stays 200 in 142ms
+ ✓ Ready in 4.6s
  ○ Compiling /stays/[slug] ...
- ✓ Compiled /stays/[slug] in 1543ms (1239 modules)
- GET /stays/oak-house-bhimtal 200 in 4267ms
- ○ Compiling /_not-found ...
+ ✓ Compiled /stays/[slug] in 23.7s (1208 modules)
+ GET /stays/oak-house-bhimtal 200 in 3416ms
