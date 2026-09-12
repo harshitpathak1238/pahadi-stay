@@ -6,14 +6,14 @@
 -- on this host, so direct application should use prisma/house-rules-backfill.sql
 -- (plain ALTER + UPDATE) instead. This file is for `prisma migrate deploy` / dev.
 
--- 1) Add the column if it does not yet exist (idempotent via dynamic SQL).
+-- 1) Add the column only if it does not yet exist (idempotent via dynamic SQL).
 SET @exist = (
   SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
   WHERE TABLE_SCHEMA = DATABASE()
     AND TABLE_NAME = 'Listing'
     AND COLUMN_NAME = 'houseRules'
 );
-SET @addSql = CONCAT('ALTER TABLE `Listing` ADD COLUMN `houseRules` JSON NOT NULL DEFAULT ''[]''');
+SET @addSql = IF(@exist = 0, 'ALTER TABLE `Listing` ADD COLUMN `houseRules` JSON NOT NULL DEFAULT ''[]''', 'SELECT 1');
 PREPARE _add FROM @addSql;
 EXECUTE _add;
 DEALLOCATE PREPARE _add;
