@@ -26,7 +26,7 @@ export async function POST(request: Request) {
       })
     );
     
-    await db.$transaction(updates, { timeout: 10000 });
+    await db.$transaction(updates);
     
     return NextResponse.json({ success: true, updated: parsed.data.vehicles.length });
   } catch (error) {
