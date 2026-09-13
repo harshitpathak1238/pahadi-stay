@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Heart, Star } from 'lucide-react';
+import { Heart, MapPin, Star } from 'lucide-react';
 import type { Listing } from '@/lib/mock-data';
+import { cardDescriptionSnippet } from '@/lib/sanitize-html';
 
 interface ResultCardProps {
   stay: Listing;
@@ -12,57 +13,80 @@ interface ResultCardProps {
   view: 'list' | 'grid';
 }
 
+function ratingLabel(rating: number) {
+  return rating >= 4.8 ? 'Excellent' : rating >= 4 ? 'Very good' : 'Good';
+}
+
+function SaveButton({ stay, isWishlisted, onToggleWishlist }: Pick<ResultCardProps, 'stay' | 'isWishlisted' | 'onToggleWishlist'>) {
+  return (
+    <button
+      aria-label={`Save ${stay.title}`}
+      onClick={() => onToggleWishlist(stay.slug)}
+      className="absolute right-2 top-2 rounded-full bg-white/95 p-2 shadow-[0_2px_8px_rgba(23,63,53,.18)] transition hover:bg-white"
+    >
+      <Heart
+        size={17}
+        fill={isWishlisted ? '#e11d48' : 'none'}
+        className={isWishlisted ? 'text-rose-600' : 'text-[#536274]'}
+      />
+    </button>
+  );
+}
+
+// Single, consolidated rating presentation shared by both views.
+function RatingRow({ stay }: { stay: Listing }) {
+  return (
+    <div className="mt-2 flex flex-wrap items-center gap-2">
+      <div className="flex items-center gap-0.5 text-[#f59e0b]">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <Star key={i} size={13} fill="currentColor" className={i <= Math.round(stay.rating) ? '' : 'opacity-25'} />
+        ))}
+      </div>
+      <span className="text-xs font-bold text-[#173f35]">
+        {stay.rating.toFixed(1)} <span className="font-semibold">{ratingLabel(stay.rating)}</span>
+      </span>
+    </div>
+  );
+}
+
+// Clean plain-text snippet — never raw HTML/CSS, no citation artifacts.
+function Snippet({ description }: { description: string }) {
+  const snippet = cardDescriptionSnippet(description);
+  if (!snippet) return null;
+  return <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-[#536274]">{snippet}</p>;
+}
+
 export function ResultCard({ stay, isWishlisted, onToggleWishlist, view }: ResultCardProps) {
   if (view === 'grid') {
     return (
-      <article className="overflow-hidden rounded-2xl border border-[#dfe3d8] bg-white shadow-[0_8px_24px_rgba(23,63,53,.06)] transition hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(23,63,53,.1)]">
-        {/* Image with wishlist */}
+      <article className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-[0_10px_28px_rgba(23,63,53,.10)] ring-1 ring-[#e4e8e2] transition hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgba(23,63,53,.14)]">
         <div className="relative h-44 w-full sm:h-48">
           <Image src={stay.image} alt={stay.title} fill sizes="(max-width: 768px) 92vw, 33vw" className="object-cover" />
-          <button
-            aria-label={`Save ${stay.title}`}
-            onClick={() => onToggleWishlist(stay.slug)}
-            className="absolute right-2 top-2 rounded-full bg-white p-2 shadow hover:bg-[#f5f7fa]"
-          >
-            <Heart
-              size={17}
-              fill={isWishlisted ? '#e11d48' : 'none'}
-              className={isWishlisted ? 'text-rose-600' : 'text-[#536274]'}
-            />
-          </button>
+          <SaveButton stay={stay} isWishlisted={isWishlisted} onToggleWishlist={onToggleWishlist} />
         </div>
 
-        {/* Info */}
-        <div className="p-4">
+        <div className="flex flex-1 flex-col p-4">
           <Link href={`/stays/${stay.slug}`} className="line-clamp-2 text-lg font-bold text-[#173f35] hover:text-[#24584a]">
             {stay.title}
           </Link>
 
-          {/* Rating and review count */}
-          <div className="mt-2 flex items-center gap-2">
-            <div className="flex items-center gap-1 text-[#f59e0b]">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <Star key={i} size={14} fill="currentColor" />
-              ))}
-            </div>
-            <span className="text-xs font-bold text-[#173f35]">{stay.rating.toFixed(1)} Excellent</span>
-          </div>
+          <RatingRow stay={stay} />
 
-          {/* Location */}
-          <p className="mt-2 text-sm text-[#536274]">{stay.location}</p>
+          <p className="mt-1.5 flex min-w-0 items-center gap-1 truncate text-sm text-[#536274]">
+            <MapPin size={13} className="shrink-0 text-[#24584a]" />
+            <span className="truncate">{stay.location}</span>
+          </p>
 
-          {/* Description */}
-          <p className="mt-2 line-clamp-2 text-xs text-[#536274]">{stay.description.replace(/<[^>]+>/g, '')}</p>
+          <Snippet description={stay.description} />
 
-          {/* Price */}
-          <div className="mt-3 flex items-end justify-between">
+          <div className="mt-3 flex items-end justify-between gap-2 border-t border-[#eef1ec] pt-3">
             <div>
-              <p className="text-xs text-[#536274]">From</p>
-              <p className="font-bold text-[#1f2937]">₹{stay.price.toLocaleString('en-IN')}</p>
+              <p className="text-[11px] uppercase tracking-wide text-[#536274]">From</p>
+              <p className="font-bold text-[#173f35]">₹{stay.price.toLocaleString('en-IN')}<span className="text-xs font-semibold text-[#536274]"> / night</span></p>
             </div>
-            <button className="rounded-xl bg-[#173f35] px-3 py-2 text-xs font-bold text-white hover:bg-[#24584a]">
-              See prices
-            </button>
+            <Link href={`/stays/${stay.slug}`} className="rounded-full bg-[#173f35] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#24584a]">
+              Show prices
+            </Link>
           </div>
         </div>
       </article>
@@ -71,68 +95,35 @@ export function ResultCard({ stay, isWishlisted, onToggleWishlist, view }: Resul
 
   // List view - horizontal card
   return (
-    <article className="grid min-w-0 overflow-hidden rounded-2xl border border-[#dfe3d8] bg-white shadow-[0_8px_24px_rgba(23,63,53,.06)] transition hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(23,63,53,.1)] md:gap-4 md:grid-cols-[220px_minmax(0,1fr)_170px]">
-      {/* Image with wishlist */}
-      <div className="relative h-36 w-full sm:h-40 md:h-48">
+    <article className="grid min-w-0 overflow-hidden rounded-2xl bg-white shadow-[0_10px_28px_rgba(23,63,53,.10)] ring-1 ring-[#e4e8e2] transition hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgba(23,63,53,.14)] md:grid-cols-[220px_minmax(0,1fr)_200px]">
+      <div className="relative h-36 w-full sm:h-40 md:h-full md:min-h-[200px]">
         <Image src={stay.image} alt={stay.title} fill sizes="(max-width: 768px) 92vw, 220px" className="object-cover" />
-        <button
-          aria-label={`Save ${stay.title}`}
-          onClick={() => onToggleWishlist(stay.slug)}
-          className="absolute right-2 top-2 rounded-full bg-white p-2 shadow hover:bg-[#f5f7fa]"
-        >
-          <Heart
-            size={17}
-            fill={isWishlisted ? '#e11d48' : 'none'}
-            className={isWishlisted ? 'text-rose-600' : 'text-[#536274]'}
-          />
-        </button>
+        <SaveButton stay={stay} isWishlisted={isWishlisted} onToggleWishlist={onToggleWishlist} />
       </div>
 
-      {/* Info - center column */}
-      <div className="flex flex-col justify-between p-4 sm:p-5">
-        <div>
-          <Link
-            href={`/stays/${stay.slug}`}
-            className="line-clamp-2 text-lg font-bold text-[#173f35] hover:text-[#24584a]"
-          >
-            {stay.title}
-          </Link>
+      <div className="flex min-w-0 flex-col p-4 sm:p-5">
+        <Link href={`/stays/${stay.slug}`} className="line-clamp-2 text-lg font-bold text-[#173f35] hover:text-[#24584a]">
+          {stay.title}
+        </Link>
 
-          {/* Rating */}
-          <div className="mt-2 flex items-center gap-2">
-            <div className="flex items-center gap-1 text-[#f59e0b]">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <Star key={i} size={13} fill="currentColor" />
-              ))}
-            </div>
-            <span className="text-xs font-bold text-[#173f35]">{stay.rating.toFixed(1)} Excellent</span>
-          </div>
+        <RatingRow stay={stay} />
 
-          {/* Location and distance */}
-          <p className="mt-1 text-sm text-[#536274]">{stay.location}</p>
+        <p className="mt-1.5 flex min-w-0 items-center gap-1 truncate text-sm text-[#536274]">
+          <MapPin size={13} className="shrink-0 text-[#24584a]" />
+          <span className="truncate">{stay.location}</span>
+        </p>
 
-          {/* Description */}
-          <p className="mt-2 line-clamp-2 text-xs text-[#536274]">{stay.description.replace(/<[^>]+>/g, '')}</p>
-        </div>
+        <Snippet description={stay.description} />
       </div>
 
-      {/* Right column - pricing and CTA */}
-      <div className="flex flex-row items-center justify-between gap-3 border-t border-[#e5e7eb] p-3 md:flex-col md:items-end md:justify-between md:border-l md:border-t-0 md:p-4">
-        {/* Rating badge */}
-        <div className="rounded-xl bg-[#173f35] p-2 text-center text-white">
-          <div className="text-sm font-bold">{stay.rating.toFixed(1)}</div>
-          <div className="text-xs">Excellent</div>
+      <div className="flex flex-row items-end justify-between gap-3 border-t border-[#eef1ec] p-4 sm:items-center md:flex-col md:items-stretch md:justify-between md:border-l md:border-t-0">
+        <div className="md:text-right">
+          <p className="text-[11px] uppercase tracking-wide text-[#536274]">From</p>
+          <p className="font-bold text-[#173f35]">₹{stay.price.toLocaleString('en-IN')}<span className="text-xs font-semibold text-[#536274]"> / night</span></p>
         </div>
-
-        {/* Price and button */}
-        <div className="text-right">
-          <p className="text-xs text-[#536274]">From</p>
-          <p className="font-bold text-[#1f2937]">₹{stay.price.toLocaleString('en-IN')}</p>
-          <p className="text-xs text-[#536274]">/ night</p>
-          <button className="mt-2 rounded-xl bg-[#173f35] px-4 py-2 text-xs font-bold text-white hover:bg-[#24584a]">
-            Show prices
-          </button>
-        </div>
+        <Link href={`/stays/${stay.slug}`} className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-[#173f35] px-5 py-2.5 text-xs font-bold text-white transition hover:bg-[#24584a] md:mt-3">
+          Show prices
+        </Link>
       </div>
     </article>
   );

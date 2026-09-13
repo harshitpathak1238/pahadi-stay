@@ -99,3 +99,9 @@ digest: "3131903713"
  ✓ Compiled in 479ms (509 modules)
  GET /stays/oak-house-bhimtal 200 in 667ms
  GET /stays/oak-house-bhimtal 200 in 687ms
+ ✓ Compiled in 926ms (495 modules)
+ ✓ Compiled in 2.2s (509 modules)
+ ✓ Compiled in 1899ms (509 modules)
+ ✓ Compiled in 1578ms (510 modules)
+ ✓ Compiled in 1570ms (510 modules)
+ ✓ Compiled in 1848ms (510 modules)

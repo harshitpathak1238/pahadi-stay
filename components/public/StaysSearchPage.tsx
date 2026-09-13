@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { LayoutGrid, List } from 'lucide-react';
+import { ChevronDown, LayoutGrid, List } from 'lucide-react';
 import type { Listing } from '@/lib/mock-data';
 import { FilterSidebar } from './FilterSidebar';
 import { ResultCard } from './ResultCard';
@@ -140,41 +140,43 @@ export function StaysSearchPage({ stays, initialLocation, initialCheckIn, initia
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <h1 className="text-xl font-bold leading-tight sm:text-2xl md:text-3xl">
-                  {destination}: {results.length} properties found
+                  {destination.trim() ? `${destination.trim()}: ` : ''}
+                  {results.length} {results.length === 1 ? 'property' : 'properties'} found
                 </h1>
-                <p className="mt-1 text-sm text-[#536274]">
+                <p className="mt-1 text-xs font-medium text-[#536274] sm:text-sm">
                   {checkIn && checkOut ? `${checkIn} to ${checkOut}` : 'Choose dates to plan your stay'} · {guestCount} {guestCount === 1 ? 'guest' : 'guests'}
                 </p>
               </div>
 
               {/* Sort and view toggle */}
               <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">
-                <label className="flex min-w-0 items-center gap-2 text-sm">
-                  Sort by:
+                <span className="relative inline-flex min-w-0 items-center">
                   <select
                     value={sort}
                     onChange={(event) => setSort(event.target.value)}
-                    className="min-w-0 rounded border border-[#b9c5d1] bg-white px-3 py-2 font-semibold"
+                    aria-label="Sort results"
+                    className="min-w-0 appearance-none rounded-full border border-[#e4e8e2] bg-white py-2 pl-4 pr-10 text-sm font-semibold text-[#23332e] shadow-[0_2px_8px_rgba(23,63,53,.06)] transition hover:border-[#cdd6d0] focus:outline-none focus:ring-2 focus:ring-[#24584a]/30"
                   >
                     <option>Recommended</option>
                     <option>Price: low to high</option>
                     <option>Guest rating</option>
                   </select>
-                </label>
+                  <ChevronDown size={15} className="pointer-events-none absolute right-4 text-[#173f35]" />
+                </span>
 
                 {/* List/Grid toggle */}
-                <div className="hidden overflow-hidden rounded border border-[#b9c5d1] bg-white sm:flex">
+                <div className="hidden items-center overflow-hidden rounded-full border border-[#e4e8e2] bg-white shadow-[0_2px_8px_rgba(23,63,53,.06)] sm:flex">
                   <button
                     aria-label="List view"
                     onClick={() => setView('list')}
-                    className={`p-2 transition ${view === 'list' ? 'bg-[#e8f0ed] text-[#1a3a2a]' : 'text-[#536274]'}`}
+                    className={`p-2 transition ${view === 'list' ? 'bg-[#e8f0ed] text-[#173f35]' : 'text-[#536274] hover:text-[#173f35]'}`}
                   >
                     <List size={17} />
                   </button>
                   <button
                     aria-label="Grid view"
                     onClick={() => setView('grid')}
-                    className={`p-2 transition ${view === 'grid' ? 'bg-[#e8f0ed] text-[#1a3a2a]' : 'text-[#536274]'}`}
+                    className={`p-2 transition ${view === 'grid' ? 'bg-[#e8f0ed] text-[#173f35]' : 'text-[#536274] hover:text-[#173f35]'}`}
                   >
                     <LayoutGrid size={17} />
                   </button>

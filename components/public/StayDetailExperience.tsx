@@ -45,7 +45,15 @@ export function StayDetailExperience({ stay, reviewData }: { stay: Listing; revi
   // Real uploaded photos first; falls back to the single cover image.
   const gallery = [...new Set([...(stay.images ?? []), stay.image])].filter(Boolean);
   const extraPhotoCount = gallery.length - 5;
-  const mapUrl = `https://www.google.com/maps?q=${encodeURIComponent(stay.location)}`;
+  // Honor an admin-set map pin (full Google Maps URL, "lat,lng" coordinates, or
+  // free text). Plain coordinates/text become a maps "?q=" search; a full URL is
+  // linked verbatim. Falls back to a location-keyword search when no pin is set.
+  const rawMapPin = (stay.mapPin ?? '').trim();
+  const mapUrl = rawMapPin
+    ? /^https?:\/\//i.test(rawMapPin)
+      ? rawMapPin
+      : `https://www.google.com/maps?q=${encodeURIComponent(rawMapPin)}`
+    : `https://www.google.com/maps?q=${encodeURIComponent(stay.location)}`;
 
   // Live review count (starts from SSR data, updates when reviews load).
   useEffect(() => {

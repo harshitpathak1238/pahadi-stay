@@ -12,17 +12,17 @@ const houseRuleSchema = z.object({ title: z.string().trim().max(120), text: z.st
 const optionalHouseRules = z.array(houseRuleSchema).max(30).optional().transform((rules) => rules ? rules.map((rule) => ({ title: rule.title.trim(), text: rule.text.trim() })).filter((rule) => rule.title && rule.text) : rules);
 const mealPlans = ['Breakfast included', 'Half board', 'Full board', 'Self-catering / no meals'] as const;
 const optionalMealPlan = z.union([z.enum(mealPlans), z.literal(''), z.null()]).optional().transform((value) => value || null);
-const landmarkSchema = z.object({ label: z.string().trim().max(120), distanceKm: z.coerce.number().positive(), order: z.coerce.number().int().nonnegative().optional() });
+const landmarkSchema = z.object({ label: z.string().trim().max(120), distanceKm: z.coerce.number().nonnegative().optional(), order: z.coerce.number().int().nonnegative().optional() });
 const serviceSchema = z.object({ label: z.string().trim().max(120), note: z.string().trim().max(160).optional().default(''), order: z.coerce.number().int().nonnegative().optional() });
 const experienceSchema = z.object({ title: z.string().trim().max(120), note: z.string().trim().max(160).optional().default(''), order: z.coerce.number().int().nonnegative().optional() });
-const updateSchema = z.object({ slug: z.string().trim().max(160).optional(), category: z.preprocess((value) => typeof value === 'string' ? value.trim().toUpperCase() : value, z.enum(['STAY', 'RIDE', 'RENTAL', 'ACTIVITY']).optional()), title: z.string().trim().max(120).optional(), description: z.string().optional(), location: z.string().trim().max(160).optional(), basePrice: z.coerce.number().nonnegative().optional(), sellPrice: z.coerce.number().nonnegative().optional(), images: optionalStringList, amenities: optionalStringList, details: z.record(z.string(), z.unknown()).optional(), mealPlan: optionalMealPlan, breakfastIncluded: z.boolean().optional(), cuisineNotes: z.string().trim().max(4000).optional().nullable().transform((value) => value || null), landmarks: z.array(landmarkSchema).max(30).optional(), services: z.array(serviceSchema).max(30).optional(), experiences: z.array(experienceSchema).max(30).optional(), houseRules: optionalHouseRules, partnerId: z.string().trim().optional(), status: updateStatus }).superRefine((value, context) => { if (value.basePrice !== undefined && value.sellPrice !== undefined && value.sellPrice < value.basePrice) context.addIssue({ code: z.ZodIssueCode.custom, path: ['sellPrice'], message: 'Selling price must be greater than or equal to base price.' }); });
+const updateSchema = z.object({ slug: z.string().trim().max(160).optional(), category: z.preprocess((value) => typeof value === 'string' ? value.trim().toUpperCase() : value, z.enum(['STAY', 'RIDE', 'RENTAL', 'ACTIVITY']).optional()), title: z.string().trim().max(120).optional(), description: z.string().optional(), location: z.string().trim().max(160).optional(), basePrice: z.coerce.number().nonnegative().optional(), sellPrice: z.coerce.number().nonnegative().optional(), images: optionalStringList, amenities: optionalStringList, details: z.record(z.string(), z.unknown()).optional(), mealPlan: optionalMealPlan, breakfastIncluded: z.boolean().optional(), cuisineNotes: z.string().trim().max(4000).optional().nullable().transform((value) => value || null), landmarks: z.array(landmarkSchema).max(30).optional(), services: z.array(serviceSchema).max(30).optional(), experiences: z.array(experienceSchema).max(30).optional(), houseRules: optionalHouseRules, partnerId: z.string().trim().optional(), status: updateStatus }).superRefine((value, context) => { if (value.basePrice !== undefined && value.sellPrice !== undefined && value.sellPrice > 0 && value.sellPrice < value.basePrice) context.addIssue({ code: z.ZodIssueCode.custom, path: ['sellPrice'], message: 'Selling price must be greater than or equal to base price.' }); });
 
 const ordered = <T extends { order?: number }>(items: T[]) => items.map((item, index) => ({ ...item, order: item.order ?? index }));
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
   const parsed = updateSchema.safeParse(await request.json());
-  if (!parsed.success) return NextResponse.json({ error: 'Check the listing fields and try again.' }, { status: 400 });
+  if (!parsed.success) return NextResponse.json({ error: 'Check the listing fields and try again.', details: parsed.error.flatten() }, { status: 400 });
   const existing = await db.listing.findUnique({ where: { id: params.id }, select: { category: true, slug: true, title: true, description: true, basePrice: true, sellPrice: true, images: true, location: true } });
   if (!existing) return NextResponse.json({ error: 'Listing not found.' }, { status: 404 });
   const { category, partnerId, details, houseRules, landmarks, services, experiences, ...fields } = parsed.data;
@@ -31,7 +31,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     const updated = await tx.listing.update({ where: { id: params.id }, data });
     if (landmarks !== undefined) {
       await tx.listingLandmark.deleteMany({ where: { listingId: params.id } });
-      if (landmarks.length) await tx.listingLandmark.createMany({ data: ordered(landmarks).map((item) => ({ listingId: params.id, label: item.label, distanceKm: item.distanceKm, order: item.order })) });
+      if (landmarks.length) await tx.listingLandmark.createMany({ data: ordered(landmarks).map((item) => ({ listingId: params.id, label: item.label, distanceKm: item.distanceKm ?? 0, order: item.order })) });
     }
     if (services !== undefined) {
       await tx.listingService.deleteMany({ where: { listingId: params.id } });

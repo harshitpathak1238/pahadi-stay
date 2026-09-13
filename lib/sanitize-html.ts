@@ -73,3 +73,24 @@ export function sanitizeBlogHtml(html: string) {
     allowedSchemesByTag: { img: ['http', 'https'] },
   });
 }
+
+// Snippet helper for listing cards: cards must only ever show clean plain text.
+// Full HTML documents (rendered in a sandboxed iframe on the detail page) are
+// never used as card text — an empty result means "omit the description line".
+export function cardDescriptionSnippet(html: string) {
+  if (!html || isFullBlogDocument(html)) return '';
+  const text = html
+    .replace(/<(style|script|noscript)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#0?39;|&apos;/gi, "'")
+    .replace(/&amp;/gi, '&')
+    .replace(/\[\d{1,3}\]/g, '')
+    .replace(/<[^>]*>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return text.length > 120 ? `${text.slice(0, 117).trimEnd()}...` : text;
+}

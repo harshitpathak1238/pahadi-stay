@@ -322,7 +322,7 @@ export function CategoryListingEditor({ category, form, setForm, busy, message, 
             <DetailInput label="Bedrooms" type="number" value={valueOf(form.details, 'bedrooms')} onChange={(value) => setDetail('bedrooms', value)} />
             <DetailInput label="Beds" type="number" value={valueOf(form.details, 'beds')} onChange={(value) => setDetail('beds', value)} />
             <DetailInput label="Bathrooms" type="number" value={valueOf(form.details, 'bathrooms')} onChange={(value) => setDetail('bathrooms', value)} />
-            <DetailInput label="Amenities" value={valueOf(form.details, 'amenities')} onChange={(value) => setDetail('amenities', value)} placeholder="Wi-Fi, parking, breakfast" />
+            <DetailInput label="Amenities" value={form.amenities} onChange={(value) => setForm((current) => ({ ...current, amenities: value }))} placeholder="Wi-Fi, parking, breakfast" />
             <DetailInput label="Audience tags" value={valueOf(form.details, 'audienceTags')} onChange={(value) => setDetail('audienceTags', value)} placeholder="Families, groups, pets" className="md:col-span-2" />
             <FacilitiesEditor form={form} setForm={setForm} />
           </>
@@ -353,7 +353,6 @@ export function CategoryListingEditor({ category, form, setForm, busy, message, 
             <DetailInput label="Check-in time" type="time" value={valueOf(form.details, 'checkIn')} onChange={(value) => setDetail('checkIn', value)} />
             <DetailInput label="Check-out time" type="time" value={valueOf(form.details, 'checkOut')} onChange={(value) => setDetail('checkOut', value)} />
             <DetailInput label="Cancellation policy" value={valueOf(form.details, 'cancellationPolicy')} onChange={(value) => setDetail('cancellationPolicy', value)} placeholder="Flexible, moderate, or strict" className="md:col-span-2" />
-            <DetailTextarea label="House rules" value={valueOf(form.details, 'houseRules')} onChange={(value) => setDetail('houseRules', value)} className="md:col-span-2" />
             <HouseRulesEditor form={form} setForm={setForm} resetHouseRules={resetHouseRules} clearHouseRules={clearHouseRules} />
             <ReviewPanel editingId={editingId} title={form.title || 'This stay'} reviewCount={reviewCount} open={() => setReviewsOpen(true)} />
             <StatusField form={form} setForm={setForm} />

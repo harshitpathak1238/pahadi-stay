@@ -148,7 +148,7 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
         images: listing.images || [],
         amenities: (listing.amenities || []).join(', '),
         status: listing.status,
-        details: Object.fromEntries(Object.entries(rawDetails).filter(([key]) => key !== 'facilities').map(([key, value]) => [key, String(value ?? '')])),
+        details: Object.fromEntries(Object.entries(rawDetails).filter(([key]) => key !== 'facilities' && key !== 'houseRules' && key !== 'amenities').map(([key, value]) => [key, String(value ?? '')])),
         mealPlan: listing.mealPlan ?? '',
         breakfastIncluded: Boolean(listing.breakfastIncluded),
         cuisineNotes: listing.cuisineNotes ?? '',
@@ -227,7 +227,7 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
     const asList = (value: string) => value.split(',').map((item) => item.trim()).filter(Boolean);
     const landmarks = form.landmarks
       .map((item, index) => ({ label: item.label.trim(), distanceKm: Number(item.distanceKm), order: index }))
-      .filter((item) => item.label || Number.isFinite(item.distanceKm));
+      .filter((item) => item.label || item.distanceKm > 0);
     const services = form.services
       .map((item, index) => ({ label: item.label.trim(), note: item.note.trim(), order: index }))
       .filter((item) => item.label || item.note);
