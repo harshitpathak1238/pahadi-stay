@@ -86,8 +86,8 @@ export function VehicleManager() {
     items.splice(toIdx, 0, moved);
     const updated = items.map((v, i) => ({ ...v, order: i }));
     setVehicles(updated);
-    updateOrder(updated);
-  };
+        updateOrder(updated);
+  }
 
   const handleDragEnd = (e: React.DragEvent<HTMLTableRowElement>) => {
     e.preventDefault();
@@ -177,6 +177,41 @@ export function VehicleManager() {
         </table>
       </div>
       {reordering && <p className="text-xs text-[#24584a]">Updating order...</p>}
+
+      {showForm && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/40 p-4" role="dialog" aria-modal="true">
+          <form onSubmit={save} className="mx-auto w-full max-w-lg space-y-4 rounded-[8px] bg-white p-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold">{editing ? 'Edit vehicle type' : 'New vehicle type'}</h3>
+              <button type="button" onClick={() => setShowForm(false)} aria-label="Close"><X size={18} /></button>
+            </div>
+            <label className="block text-sm font-semibold">
+              Name
+              <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Swift, Sedan, Tempo Traveller..." className="mt-1 w-full rounded border border-[#e1e1e3] px-3 py-2 font-normal" />
+            </label>
+            <label className="block text-sm font-semibold">
+              Capacity (passengers)
+              <input type="number" min={1} max={60} value={form.capacity} onChange={(e) => setForm({ ...form, capacity: e.target.value })} className="mt-1 w-full rounded border border-[#e1e1e3] px-3 py-2 font-normal" />
+            </label>
+            <label className="block text-sm font-semibold">
+              Image URL
+              <input value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} placeholder="https://example.com/swift.jpg" className="mt-1 w-full rounded border border-[#e1e1e3] px-3 py-2 font-normal" />
+            </label>
+            {form.image && (
+              <div className="mt-2">
+                <p className="mb-1 text-xs text-[#616161]">Preview:</p>
+                <img src={form.image} alt="Preview" className="h-20 w-20 rounded object-cover" />
+              </div>
+            )}
+            <div className="flex justify-end gap-2 pt-2">
+              <button type="button" onClick={() => setShowForm(false)} className="rounded border border-[#e1e1e3] px-4 py-2 text-sm font-semibold">Cancel</button>
+              <button disabled={busy} className="inline-flex items-center gap-2 rounded-[4px] bg-[#24584a] px-4 py-2 text-sm font-semibold text-white disabled:opacity-60 hover:bg-[#173f35]">
+                {busy ? 'Saving...' : <><Check size={15} /> {editing ? 'Update' : 'Create'}</>}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 }
