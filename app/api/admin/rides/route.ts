@@ -17,7 +17,7 @@ const rideSchema = z.object({
   fromLocation: z.string().trim().max(160).optional().default('').transform((value) => value || null),
   toLocation: z.string().trim().max(160).optional().default('').transform((value) => value || null),
   distanceKm: optionalNumber,
-  durationMinutes: optionalNumber.transform((value) => value == null ? null : Math.round(value)),
+  durationDays: z.coerce.number().int().nonnegative().nullable().optional(),
   images: z.array(z.string().trim().max(500)).default([]),
   status: z.enum(['DRAFT', 'LIVE', 'PAUSED']).default('DRAFT'),
   order: z.coerce.number().int().nonnegative().default(0),
@@ -63,13 +63,13 @@ export async function POST(request: Request) {
   const fares = dedupeFares(parsed.data.fares).filter((fare) => Number.isFinite(fare.price) && fare.price > 0);
   try {
     const slug = parsed.data.slug || slugifyRideTitle(parsed.data.title) || `ride-${Date.now()}`;
-    const { distanceKm, durationMinutes, ...fields } = parsed.data;
+    const { distanceKm, durationDays, ...fields } = parsed.data;
     const route = await db.rideRoute.create({
       data: {
         ...fields,
         slug,
         ...(distanceKm !== undefined ? { distanceKm } : {}),
-        ...(durationMinutes !== undefined ? { durationMinutes } : {}),
+        ...(durationDays !== undefined ? { durationDays } : {}),
         stops: { create: orderedStops(parsed.data.stops) },
         fares: { create: fares.map((fare) => ({ vehicleTypeId: fare.vehicleTypeId, price: fare.price })) },
       },

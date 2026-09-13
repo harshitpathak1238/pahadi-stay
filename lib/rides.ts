@@ -26,7 +26,7 @@ export type PublicRide = {
   fromLocation: string | null;
   toLocation: string | null;
   distanceKm: number | null;
-  durationMinutes: number | null;
+  durationDays: number | null;
   images: string[];
   image: string;
   stops: PublicRideStop[];
@@ -97,7 +97,7 @@ export function mapRideRecord(record: RideRecord): PublicRide {
     fromLocation: record.fromLocation ?? null,
     toLocation: record.toLocation ?? null,
     distanceKm: record.distanceKm !== null ? Number(record.distanceKm) : null,
-    durationMinutes: record.durationMinutes !== null ? Number(record.durationMinutes) : null,
+    durationDays: record.durationDays !== null ? Number(record.durationDays) : null,
     images,
     image: images[0] || '/images/Logo.png',
     stops,

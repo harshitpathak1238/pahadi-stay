@@ -26,7 +26,7 @@ export default async function RideDetail({ params }: { params: { slug: string } 
   if (!ride) notFound();
   const stats: string[] = [];
   if (ride.distanceKm !== null) stats.push(`${ride.distanceKm} km`);
-  if (ride.durationMinutes !== null) stats.push(ride.durationMinutes < 60 ? `${ride.durationMinutes} min` : `${Math.floor(ride.durationMinutes / 60)}h${ride.durationMinutes % 60 ? ` ${ride.durationMinutes % 60}m` : ''}`);
+  if (ride.durationDays !== null) stats.push(ride.durationDays === 1 ? '1 day' : `${ride.durationDays} days`);
   return (
     <div className="min-h-screen pb-20">
       {degraded && <div className="border-b px-5 py-3 text-center text-sm font-semibold" role="status">Ride details are temporarily unavailable.</div>}

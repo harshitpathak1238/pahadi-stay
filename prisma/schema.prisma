@@ -422,7 +422,7 @@ model RideRoute {
 	fromLocation    String?
 	toLocation      String?
 	distanceKm      Float?
-	durationMinutes Int?
+	durationDays    Int?
 	images          Json        @default("[]")
 	status          RideStatus  @default(DRAFT)
 	order           Int         @default(0)
@@ -456,3 +456,4 @@ model RideFare {
 	@@unique([rideRouteId, vehicleTypeId])
 	@@index([vehicleTypeId])
 }
+

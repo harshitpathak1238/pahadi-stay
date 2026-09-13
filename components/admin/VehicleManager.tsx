@@ -170,7 +170,7 @@ export function VehicleManager() {
             </div>
             <label className="block text-sm font-semibold">
               Name
-              <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required placeholder="Swift, Sedan, Tempo Traveller..." className="mt-1 w-full rounded border border-[#e1e1e3] px-3 py-2 font-normal" />
+              <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Swift, Sedan, Tempo Traveller..." className="mt-1 w-full rounded border border-[#e1e1e3] px-3 py-2 font-normal" />
             </label>
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="block text-sm font-semibold">

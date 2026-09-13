@@ -16,7 +16,7 @@ const rideSchema = z.object({
   fromLocation: z.string().trim().max(160).optional().transform((value) => value || null),
   toLocation: z.string().trim().max(160).optional().transform((value) => value || null),
   distanceKm: optionalNumber,
-  durationMinutes: optionalNumber.transform((value) => value == null ? null : Math.round(value)),
+  durationDays: optionalNumber.transform((value) => value == null ? null : Math.round(value)),
   images: z.array(z.string().trim().max(500)).optional(),
   status: z.enum(['DRAFT', 'LIVE', 'PAUSED']).optional(),
   order: z.coerce.number().int().nonnegative().optional(),
@@ -54,13 +54,13 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   if (!existing) return NextResponse.json({ error: 'Ride route not found.' }, { status: 404 });
   try {
     const route = await db.$transaction(async (tx) => {
-      const { stops, fares, distanceKm, durationMinutes, ...fields } = parsed.data;
+      const { stops, fares, distanceKm, durationDays, ...fields } = parsed.data;
       const updated = await tx.rideRoute.update({
         where: { id: params.id },
         data: {
           ...fields,
           ...(distanceKm !== undefined ? { distanceKm } : {}),
-          ...(durationMinutes !== undefined ? { durationMinutes } : {}),
+          ...(durationDays !== undefined ? { durationDays } : {}),
         },
       });
       if (stops !== undefined) {
@@ -107,3 +107,4 @@ export async function DELETE(_request: Request, { params }: { params: { id: stri
   }
   return NextResponse.json({ deleted: true });
 }
+

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, ImagePlus, X, Upload, Check } from 'lucide-react';
 import { slugifyRideTitle } from '@/lib/rides';
 
 export type RideMgrVehicle = { id: string; name: string; capacity: number; image: string | null; order: number };
@@ -14,7 +14,7 @@ export type RideMgrRow = {
   fromLocation: string | null;
   toLocation: string | null;
   distanceKm: number | null;
-  durationMinutes: number | null;
+  durationDays: number | null;
   images: string[];
   status: 'DRAFT' | 'LIVE' | 'PAUSED';
   order: number;
@@ -30,7 +30,7 @@ export type RideMgrForm = {
   fromLocation: string;
   toLocation: string;
   distanceKm: string;
-  durationMinutes: string;
+  durationDays: string;
   images: string[];
   status: 'DRAFT' | 'LIVE' | 'PAUSED';
   order: string;
@@ -46,7 +46,7 @@ export const blankRideForm = (): RideMgrForm => ({
   fromLocation: '',
   toLocation: '',
   distanceKm: '',
-  durationMinutes: '',
+  durationDays: '',
   images: [],
   status: 'DRAFT',
   order: '0',
@@ -67,6 +67,10 @@ export function RideManager() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [addVehicleId, setAddVehicleId] = useState('');
+  const [showMediaPicker, setShowMediaPicker] = useState(false);
+  const [mediaAssets, setMediaAssets] = useState<{ id: string; url: string; filename: string; thumbnailUrl: string | null }[]>([]);
+  const [mediaLoading, setMediaLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const load = useCallback(async () => {
     try {
       const params = new URLSearchParams();
@@ -84,6 +88,31 @@ export function RideManager() {
       setError('');
     } catch (e) { setError(e instanceof Error ? e.message : 'Ride routes could not be loaded.'); }
   }, [typeFilter, statusFilter, search]);
+  const loadMedia = useCallback(async () => {
+    setMediaLoading(true);
+    try {
+      const res = await fetch('/api/admin/media?type=images&page=1', { cache: 'no-store' });
+      if (res.ok) {
+        const result = await res.json();
+        setMediaAssets(Array.isArray(result.assets) ? result.assets : []);
+      }
+    } catch { /* ignore */ } finally { setMediaLoading(false); }
+  }, []);
+  const openMediaPicker = () => { setShowMediaPicker(true); loadMedia(); };
+  const uploadMedia = async (file: File) => {
+    setUploading(true);
+    try {
+      const data = new FormData();
+      data.append('file', file);
+      await fetch('/api/admin/media', { method: 'POST', body: data });
+      await loadMedia();
+    } catch { /* ignore */ } finally { setUploading(false); }
+  };
+  const selectMediaUrl = (url: string) => {
+    if (!form.images.includes(url)) setForm({ ...form, images: [...form.images, url] });
+    setShowMediaPicker(false);
+  };
+  const removeImage = (index: number) => setForm({ ...form, images: form.images.filter((_, i) => i !== index) });
   useEffect(() => { load(); }, [load]);
   const start = (route?: RideMgrRow) => {
     setMessage(''); setError('');
@@ -98,7 +127,7 @@ export function RideManager() {
         fromLocation: route.fromLocation || '',
         toLocation: route.toLocation || '',
         distanceKm: route.distanceKm === null ? '' : String(route.distanceKm),
-        durationMinutes: route.durationMinutes === null ? '' : String(route.durationMinutes),
+        durationDays: route.durationDays === null ? '' : String(route.durationDays),
         images: Array.isArray(route.images) ? route.images : [],
         status: route.status,
         order: String(route.order),
@@ -122,7 +151,7 @@ export function RideManager() {
       fromLocation: form.fromLocation.trim() || null,
       toLocation: form.toLocation.trim() || null,
       distanceKm: form.distanceKm === '' ? null : Number(form.distanceKm),
-      durationMinutes: form.durationMinutes === '' ? null : Math.round(Number(form.durationMinutes)),
+      durationDays: form.durationDays === '' ? null : Math.round(Number(form.durationDays)),
       images: form.images.filter((img) => img.trim()),
       status: form.status,
       order: Number(form.order || 0),
@@ -188,10 +217,29 @@ export function RideManager() {
                 <label className="block text-sm font-semibold">From<input value={form.fromLocation} onChange={(e) => setForm({ ...form, fromLocation: e.target.value })} placeholder="Kathgodam Railway Station" className="mt-1 w-full rounded border border-[#e1e1e3] px-3 py-2 font-normal" /></label>
                 <label className="block text-sm font-semibold">To<input value={form.toLocation} onChange={(e) => setForm({ ...form, toLocation: e.target.value })} placeholder="Bhimtal" className="mt-1 w-full rounded border border-[#e1e1e3] px-3 py-2 font-normal" /></label>
                 <label className="block text-sm font-semibold">Distance (km)<input type="number" min={0} step="0.1" value={form.distanceKm} onChange={(e) => setForm({ ...form, distanceKm: e.target.value })} className="mt-1 w-full rounded border border-[#e1e1e3] px-3 py-2 font-normal" /></label>
-                <label className="block text-sm font-semibold">Duration (min)<input type="number" min={0} step={1} value={form.durationMinutes} onChange={(e) => setForm({ ...form, durationMinutes: e.target.value })} className="mt-1 w-full rounded border border-[#e1e1e3] px-3 py-2 font-normal" /></label>
+                <label className="block text-sm font-semibold">Duration (days)<input type="number" min={0} step={1} value={form.durationDays} onChange={(e) => setForm({ ...form, durationDays: e.target.value })} className="mt-1 w-full rounded border border-[#e1e1e3] px-3 py-2 font-normal" /></label>
               </>)}
-              {form.type === 'SIGHTSEEING' && (<label className="block text-sm font-semibold">Total duration (min)<input type="number" min={0} step={1} value={form.durationMinutes} onChange={(e) => setForm({ ...form, durationMinutes: e.target.value })} className="mt-1 w-full rounded border border-[#e1e1e3] px-3 py-2 font-normal" /></label>)}
-              <label className="block text-sm font-semibold">Images (one URL per line)<textarea value={form.images.join('\n')} onChange={(e) => setForm({ ...form, images: e.target.value.split('\n') })} rows={2} className="mt-1 w-full rounded border border-[#e1e1e3] px-3 py-2 font-normal" /></label>
+              {form.type === 'SIGHTSEEING' && (<label className="block text-sm font-semibold">Total duration (days)<input type="number" min={0} step={1} value={form.durationDays} onChange={(e) => setForm({ ...form, durationDays: e.target.value })} className="mt-1 w-full rounded border border-[#e1e1e3] px-3 py-2 font-normal" /></label>)}
+              <div className="md:col-span-2">
+                <p className="text-sm font-semibold">Images</p>
+                <div className="mt-1 flex flex-wrap gap-2">
+                  <button type="button" onClick={openMediaPicker} className="inline-flex items-center gap-1 rounded border border-[#e1e1e3] px-3 py-1.5 text-sm font-semibold hover:bg-[#f5f5f5]"><ImagePlus size={14} /> Choose media</button>
+                  <label className="inline-flex cursor-pointer items-center gap-1 rounded border border-[#e1e1e3] px-3 py-1.5 text-sm font-semibold hover:bg-[#f5f5f5]"><Upload size={14} /> Upload
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) uploadMedia(file); e.target.value = ''; }} />
+                  </label>
+                </div>
+                {form.images.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {form.images.map((img, i) => (
+                      <div key={i} className="relative">
+                        <img src={img} alt="" className="h-16 w-16 rounded object-cover" />
+                        <button type="button" onClick={() => removeImage(i)} className="absolute -right-1 -top-1 rounded-full bg-[#a13d2c] p-0.5 text-white"><X size={12} /></button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <textarea value={form.images.join('\n')} onChange={(e) => setForm({ ...form, images: e.target.value.split('\n') })} rows={2} placeholder="Or paste image URLs, one per line" className="mt-2 w-full rounded border border-[#e1e1e3] px-3 py-2 font-normal" />
+              </div>
               <label className="block text-sm font-semibold">Order<input type="number" min={0} value={form.order} onChange={(e) => setForm({ ...form, order: e.target.value })} className="mt-1 w-full rounded border border-[#e1e1e3] px-3 py-2 font-normal" /></label>
               <label className="block text-sm font-semibold md:col-span-2">Status<select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as 'DRAFT' | 'LIVE' | 'PAUSED' })} className="mt-1 w-full rounded border border-[#e1e1e3] bg-white px-3 py-2 font-normal"><option value="DRAFT">Draft</option><option value="LIVE">Live</option><option value="PAUSED">Paused</option></select></label>
             </div>
@@ -279,6 +327,36 @@ export function RideManager() {
           </form>
         </div>
       )}
+
+      {showMediaPicker && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/40 p-4" role="dialog" aria-modal="true">
+          <div className="mx-auto w-full max-w-2xl rounded-[8px] bg-white p-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold">Choose media</h3>
+              <button type="button" onClick={() => setShowMediaPicker(false)} aria-label="Close"><X size={18} /></button>
+            </div>
+            {uploading && <p className="mt-2 text-sm text-[#24584a]">Uploading...</p>}
+            {mediaLoading ? (
+              <p className="mt-4 text-center text-sm text-[#616161]">Loading media...</p>
+            ) : mediaAssets.length === 0 ? (
+              <p className="mt-4 text-center text-sm text-[#616161]">No media found. Upload an image to get started.</p>
+            ) : (
+              <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-4">
+                {mediaAssets.map((asset) => (
+                  <button key={asset.id} type="button" onClick={() => selectMediaUrl(asset.url)} className="relative aspect-square overflow-hidden rounded border border-[#e1e1e3] hover:ring-2 hover:ring-[#24584a]">
+                    <img src={asset.thumbnailUrl || asset.url} alt={asset.filename} className="h-full w-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
+            <div className="mt-4 flex justify-end">
+              <button type="button" onClick={() => setShowMediaPicker(false)} className="rounded border border-[#e1e1e3] px-4 py-2 text-sm font-semibold">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
+
