@@ -3,7 +3,7 @@ import { hasValidTripDates } from '../../lib/trip-logic';
 import { isAllowedAdminEmail, isAllowedAdminRole } from '../../lib/admin';
 
 describe('admin access helpers', () => {
-  beforeEach(() => vi.stubEnv('ADMIN_EMAILS', 'harshitpathak1238@gmail.com,Nilanshnegi1717@gmail.com'));
+  beforeEach(() => { vi.stubEnv('ADMIN_EMAILS', 'harshitpathak1238@gmail.com,Nilanshnegi1717@gmail.com'); });
 
   it('accepts configured admin roles and emails', () => {
     expect(isAllowedAdminRole('OWNER')).toBe(true);

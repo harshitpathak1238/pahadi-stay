@@ -16,7 +16,7 @@ const rideSchema = z.object({
   fromLocation: z.string().trim().max(160).optional().transform((value) => value || null),
   toLocation: z.string().trim().max(160).optional().transform((value) => value || null),
   distanceKm: optionalNumber,
-  durationMinutes: optionalNumber.transform((value) => value === null ? null : Math.round(value)),
+  durationMinutes: optionalNumber.transform((value) => value == null ? null : Math.round(value)),
   images: z.array(z.string().trim().max(500)).optional(),
   status: z.enum(['DRAFT', 'LIVE', 'PAUSED']).optional(),
   order: z.coerce.number().int().nonnegative().optional(),
