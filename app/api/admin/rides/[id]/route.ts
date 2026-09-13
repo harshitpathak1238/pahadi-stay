@@ -6,17 +6,20 @@ import { requireAdmin } from '@/lib/admin';
 
 const stopSchema = z.object({ label: z.string().trim().max(120).default(''), note: z.string().trim().max(300).optional().default('') });
 const fareSchema = z.object({ vehicleTypeId: z.string().trim().min(1), price: z.coerce.number().nonnegative() });
-const optionalNumber = z.preprocess((value) => value === '' || value === null ? null : value, z.coerce.number().nonnegative().nullable().optional());
+const optionalNumber = z.preprocess((value) => value === '' || value === null || value === undefined ? null : value, z.coerce.number().nonnegative().nullable().optional());
+
+// Accept string, null, or undefined — normalize empty strings to null
+const optionalString = z.string().trim().max(160).nullable().optional().transform((value) => (typeof value === 'string' && value.length > 0 ? value : null));
 
 const rideSchema = z.object({
   slug: z.string().trim().max(160).optional(),
   title: z.string().trim().max(120).optional(),
   type: z.enum(['SIGHTSEEING', 'TRANSFER']).optional(),
   description: z.string().trim().optional(),
-  fromLocation: z.string().trim().max(160).optional().transform((value) => value || null),
-  toLocation: z.string().trim().max(160).optional().transform((value) => value || null),
+  fromLocation: optionalString,
+  toLocation: optionalString,
   distanceKm: optionalNumber,
-  durationDays: optionalNumber.transform((value) => value == null ? null : Math.round(value)),
+  durationDays: optionalNumber,
   images: z.array(z.string().trim().max(500)).optional(),
   status: z.enum(['DRAFT', 'LIVE', 'PAUSED']).optional(),
   order: z.coerce.number().int().nonnegative().optional(),
@@ -33,7 +36,7 @@ const dedupeFares = (fares: { vehicleTypeId: string; price: number }[]) => {
 const orderedStops = (stops: { label: string; note: string }[]) =>
   stops.map((stop, index) => ({ label: stop.label, note: stop.note?.trim() || null, order: index })).filter((stop) => stop.label || stop.note);
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, { params }: { params: { id: string } }) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
   const route = await db.rideRoute.findUnique({
     where: { id: params.id },
@@ -55,7 +58,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   try {
     const route = await db.$transaction(async (tx) => {
       const { stops, fares, distanceKm, durationDays, ...fields } = parsed.data;
-      const updated = await tx.rideRoute.update({
+      await tx.rideRoute.update({
         where: { id: params.id },
         data: {
           ...fields,
@@ -84,9 +87,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       revalidatePath('/rides');
       if (route?.slug && route.slug !== existing.slug) revalidatePath(`/rides/${existing.slug}`);
       if (route?.slug) revalidatePath(`/rides/${route.slug}`);
-    } catch {
-      /* revalidation is best-effort outside a request lifecycle */
-    }
+    } catch { /* revalidation is best-effort */ }
     return NextResponse.json(route);
   } catch (error) {
     const duplicate = error instanceof Error && error.message.includes('P2002');
@@ -102,9 +103,7 @@ export async function DELETE(_request: Request, { params }: { params: { id: stri
   try {
     revalidatePath('/rides');
     revalidatePath(`/rides/${existing.slug}`);
-  } catch {
-    /* revalidation is best-effort outside a request lifecycle */
-  }
+  } catch { /* revalidation is best-effort */ }
   return NextResponse.json({ deleted: true });
 }
 
