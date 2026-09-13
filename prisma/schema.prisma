@@ -48,6 +48,17 @@ enum PackageStatus {
 	PAUSED
 }
 
+enum RideType {
+	SIGHTSEEING
+	TRANSFER
+}
+
+enum RideStatus {
+	DRAFT
+	LIVE
+	PAUSED
+}
+
 enum BookingStatus {
 	PENDING
 	CONFIRMED
@@ -384,4 +395,64 @@ model MediaAsset {
 
 	@@index([mimeType])
 	@@index([createdAt])
+}
+
+// Rides & sightseeing: dedicated models so every route/package can carry its
+// own fare-per-vehicle matrix instead of forcing one price into the generic
+// Listing model (which only has a single base/sell price).
+model VehicleType {
+	id        String      @id @default(cuid())
+	name      String
+	capacity  Int         @default(4)
+	image     String?
+	order     Int         @default(0)
+	fares     RideFare[]
+	createdAt DateTime    @default(now())
+	updatedAt DateTime    @updatedAt
+
+	@@index([order])
+}
+
+model RideRoute {
+	id              String      @id @default(cuid())
+	slug            String      @unique
+	title           String
+	type            RideType    @default(SIGHTSEEING)
+	description     String      @default("") @db.LongText
+	fromLocation    String?
+	toLocation      String?
+	distanceKm      Float?
+	durationMinutes Int?
+	images          Json        @default("[]")
+	status          RideStatus  @default(DRAFT)
+	order           Int         @default(0)
+	createdAt       DateTime    @default(now())
+	updatedAt       DateTime    @updatedAt
+	stops           RideStop[]
+	fares           RideFare[]
+
+	@@index([status, type, order])
+}
+
+model RideStop {
+	id          String    @id @default(cuid())
+	rideRouteId String
+	rideRoute   RideRoute @relation(fields: [rideRouteId], references: [id], onDelete: Cascade)
+	label       String
+	note        String?
+	order       Int       @default(0)
+
+	@@index([rideRouteId])
+}
+
+model RideFare {
+	id            String      @id @default(cuid())
+	rideRouteId   String
+	rideRoute     RideRoute   @relation(fields: [rideRouteId], references: [id], onDelete: Cascade)
+	vehicleTypeId String
+	vehicleType   VehicleType @relation(fields: [vehicleTypeId], references: [id], onDelete: Cascade)
+	price         Float
+
+	@@unique([rideRouteId, vehicleTypeId])
+	@@index([vehicleTypeId])
 }

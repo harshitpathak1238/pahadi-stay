@@ -16,6 +16,12 @@ export function SearchBox() {
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
     const target = tabTarget[activeTab] || '/stays';
+    if (target === '/rides') {
+      const params = new URLSearchParams({ ...(location.trim() && { where: location.trim() }) });
+      const query = params.toString();
+      router.push(query ? `/rides?${query}` : '/rides');
+      return;
+    }
     if (target !== '/stays') { router.push(target); return; }
     const params = new URLSearchParams({ ...(location && { location }), ...(checkIn && { checkIn }), ...(checkOut && { checkOut }), guests: String(guestValue(guests)) });
     router.push(`/stays?${params.toString()}`);
