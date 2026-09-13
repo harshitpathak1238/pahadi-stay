@@ -33,7 +33,6 @@ export type RideMgrForm = {
   durationDays: string;
   images: string[];
   status: 'DRAFT' | 'LIVE' | 'PAUSED';
-  order: string;
   stops: { label: string; note: string }[];
   vehicles: { vehicleTypeId: string; price: string }[];
 };
@@ -49,7 +48,6 @@ export const blankRideForm = (): RideMgrForm => ({
   durationDays: '',
   images: [],
   status: 'DRAFT',
-  order: '0',
   stops: [{ label: '', note: '' }],
   vehicles: [],
 });
@@ -228,7 +226,6 @@ export function RideManager() {
         durationDays: route.durationDays === null ? '' : String(route.durationDays),
         images: Array.isArray(route.images) ? route.images : [],
         status: route.status,
-        order: String(route.order),
         stops: route.stops.length ? route.stops.map((s) => ({ label: s.label, note: s.note || '' })) : [{ label: '', note: '' }],
         vehicles,
       });
@@ -252,7 +249,6 @@ export function RideManager() {
       durationDays: form.durationDays === '' ? null : Math.round(Number(form.durationDays)),
       images: form.images.filter((img) => img.trim()),
       status: form.status,
-      order: Number(form.order || 0),
       stops: form.stops.map((s) => ({ label: s.label.trim(), note: s.note.trim() })).filter((s) => s.label || s.note),
       fares: form.vehicles.filter((v) => v.vehicleTypeId && Number.isFinite(Number(v.price)) && Number(v.price) > 0).map((v) => ({ vehicleTypeId: v.vehicleTypeId, price: Number(v.price) })),
     };
@@ -356,7 +352,6 @@ export function RideManager() {
                 )}
                 <textarea value={form.images.join('\n')} onChange={(e) => setForm({ ...form, images: e.target.value.split('\n') })} rows={2} placeholder="Or paste image URLs, one per line" className="mt-2 w-full rounded border border-[#e1e1e3] px-3 py-2 font-normal" />
               </div>
-              <label className="block text-sm font-semibold">Order<input type="number" min={0} value={form.order} onChange={(e) => setForm({ ...form, order: e.target.value })} className="mt-1 w-full rounded border border-[#e1e1e3] px-3 py-2 font-normal" /></label>
               <label className="block text-sm font-semibold md:col-span-2">Status<select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as 'DRAFT' | 'LIVE' | 'PAUSED' })} className="mt-1 w-full rounded border border-[#e1e1e3] bg-white px-3 py-2 font-normal"><option value="DRAFT">Draft</option><option value="LIVE">Live</option><option value="PAUSED">Paused</option></select></label>
             </div>
               {form.type === 'SIGHTSEEING' && (
