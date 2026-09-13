@@ -1,7 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
-import { Plus, ImagePlus, X, Upload, Check } from 'lucide-react';
+import { useCallback, useEffect, useState, useRef } from 'react';
+import { Plus, ImagePlus, X, Upload, Check, GripVertical } from 'lucide-react';
 import { slugifyRideTitle } from '@/lib/rides';
 
 export type RideMgrVehicle = { id: string; name: string; capacity: number; image: string | null; order: number };
@@ -71,6 +71,104 @@ export function RideManager() {
   const [mediaAssets, setMediaAssets] = useState<{ id: string; url: string; filename: string; thumbnailUrl: string | null }[]>([]);
   const [mediaLoading, setMediaLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  
+  // Drag and drop state
+  const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
+  const [reordering, setReordering] = useState(false);
+  const dragNode = useRef<HTMLTableRowElement | null>(null);
+
+  // Update order in database
+  const updateOrder = async (updatedRoutes: RideMgrRow[]) => {
+    setReordering(true);
+    try {
+      const response = await fetch('/api/admin/rides/reorder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          routes: updatedRoutes.map((r, index) => ({ id: r.id, order: index })),
+        }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        setError(result.error || 'Could not update order.');
+      } else {
+        setMessage('Order updated.');
+        setTimeout(() => setMessage(''), 2000);
+      }
+    } catch {
+      setError('Could not update order.');
+    } finally {
+      setReordering(false);
+    }
+  };
+
+  // Drag handlers
+  const handleDragStart = (e: React.DragEvent<HTMLTableRowElement>, routeId: string) => {
+    setDraggedId(routeId);
+    dragNode.current = e.currentTarget;
+    e.dataTransfer.effectAllowed = 'move';
+    // Add dragging style after a small delay
+    setTimeout(() => {
+      if (dragNode.current) {
+        dragNode.current.style.opacity = '0.5';
+      }
+    }, 0);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLTableRowElement>, routeId: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (draggedId && draggedId !== routeId) {
+      setDragOverId(routeId);
+    }
+  };
+
+  const handleDragLeave = () => {
+    setDragOverId(null);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLTableRowElement>, targetId: string) => {
+    e.preventDefault();
+    setDragOverId(null);
+    setDraggedId(null);
+    
+    if (dragNode.current) {
+      dragNode.current.style.opacity = '1';
+    }
+    dragNode.current = null;
+
+    if (!draggedId || draggedId === targetId) return;
+
+    const newRoutes = [...routes];
+    const draggedIndex = newRoutes.findIndex((r) => r.id === draggedId);
+    const targetIndex = newRoutes.findIndex((r) => r.id === targetId);
+
+    if (draggedIndex === -1 || targetIndex === -1) return;
+
+    // Remove dragged item and insert at new position
+    const [draggedItem] = newRoutes.splice(draggedIndex, 1);
+    newRoutes.splice(targetIndex, 0, draggedItem);
+
+    // Update order values based on new positions
+    const updatedRoutes = newRoutes.map((route, index) => ({
+      ...route,
+      order: index,
+    }));
+
+    setRoutes(updatedRoutes);
+    updateOrder(updatedRoutes);
+  };
+
+  const handleDragEnd = (e: React.DragEvent<HTMLTableRowElement>) => {
+    e.preventDefault();
+    if (dragNode.current) {
+      dragNode.current.style.opacity = '1';
+    }
+    setDraggedId(null);
+    setDragOverId(null);
+    dragNode.current = null;
+  };
   const load = useCallback(async () => {
     try {
       const params = new URLSearchParams();
@@ -189,10 +287,27 @@ export function RideManager() {
       {error && <p role="alert" className="rounded-[4px] border border-[#f0c9c0] bg-[#fdf0ec] px-3 py-2 text-sm font-semibold text-[#a13d2c]">{error}</p>}
       <div className="overflow-x-auto rounded-[6px] border border-[#e1e1e3] bg-white">
         <table className="w-full min-w-[620px] text-left text-sm">
-          <thead className="bg-[#f5f5f5] text-xs uppercase tracking-wide text-[#616161]"><tr><th className="px-4 py-3">Route</th><th className="px-4 py-3">Type</th><th className="px-4 py-3">Starting price</th><th className="px-4 py-3">Status</th><th className="px-4 py-3 text-right">Actions</th></tr></thead>
+          <thead className="bg-[#f5f5f5] text-xs uppercase tracking-wide text-[#616161]"><tr><th className="px-4 py-3 w-10"></th><th className="px-4 py-3">Route</th><th className="px-4 py-3">Type</th><th className="px-4 py-3">Starting price</th><th className="px-4 py-3">Status</th><th className="px-4 py-3 text-right">Actions</th></tr></thead>
           <tbody>
             {routes.map((r) => (
-              <tr key={r.id} className="border-t border-[#eee]">
+              <tr
+                key={r.id}
+                draggable
+                onDragStart={(e) => handleDragStart(e, r.id)}
+                onDragOver={(e) => handleDragOver(e, r.id)}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, r.id)}
+                onDragEnd={handleDragEnd}
+                className={`border-t border-[#eee] cursor-move transition-colors ${
+                  dragOverId === r.id ? 'bg-[#e8f5ed]' : ''
+                } ${draggedId === r.id ? 'opacity-50' : ''}`}
+              >
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-1 text-[#999] cursor-grab active:cursor-grabbing">
+                    <GripVertical size={16} />
+                    <span className="text-xs font-mono">{r.order}</span>
+                  </div>
+                </td>
                 <td className="px-4 py-3"><strong>{r.title}</strong><span className="block text-xs text-[#888]">/{r.slug}</span></td>
                 <td className="px-4 py-3">{r.type === 'SIGHTSEEING' ? 'Sightseeing' : 'Transfer'}</td>
                 <td className="px-4 py-3">{rideMinFare(r.fares) === null ? 'Pricing soon' : `Rs.${rideMinFare(r.fares)!.toLocaleString('en-IN')}`}</td>
@@ -200,10 +315,11 @@ export function RideManager() {
                 <td className="px-4 py-3 text-right"><button onClick={() => start(r)} className="rounded border border-[#e1e1e3] px-3 py-1.5 hover:bg-[#f5f5f5]">Edit</button> <button onClick={() => remove(r)} className="rounded border border-[#f0c9c0] px-3 py-1.5 text-[#a13d2c] hover:bg-[#fdf0ec]">Delete</button></td>
               </tr>
             ))}
-            {routes.length === 0 && <tr><td colSpan={5} className="px-4 py-8 text-center text-[#616161]">No routes yet. Create Kainchi Dham sightseeing first.</td></tr>}
+            {routes.length === 0 && <tr><td colSpan={6} className="px-4 py-8 text-center text-[#616161]">No routes yet. Create Kainchi Dham sightseeing first.</td></tr>}
           </tbody>
         </table>
       </div>
+      {reordering && <p className="text-sm text-[#24584a]">Updating order...</p>}
       {showForm && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/40 p-4" role="dialog" aria-modal="true">
           <form onSubmit={save} className="mx-auto w-full max-w-3xl space-y-5 rounded-[8px] bg-white p-6">
