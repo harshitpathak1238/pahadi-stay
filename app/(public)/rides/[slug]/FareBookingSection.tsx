@@ -109,7 +109,7 @@ export function FareBookingSection({ ride }: { ride: PublicRide }) {
         </div>
       ) : (
         <>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                    <div className="mt-5 grid gap-3 sm:grid-cols-2">
             {availableFares.map((fare) => {
               const isSelected = fare.vehicleTypeId === activeId;
               return (
@@ -117,7 +117,7 @@ export function FareBookingSection({ ride }: { ride: PublicRide }) {
                   key={fare.vehicleTypeId}
                   type="button"
                   onClick={() => setSelectedId(fare.vehicleTypeId)}
-                  className={`group relative flex flex-col rounded-2xl border p-4 text-left transition-all ${
+                  className={`group relative flex items-center rounded-2xl border p-4 text-left transition-all ${
                     isSelected
                       ? 'border-emerald-500 bg-emerald-50/50 ring-2 ring-emerald-500/20'
                       : 'border-stone-200 bg-white hover:border-stone-300 hover:shadow-sm'
@@ -129,7 +129,8 @@ export function FareBookingSection({ ride }: { ride: PublicRide }) {
                     </div>
                   )}
 
-                  <div className="relative h-24 w-full overflow-hidden rounded-xl bg-stone-100 mb-3">
+                  {/* Image on the left */}
+                  <div className="relative mr-4 h-24 w-32 flex-shrink-0 overflow-hidden rounded-xl bg-stone-100">
                     {fare.vehicleImage ? (
                       <Image
                         src={fare.vehicleImage}
@@ -144,16 +145,14 @@ export function FareBookingSection({ ride }: { ride: PublicRide }) {
                     )}
                   </div>
 
+                  {/* Details and price on the right */}
                   <div className="flex-1">
                     <p className="font-semibold text-stone-800">{fare.vehicleName}</p>
                     <div className="mt-1 flex items-center gap-1.5">
                       <Users size={12} className="text-stone-400" />
                       <span className="text-xs text-stone-500">Up to {fare.vehicleCapacity} seats</span>
                     </div>
-                  </div>
-
-                  <div className="mt-3 pt-3 border-t border-stone-100">
-                    <p className="text-lg font-bold text-emerald-600">{inr(fare.price)}</p>
+                    <p className="mt-1 text-lg font-bold text-emerald-600">{inr(fare.price)}</p>
                   </div>
                 </button>
               );
