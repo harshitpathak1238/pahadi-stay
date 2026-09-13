@@ -82,7 +82,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
           fares: { include: { vehicleType: true }, orderBy: { vehicleType: { order: 'asc' } } },
         },
       });
-    });
+    }, { timeout: 10000, isolationLevel: 'ReadCommitted' }); // Increased timeout to 10s
     try {
       revalidatePath('/rides');
       if (route?.slug && route.slug !== existing.slug) revalidatePath(`/rides/${existing.slug}`);

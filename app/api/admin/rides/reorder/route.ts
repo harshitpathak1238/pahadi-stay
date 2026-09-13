@@ -27,7 +27,7 @@ export async function POST(request: Request) {
       })
     );
     
-    await db.$transaction(updates);
+    await db.$transaction(updates, { timeout: 10000 });
     revalidatePath('/rides');
     revalidatePath('/admin/rides');
     
