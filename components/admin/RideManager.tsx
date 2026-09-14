@@ -1,8 +1,9 @@
 'use client';
 
 import { useCallback, useEffect, useState, useRef } from 'react';
-import { Plus, ImagePlus, X, Upload, Check, GripVertical } from 'lucide-react';
+import { Plus, ImagePlus, X, Upload, Check, GripVertical, Star, Video, Link2 } from 'lucide-react';
 import { slugifyRideTitle } from '@/lib/rides';
+import { isVideoUrl as isVideoMedia } from '@/lib/media';
 
 export type RideMgrVehicle = { id: string; name: string; capacity: number; image: string | null; order: number };
 export type RideMgrRow = {
@@ -69,6 +70,9 @@ export function RideManager() {
   const [mediaAssets, setMediaAssets] = useState<{ id: string; url: string; filename: string; thumbnailUrl: string | null }[]>([]);
   const [mediaLoading, setMediaLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [urlInput, setUrlInput] = useState('');
+  const [urlError, setUrlError] = useState('');
+  const [mediaDragIndex, setMediaDragIndex] = useState<number | null>(null);
   
   // Drag and drop state
   const [draggedId, setDraggedId] = useState<string | null>(null);
@@ -195,20 +199,59 @@ export function RideManager() {
     } catch { /* ignore */ } finally { setMediaLoading(false); }
   }, []);
   const openMediaPicker = () => { setShowMediaPicker(true); loadMedia(); };
-  const uploadMedia = async (file: File) => {
+  const appendMediaUrls = (urls: string[]) => setForm((current) => ({ ...current, images: [...current.images, ...urls.filter((url) => url && !current.images.includes(url))] }));
+  const uploadMedia = async (files: File[]) => {
+    if (!files.length) return;
     setUploading(true);
+    const knownUrls = new Set(mediaAssets.map((asset) => asset.url));
+    const collected: string[] = [];
     try {
-      const data = new FormData();
-      data.append('file', file);
-      await fetch('/api/admin/media', { method: 'POST', body: data });
-      await loadMedia();
+      for (const file of files) {
+        const data = new FormData();
+        data.append('file', file);
+        const res = await fetch('/api/admin/media', { method: 'POST', body: data });
+        const result = await res.json().catch(() => ({}));
+        const url = result?.asset?.url || result?.url || result?.filename || (Array.isArray(result?.assets) ? result.assets[0]?.url : '');
+        if (typeof url === 'string' && url) collected.push(url);
+      }
+      if (!collected.length) {
+        // Unknown response shape — diff the refreshed media library instead.
+        const res = await fetch('/api/admin/media?type=images&page=1', { cache: 'no-store' });
+        if (res.ok) {
+          const result = await res.json();
+          const assets = Array.isArray(result.assets) ? result.assets : [];
+          assets.forEach((asset: { url: string }) => { if (!knownUrls.has(asset.url)) collected.push(asset.url); });
+          setMediaAssets(assets);
+        }
+      }
+      appendMediaUrls(collected);
     } catch { /* ignore */ } finally { setUploading(false); }
   };
+  const addMediaUrl = () => {
+    const url = urlInput.trim();
+    if (!url) return;
+    try {
+      const parsed = new URL(url);
+      if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error('bad protocol');
+    } catch { setUrlError('Enter a valid URL starting with http:// or https://.'); return; }
+    setUrlError('');
+    setUrlInput('');
+    appendMediaUrls([url]);
+  };
   const selectMediaUrl = (url: string) => {
-    if (!form.images.includes(url)) setForm({ ...form, images: [...form.images, url] });
+    appendMediaUrls([url]);
     setShowMediaPicker(false);
   };
   const removeImage = (index: number) => setForm({ ...form, images: form.images.filter((_, i) => i !== index) });
+  const makeCover = (index: number) => setForm({ ...form, images: [form.images[index], ...form.images.filter((_, i) => i !== index)] });
+  const moveImage = (from: number, to: number) => {
+    setForm((current) => {
+      const next = [...current.images];
+      const [item] = next.splice(from, 1);
+      next.splice(to, 0, item);
+      return { ...current, images: next };
+    });
+  };
   useEffect(() => { load(); }, [load]);
   const start = (route?: RideMgrRow) => {
     setMessage(''); setError('');
@@ -333,24 +376,54 @@ export function RideManager() {
               </>)}
               {form.type === 'SIGHTSEEING' && (<label className="block text-sm font-semibold">Total duration (days)<input type="number" min={0} step={1} value={form.durationDays} onChange={(e) => setForm({ ...form, durationDays: e.target.value })} className="mt-1 w-full rounded border border-[#e1e1e3] px-3 py-2 font-normal" /></label>)}
               <div className="md:col-span-2">
-                <p className="text-sm font-semibold">Images</p>
-                <div className="mt-1 flex flex-wrap gap-2">
-                  <button type="button" onClick={openMediaPicker} className="inline-flex items-center gap-1 rounded border border-[#e1e1e3] px-3 py-1.5 text-sm font-semibold hover:bg-[#f5f5f5]"><ImagePlus size={14} /> Choose media</button>
-                  <label className="inline-flex cursor-pointer items-center gap-1 rounded border border-[#e1e1e3] px-3 py-1.5 text-sm font-semibold hover:bg-[#f5f5f5]"><Upload size={14} /> Upload
-                    <input type="file" accept="image/*" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) uploadMedia(file); e.target.value = ''; }} />
-                  </label>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold">Images &amp; videos</p>
+                  <p className="text-[11px] font-normal text-[#888]">Drag to reorder — the first item is the cover in the carousel.</p>
                 </div>
+                <div className="mt-1 flex flex-wrap items-center gap-2">
+                  <label className="inline-flex cursor-pointer items-center gap-1 rounded border border-[#e1e1e3] px-3 py-1.5 text-sm font-semibold hover:bg-[#f5f5f5]"><Upload size={14} /> Upload
+                    <input type="file" multiple accept="image/*,video/mp4,video/webm,video/quicktime" className="hidden" onChange={(e) => { const files = Array.from(e.target.files ?? []); if (files.length) uploadMedia(files); e.target.value = ''; }} />
+                  </label>
+                  <button type="button" onClick={openMediaPicker} className="inline-flex items-center gap-1 rounded border border-[#e1e1e3] px-3 py-1.5 text-sm font-semibold hover:bg-[#f5f5f5]"><ImagePlus size={14} /> Choose media</button>
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-flex items-center gap-1 rounded border border-[#e1e1e3] px-2 py-1.5">
+                      <Link2 size={13} className="text-[#888]" />
+                      <input value={urlInput} onChange={(e) => { setUrlInput(e.target.value); setUrlError(''); }} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addMediaUrl(); } }} placeholder="Add image or video URL" className="w-48 bg-transparent text-sm font-normal outline-none" />
+                    </span>
+                    <button type="button" onClick={addMediaUrl} className="rounded border border-[#24584a] px-3 py-1.5 text-sm font-semibold text-[#24584a] hover:bg-[#eef3f0]">Add</button>
+                  </span>
+                </div>
+                {urlError && <p className="mt-1 text-xs text-[#a13d2c]">{urlError}</p>}
+                {uploading && <p className="mt-1 text-xs text-[#24584a]">Uploading media...</p>}
                 {form.images.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-2">
                     {form.images.map((img, i) => (
-                      <div key={i} className="relative">
-                        <img src={img} alt="" className="h-16 w-16 rounded object-cover" />
-                        <button type="button" onClick={() => removeImage(i)} className="absolute -right-1 -top-1 rounded-full bg-[#a13d2c] p-0.5 text-white"><X size={12} /></button>
+                      <div
+                        key={`${img}-${i}`}
+                        draggable
+                        onDragStart={() => setMediaDragIndex(i)}
+                        onDragOver={(e) => { e.preventDefault(); if (mediaDragIndex !== null && mediaDragIndex !== i) moveImage(mediaDragIndex, i); }}
+                        onDragEnd={() => setMediaDragIndex(null)}
+                        className={`group relative h-20 w-28 cursor-grab overflow-hidden rounded-lg ring-1 ${mediaDragIndex === i ? 'opacity-50 ring-2 ring-[#24584a]' : 'ring-[#e1e1e3]'}`}
+                        title="Drag to reorder"
+                      >
+                        {isVideoMedia(img) ? (
+                          <span className="flex h-full w-full items-center justify-center bg-[#1c3833] text-white"><Video size={20} /></span>
+                        ) : (
+                          <img src={img} alt="" className="h-full w-full object-cover" />
+                        )}
+                        {i === 0 && <span className="absolute left-1 top-1 inline-flex items-center gap-0.5 rounded bg-[#173f35] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white"><Star size={9} /> Cover</span>}
+                        {isVideoMedia(img) && i !== 0 && <span className="absolute left-1 top-1 rounded bg-black/60 px-1 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white"><Video size={9} className="inline" /> Video</span>}
+                        <span className="absolute inset-x-0 bottom-0 flex justify-between bg-black/45 px-1 py-0.5 opacity-0 transition group-hover:opacity-100">
+                          {i !== 0 && (
+                            <button type="button" title="Make cover" aria-label="Make cover" onClick={() => makeCover(i)} className="text-white hover:text-[#ffd479]"><Star size={12} /></button>
+                          )}
+                          <button type="button" title="Remove" aria-label="Remove media" onClick={() => removeImage(i)} className="ml-auto text-white hover:text-[#ff9d8a]"><X size={12} /></button>
+                        </span>
                       </div>
                     ))}
                   </div>
                 )}
-                <textarea value={form.images.join('\n')} onChange={(e) => setForm({ ...form, images: e.target.value.split('\n') })} rows={2} placeholder="Or paste image URLs, one per line" className="mt-2 w-full rounded border border-[#e1e1e3] px-3 py-2 font-normal" />
               </div>
               <label className="block text-sm font-semibold md:col-span-2">Status<select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as 'DRAFT' | 'LIVE' | 'PAUSED' })} className="mt-1 w-full rounded border border-[#e1e1e3] bg-white px-3 py-2 font-normal"><option value="DRAFT">Draft</option><option value="LIVE">Live</option><option value="PAUSED">Paused</option></select></label>
             </div>
