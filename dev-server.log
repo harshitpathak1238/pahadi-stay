@@ -437,3 +437,17 @@ Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
 Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=cc9249c24559d0fc6f4aaa7ea7050980.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
 Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
  GET /stays 200 in 784ms
+ ✓ Compiled in 8.1s (1739 modules)
+ GET /stays?guests=2&_rsc=10jsv 200 in 3400ms
+ GET /admin/rides?_rsc=kgshf 200 in 3816ms
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=4cb190150481dad47a46d10ea8b3e645.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=e7dcd4465a1fda599febb1a66d6a7380.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=de41c316340adeae0a819e758534dc10.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=e87c083ccfc468fca51aca0f153d2af3.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=cc9249c24559d0fc6f4aaa7ea7050980.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
+ GET /stays 200 in 952ms

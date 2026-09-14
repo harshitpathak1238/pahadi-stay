@@ -163,7 +163,7 @@ export function StaysSearchBar({
           </span>
         </label>
 
-        <button type="submit" aria-label="Search stays" className="col-span-2 inline-flex h-10 items-center justify-center gap-2 self-stretch rounded-full bg-[#173f35] px-5 text-sm font-bold text-white shadow-[0_8px_20px_rgba(23,63,53,.28)] transition hover:bg-[#24584a] focus:outline-none focus:ring-2 focus:ring-[#24584a]/40 focus:ring-offset-2 md:col-span-1 md:ml-1.5 md:h-10 md:w-10 md:self-center md:px-0">
+        <button type="submit" aria-label="Search stays" className="col-span-2 inline-flex h-10 items-center justify-center gap-2 self-center rounded-full bg-[#173f35] px-5 text-sm font-bold text-white shadow-[0_8px_20px_rgba(23,63,53,.28)] transition hover:bg-[#24584a] focus:outline-none focus:ring-2 focus:ring-[#24584a]/40 focus:ring-offset-2 md:col-span-1 md:ml-1.5 md:h-10 md:w-10 md:self-center md:px-0">
           <Search size={16} />
           <span className="md:hidden">Search</span>
         </button>
