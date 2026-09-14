@@ -1,10 +1,14 @@
 export default function imageLoader({ src, width, quality }: { src: string; width: number; quality?: number }) {
-  // For Hostinger media API, return the URL as-is without optimization parameters
-  // because the PHP endpoint doesn't support them
-  if (src.includes('springgreen-salmon-184354.hostingersite.com')) {
+  // Local assets: serve as-is.
+  if (src.startsWith('/')) return src;
+  // Remote URLs without their own sizing params: append width/quality.
+  try {
+    const url = new URL(src);
+    if (!url.searchParams.has('w')) url.searchParams.set('w', String(width));
+    if (!url.searchParams.has('q')) url.searchParams.set('q', String(quality || 75));
+    return url.toString();
+  } catch {
     return src;
   }
-  
-  // For other images, use the default optimization
-  return `${src}?w=${width}&q=${quality || 75}`;
 }
+

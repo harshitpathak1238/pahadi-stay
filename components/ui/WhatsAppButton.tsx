@@ -2,8 +2,9 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { FaWhatsapp } from 'react-icons/fa';
+import { WHATSAPP_NUMBER } from '@/lib/contact';
 
-const whatsappNumber = '919876543210';
+const whatsappNumber = WHATSAPP_NUMBER;
 export const defaultWhatsAppMessage = 'Namaste! I am planning a trip to Kumaon and would like help with stays, rides, rentals, or packages. Please share the best options, availability, and pricing. Thank you!';
 
 export function WhatsAppMark({ size = 18 }: { size?: number }) {
