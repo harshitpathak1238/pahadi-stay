@@ -61,6 +61,30 @@ function RatingRow({ stay }: { stay: Listing }) {
   );
 }
 
+export function discountPercent(basePrice?: number | null, sellPrice?: number | null) {
+  if (basePrice == null || sellPrice == null) return 0;
+  const base = Number(basePrice);
+  const sell = Number(sellPrice);
+  if (!Number.isFinite(base) || !Number.isFinite(sell) || base <= 0 || sell < 0 || sell >= base) return 0;
+  return Math.round(((base - sell) / base) * 100);
+}
+
+export function StayPrice({ price, basePrice, size = 'md' }: { price: number; basePrice?: number | null; size?: 'md' | 'lg' }) {
+  const off = discountPercent(basePrice, price);
+  const priceClass = size === 'lg' ? 'text-2xl' : 'font-bold text-[#173f35]';
+  return (
+    <span className="inline-flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+      <span className={priceClass}>₹{Number(price).toLocaleString('en-IN')}</span>
+      {off > 0 && (
+        <>
+          <s className="text-xs font-semibold text-[#8a948c] sm:text-sm">₹{Number(basePrice).toLocaleString('en-IN')}</s>
+          <span className="rounded-full bg-[#e7f2ec] px-2 py-0.5 text-[11px] font-bold text-[#1d7a4f]">{off}% off</span>
+        </>
+      )}
+    </span>
+  );
+}
+
 // Clean plain-text snippet — never raw HTML/CSS, no citation artifacts.
 function Snippet({ description }: { description: string }) {
   const snippet = cardDescriptionSnippet(description);
@@ -94,7 +118,8 @@ export function ResultCard({ stay, isWishlisted, onToggleWishlist, view }: Resul
           <div className="mt-3 flex items-end justify-between gap-2 border-t border-[#eef1ec] pt-3">
             <div>
               <p className="text-[11px] uppercase tracking-wide text-[#536274]">From</p>
-              <p className="font-bold text-[#173f35]">₹{stay.price.toLocaleString('en-IN')}<span className="text-xs font-semibold text-[#536274]"> / night</span></p>
+              <StayPrice price={stay.price} basePrice={stay.basePrice} />
+              <p className="text-xs font-semibold text-[#536274]"> / night</p>
             </div>
             <Link href={`/stays/${stay.slug}`} className="rounded-full bg-[#173f35] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#24584a]">
               Show prices
@@ -131,7 +156,8 @@ export function ResultCard({ stay, isWishlisted, onToggleWishlist, view }: Resul
       <div className="flex flex-row items-end justify-between gap-3 border-t border-[#eef1ec] p-4 sm:items-center md:flex-col md:items-stretch md:justify-between md:border-l md:border-t-0">
         <div className="md:text-right">
           <p className="text-[11px] uppercase tracking-wide text-[#536274]">From</p>
-          <p className="font-bold text-[#173f35]">₹{stay.price.toLocaleString('en-IN')}<span className="text-xs font-semibold text-[#536274]"> / night</span></p>
+          <StayPrice price={stay.price} basePrice={stay.basePrice} />
+          <p className="text-xs font-semibold text-[#536274]"> / night</p>
         </div>
         <Link href={`/stays/${stay.slug}`} className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-[#173f35] px-5 py-2.5 text-xs font-bold text-white transition hover:bg-[#24584a] md:mt-3">
           Show prices

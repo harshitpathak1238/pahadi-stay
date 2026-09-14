@@ -35,7 +35,7 @@ export function SiteNavigation() {
     return () => window.removeEventListener('resize', updateIndicator);
   }, [pathname]);
 
-  return <nav ref={navigationRef} className="nav-shell hidden items-center gap-7 text-sm font-semibold text-[#526057] md:flex" aria-label="Primary navigation">{links.map(([href, label]) => {
+  return <nav ref={navigationRef} className="nav-shell hidden items-center gap-6 text-sm font-medium tracking-wide text-[#526057] md:flex" aria-label="Primary navigation">{links.map(([href, label]) => {
     const active = href === '/' ? pathname === '/' : pathname.startsWith(href);
     return <Link key={href} href={href} ref={active ? activeRef : undefined} className={`nav-link ${active ? 'nav-link-active' : ''}`}>{label}</Link>;
   })}<span aria-hidden="true" className="nav-indicator" style={{ left: indicator.left, width: indicator.width }} /></nav>;

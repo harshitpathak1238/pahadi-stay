@@ -50,6 +50,13 @@ export function StayDetailExperience({ stay, reviewData }: { stay: Listing; revi
   // editor-level courtesy until real reviews exist.
   const hasRealRating = !!(reviewData?.stats);
   const headerRating = hasRealRating ? reviewData!.stats!.overall5 : stay.rating;
+  // Discount presentation: base price is the struck-through MRP, selling
+  // price (stay.price) is the deal. Only shows when base is genuinely higher.
+  const basePrice = typeof stay.basePrice === 'number' ? stay.basePrice : null;
+  const discountOff = basePrice != null && basePrice > 0 && basePrice > stay.price
+    ? Math.round(((basePrice - stay.price) / basePrice) * 100)
+    : 0;
+  const discountSavings = discountOff > 0 && basePrice != null ? basePrice - stay.price : 0;
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [showAllFacilities, setShowAllFacilities] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState<number | null>(null);
@@ -610,10 +617,23 @@ export function StayDetailExperience({ stay, reviewData }: { stay: Listing; revi
           <aside className="h-fit min-w-0 lg:sticky lg:top-48">
             {/* Price and booking panel */}
             <div id="trip-builder" className="rounded-lg border border-[#d9e0e8] bg-white p-5 shadow-sm">
-              <p className="text-sm text-[#536274]">From</p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-sm text-[#536274]">From</p>
+                {discountOff > 0 && (
+                  <span className="rounded-full bg-[#e7f2ec] px-2.5 py-1 text-[11px] font-bold text-[#1d7a4f]">{discountOff}% off</span>
+                )}
+              </div>
               <p className="mt-1 text-3xl font-bold">
                 ₹{stay.price.toLocaleString('en-IN')} <span className="text-sm font-normal text-[#536274]">/ night</span>
+                {discountOff > 0 && basePrice != null && (
+                  <span className="ml-2 align-middle text-base font-semibold text-[#8a948c] line-through">₹{basePrice.toLocaleString('en-IN')}</span>
+                )}
               </p>
+              {discountOff > 0 && basePrice != null && (
+                <p className="mt-1.5 text-sm font-semibold text-[#1d7a4f]">
+                  You save ₹{discountSavings.toLocaleString('en-IN')} ({discountOff}%)
+                </p>
+              )}
               <p className="mt-2 text-xs text-[#536274]">Includes taxes and fees estimate</p>
               <StayTripPanel slug={stay.slug} title={stay.title} price={stay.price} />
             </div>
@@ -683,7 +703,7 @@ export function StayDetailExperience({ stay, reviewData }: { stay: Listing; revi
 
       {/* Mobile bottom static bar: price + Add-to-trip shortcut, sticky to screen */}
       {isMobile && stay.category === 'stay' && (
-        <StayBottomBar slug={stay.slug} price={stay.price} />
+        <StayBottomBar slug={stay.slug} price={stay.price} basePrice={basePrice} />
       )}
     </div>
   );

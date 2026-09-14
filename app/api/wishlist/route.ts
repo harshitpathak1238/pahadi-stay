@@ -34,6 +34,7 @@ export async function GET(request: Request) {
       location: listing.location,
       category: listing.category,
       price: Number(listing.sellPrice || listing.basePrice),
+      basePrice: Number(listing.basePrice) > Number(listing.sellPrice) ? Number(listing.basePrice) : null,
       image: Array.isArray(listing.images) && typeof listing.images[0] === 'string' ? listing.images[0] : '/images/Logo.png',
     }));
   return NextResponse.json({ cards });

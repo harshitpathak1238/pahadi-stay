@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Sparkles } from 'lucide-react';
 
-export function StayBottomBar({ price, slug }: { price: number; slug: string }) {
+export function StayBottomBar({ price, basePrice, slug }: { price: number; basePrice?: number | null; slug: string }) {
   const [visible, setVisible] = useState(false);
   const rafRef = useRef<number | null>(null);
 
@@ -12,6 +12,10 @@ export function StayBottomBar({ price, slug }: { price: number; slug: string }) 
     const timer = setTimeout(() => setVisible(true), 220);
     return () => clearTimeout(timer);
   }, []);
+
+  const off = typeof basePrice === 'number' && basePrice > 0 && basePrice > price
+    ? Math.round(((basePrice - price) / basePrice) * 100)
+    : 0;
 
   const openTripBuilder = () => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -37,6 +41,12 @@ export function StayBottomBar({ price, slug }: { price: number; slug: string }) 
             ₹{price.toLocaleString('en-IN')} <span className="text-sm font-normal text-[#cfe6df]">/ night</span>
           </span>
           <span className="mt-0.5 sans text-[11px] text-[#cfe6df]">Includes taxes &amp; fees estimate</span>
+            {off > 0 && typeof basePrice === 'number' && (
+              <span className="mt-0.5 text-xs text-[#cfe6df]">
+                <s>₹{basePrice.toLocaleString('en-IN')}</s>{' '}
+                <span className="font-bold text-white">{off}% off</span>
+              </span>
+            )}
         </div>
         <button
           type="button"

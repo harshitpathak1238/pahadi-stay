@@ -31,14 +31,14 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
     <html lang="en" suppressHydrationWarning className={`${display.variable} ${sans.variable}`}>
       <body><ThemeProvider><TripCartProvider>
         <header className="site-header">
-          <div className="mx-auto flex min-h-[72px] max-w-7xl items-center justify-between gap-3 px-3 py-2 md:min-h-[82px] md:gap-4 md:px-5">
-            <Link href="/" aria-label="KainchiDarshan home" className="shrink-0"><Image src="/images/Logo.png" alt="Kainchi Darshan" width={210} height={80} priority className="h-9 w-auto object-contain sm:h-10 md:h-14" /></Link>
+          <div className="mx-auto flex min-h-[64px] max-w-7xl items-center justify-between gap-2 px-4 py-2 sm:px-3 md:min-h-[82px] md:gap-5 md:px-6">
+            <Link href="/" aria-label="KainchiDarshan home" className="shrink-0"><Image src="/images/Logo.png" alt="Kainchi Darshan" width={210} height={80} priority className="h-8 w-auto object-contain sm:h-9 md:h-11" /></Link>
             <SiteNavigation />
-            <div className="flex items-center gap-2 text-sm md:gap-3">
-              <ThemeToggle />
-              <Link href="/partner/login" className="hidden font-semibold text-[#526057] dark:text-[#b8c8bd] md:block">List your place</Link>
-              {isAdmin && <Link href="/admin" className="hidden rounded-full bg-[#173f35] px-3 py-2 font-bold text-white transition hover:bg-[#24584a] md:block">Admin</Link>}
-              {session?.user ? <AccountMenu name={session.user.name} email={session.user.email} isAdmin={isAdmin} /> : <Link href="/login" className="shrink-0 rounded-full border border-[#d6d9d1] px-3 py-2.5 font-semibold text-[#173f35] transition hover:bg-[#f1f3ed] dark:border-white/15 dark:text-[#e8e8e8] dark:hover:bg-white/10 md:px-4">Sign in</Link>}
+            <div className="flex items-center gap-1.5 text-sm sm:gap-2 md:gap-3">
+              <span className="hidden md:block"><ThemeToggle /></span>
+              <Link href="/partner/login" className="hidden items-center gap-1.5 rounded-full border border-[#dfe3d8] px-3.5 py-1.5 text-sm font-semibold text-[#526057] transition hover:border-[#cbd5cf] hover:text-[#173f35] md:inline-flex">List your place</Link>
+              {isAdmin && <Link href="/admin" className="hidden rounded-full bg-[#173f35] px-3.5 py-1.5 text-xs font-bold text-white transition hover:bg-[#24584a] md:block">Admin</Link>}
+              <span className="shrink-0 [&_summary]:!grid [&_summary]:!h-10 [&_summary]:!w-10">{session?.user ? <AccountMenu name={session.user.name} email={session.user.email} isAdmin={isAdmin} /> : <Link href="/login" className="shrink-0 rounded-full bg-[#173f35] px-4 py-2 text-sm font-bold text-white transition active:scale-95 md:border md:border-[#d6d9d1] md:bg-transparent md:font-semibold md:text-[#173f35] md:hover:border-[#173f35] md:hover:bg-[#f4f6f1] md:dark:border-white/15 md:dark:text-[#e8e8e8] md:dark:hover:bg-white/10">Sign in</Link>}</span>
               <MobileMenu isAdmin={isAdmin} isSignedIn={Boolean(session?.user)} />
             </div>
           </div>

@@ -39,7 +39,7 @@ export function ThemeToggle() {
     aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
     aria-pressed={isDark}
     title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-    className="theme-toggle grid h-11 w-11 shrink-0 place-items-center rounded-full text-[#526057] transition hover:bg-[#eef3ed] dark:text-[#e8e8e8] dark:hover:bg-white/10"
+    className="theme-toggle grid h-10 w-10 shrink-0 place-items-center rounded-full border border-[#d6d9d1] bg-white text-[#526057] transition hover:bg-[#eef3ed] active:scale-95 dark:border-white/15 dark:bg-transparent dark:text-[#e8e8e8] dark:hover:bg-white/10"
   >
     {isDark ? <Sun size={20} aria-hidden="true" /> : <Moon size={20} aria-hidden="true" />}
   </button>;

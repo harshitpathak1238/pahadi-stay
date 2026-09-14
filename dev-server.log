@@ -2,44 +2,14 @@
 > pahadi-stay@1.0.0 dev
 > next dev
 
- ⚠ Port 3000 is in use, trying 3001 instead.
   ▲ Next.js 14.2.35
-  - Local:        http://localhost:3001
+  - Local:        http://localhost:3000
   - Environments: .env.local, .env
 
  ✓ Starting...
-[Error: EPERM: operation not permitted, open 'd:\TourAndTravel\.next\trace'] {
-  errno: -4048,
-  code: 'EPERM',
-  syscall: 'open',
-  path: 'd:\\TourAndTravel\\.next\\trace'
-}
- ✓ Ready in 4.1s
- ○ Compiling /stays ...
- ✓ Compiled /stays in 10.4s (1128 modules)
-Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=4cb190150481dad47a46d10ea8b3e645.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
-Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
-Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=e7dcd4465a1fda599febb1a66d6a7380.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
-Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
-Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=de41c316340adeae0a819e758534dc10.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
-Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
-Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=e87c083ccfc468fca51aca0f153d2af3.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
-Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
-Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=cc9249c24559d0fc6f4aaa7ea7050980.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
-Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
- GET /stays 200 in 12688ms
-<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../typescript/lib/typescript' in d:\TourAndTravel\node_modules\next\dist\build for build dependencies doesn't lead to expected result 'D:\TourAndTravel\node_modules\typescript\lib\typescript.js', but to 'd:\TourAndTravel\node_modules\typescript\lib\typescript.js' instead. Resolving dependencies are ignored for this path.
-<w>  at resolve commonjs file ../../../typescript/lib/typescript (expected D:\TourAndTravel\node_modules\typescript\lib\typescript.js)
-<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\load-jsconfig.js
-<w>  at file d:\TourAndTravel\node_modules\next\dist\build\load-jsconfig.js
-<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\webpack-config.js
-<w>  at file d:\TourAndTravel\node_modules\next\dist\build\webpack-config.js
-<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\handle-externals.js
-<w>  at file d:\TourAndTravel\node_modules\next\dist\build\handle-externals.js
-<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
-<w>  at file d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
-<w>  at resolve commonjs d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
- ○ Compiling /account/wishlist ...
+ ✓ Ready in 2.7s
+ ○ Compiling / ...
+ ✓ Compiled / in 7.3s (1005 modules)
 <w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../typescript/lib/typescript' in d:\TourAndTravel\node_modules\next\dist\build for build dependencies doesn't lead to expected result 'D:\TourAndTravel\node_modules\typescript\lib\typescript.js', but to 'd:\TourAndTravel\node_modules\typescript\lib\typescript.js' instead. Resolving dependencies are ignored for this path.
 <w>  at resolve commonjs file ../../../typescript/lib/typescript (expected D:\TourAndTravel\node_modules\typescript\lib\typescript.js)
 <w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\load-jsconfig.js
@@ -49,71 +19,40 @@ Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
 <w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
 <w>  at file d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
 <w>  at resolve commonjs d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
- ✓ Compiled /account/wishlist in 12.4s (1137 modules)
- GET /account/wishlist 200 in 13263ms
- ✓ Compiled in 8.4s (461 modules)
- ✓ Compiled in 4.4s (461 modules)
- ✓ Compiled in 6.8s (461 modules)
- ✓ Compiled in 6.1s (461 modules)
- ✓ Compiled in 9.7s (461 modules)
- ✓ Compiled in 8.4s (462 modules)
- ✓ Compiled in 17.9s (462 modules)
- ✓ Compiled in 3.9s (462 modules)
- ✓ Compiled in 5.1s (462 modules)
- ✓ Compiled in 3.2s (462 modules)
- ✓ Compiled in 1603ms (462 modules)
- ✓ Compiled in 4s (462 modules)
- ✓ Compiled in 5.7s (462 modules)
- ✓ Compiled in 4.1s (462 modules)
- ✓ Compiled in 3.8s (462 modules)
- ✓ Compiled in 1460ms (462 modules)
- ✓ Compiled in 1612ms (462 modules)
- ✓ Compiled in 3.3s (462 modules)
- ✓ Compiled in 4s (462 modules)
- ✓ Compiled in 4.2s (462 modules)
- ✓ Compiled in 1745ms (462 modules)
- ✓ Compiled in 1512ms (462 modules)
- ✓ Compiled in 1669ms (462 modules)
- ✓ Compiled in 1005ms (462 modules)
- ✓ Compiled in 874ms (462 modules)
- ✓ Compiled in 647ms (462 modules)
- ✓ Compiled in 787ms (462 modules)
- ✓ Compiled in 682ms (462 modules)
- ○ Compiling /stays ...
- ✓ Compiled /stays in 586ms (671 modules)
-Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=4cb190150481dad47a46d10ea8b3e645.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
-Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
-Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=e7dcd4465a1fda599febb1a66d6a7380.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
-Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
-Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=de41c316340adeae0a819e758534dc10.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
-Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
-Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=e87c083ccfc468fca51aca0f153d2af3.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
-Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
-Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=cc9249c24559d0fc6f4aaa7ea7050980.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
-Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
- GET /stays 200 in 2593ms
- ○ Compiling /blog ...
- ✓ Compiled /blog in 2.6s (1151 modules)
 Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=865c9f23f0e1d0bfc05423d16b1c6cd4.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
 Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
 Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=0849381a351f8cc153c0eeae9c39717c.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
 Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
 Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=cd44c7c0f1532f118fdde04a75a2088a.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
 Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
-Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=59566d464b843af942bebf8174d87bbf.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+ GET / 200 in 8292ms
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../typescript/lib/typescript' in d:\TourAndTravel\node_modules\next\dist\build for build dependencies doesn't lead to expected result 'D:\TourAndTravel\node_modules\typescript\lib\typescript.js', but to 'd:\TourAndTravel\node_modules\typescript\lib\typescript.js' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../typescript/lib/typescript (expected D:\TourAndTravel\node_modules\typescript\lib\typescript.js)
+<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\load-jsconfig.js
+<w>  at file d:\TourAndTravel\node_modules\next\dist\build\load-jsconfig.js
+<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\webpack-config.js
+<w>  at file d:\TourAndTravel\node_modules\next\dist\build\webpack-config.js
+<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
+<w>  at file d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
+<w>  at resolve commonjs d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
+ ○ Compiling /stays ...
+ ✓ Compiled /stays in 2.3s (1191 modules)
+ GET /stays 200 in 3159ms
+ ✓ Compiled /rides in 370ms (1193 modules)
+ GET /rides 200 in 1193ms
+ ✓ Compiled in 3.8s (485 modules)
+ ✓ Compiled in 1116ms (485 modules)
+ ✓ Compiled in 1283ms (485 modules)
+ ✓ Compiled in 1144ms (485 modules)
+ ✓ Compiled in 1078ms (485 modules)
+ ✓ Compiled in 1014ms (485 modules)
+ ✓ Compiled in 1409ms (485 modules)
+ ○ Compiling / ...
+ ✓ Compiled / in 604ms (633 modules)
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=865c9f23f0e1d0bfc05423d16b1c6cd4.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
 Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
-Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=b0137d76b38ae3decf1651adb6664d5a.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=0849381a351f8cc153c0eeae9c39717c.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
 Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
-Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=874240b96a0d879005a0fe9753eda1f6.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=cd44c7c0f1532f118fdde04a75a2088a.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
 Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
-Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=58fffddff335767cd3a7599e381f97c7.png" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
-Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
-Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=c8de1e6d5b1fbb13cbbf1e1deec1105f.webp" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
-Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
-Image with src "https://springgreen-salmon-184354.hostingersite.com/uploads/blog/c3b788eb-cb5c-4a91-a05a-386979ccc9d4.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
-Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
- GET /blog 200 in 3240ms
- GET /stays?location=Nainital 200 in 316ms
- ○ Compiling /rentals ...
- ✓ Compiled /rentals in 2.2s (1068 modules)
- GET /rentals 200 in 3006ms
+ GET / 200 in 3851ms

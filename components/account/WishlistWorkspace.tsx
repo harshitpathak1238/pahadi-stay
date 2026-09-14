@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Heart, MapPin } from 'lucide-react';
 
-type WishlistCard = { slug: string; title: string; location: string; category: string; price: number; image: string };
+type WishlistCard = { slug: string; title: string; location: string; category: string; price: number; basePrice?: number | null; image: string };
 
 const inr = (n: number) => `Rs. ${Number(n).toLocaleString('en-IN')}`;
 
@@ -108,6 +108,14 @@ export function WishlistWorkspace() {
                   <p className="sans">
                     <span className="text-[10px] uppercase tracking-[.16em] text-[#8a948c]">From </span>
                     <span className="font-bold text-[#173f35]">{inr(card.price)}</span>
+                    {typeof card.basePrice === 'number' && card.basePrice > 0 && card.basePrice > card.price && (
+                      <>
+                        <span className="ml-1 text-xs font-semibold text-[#8a948c] line-through">{inr(card.basePrice)}</span>
+                        <span className="ml-1 rounded-full bg-[#e7f2ec] px-2 py-0.5 text-[10px] font-bold text-[#1d7a4f]">
+                          {Math.round(((card.basePrice - card.price) / card.basePrice) * 100)}% off
+                        </span>
+                      </>
+                    )}
                     <span className="text-xs text-[#8a948c]"> / night</span>
                   </p>
                   <Link href={`/stays/${card.slug}`} className="sans inline-flex items-center gap-1 text-xs font-bold text-[#b66b45] transition-all group-hover:gap-2">
