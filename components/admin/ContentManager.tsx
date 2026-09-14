@@ -21,14 +21,15 @@ import { DefaultHouseRules, type HouseRule } from '@/lib/listings';
 
 type Category = 'STAY' | 'RIDE' | 'RENTAL' | 'ACTIVITY';
 type Section = Category | 'PACKAGE';
-type Listing = { id: string; title: string; slug: string; category: Category; location: string; sellPrice: string | number; basePrice: string | number; status: string; description: string; images?: string[]; amenities?: string[]; details?: Record<string, unknown>; mealPlan?: string | null; breakfastIncluded?: boolean; cuisineNotes?: string | null; landmarks?: AdminLandmarkRow[]; services?: AdminServiceRow[]; experiences?: AdminExperienceRow[] };
+type Listing = { id: string; title: string; slug: string; category: Category; location: string; sellPrice: string | number; basePrice: string | number; status: string; description: string; images?: string[]; amenities?: string[]; details?: Record<string, unknown>; mealPlan?: string | null; breakfastIncluded?: boolean; cuisineNotes?: string | null; landmarks?: AdminLandmarkRow[]; services?: AdminServiceRow[]; experiences?: AdminExperienceRow[]; accommodations?: AccommodationRow[] };
 type TravelPackage = { id: string; title: string; description: string; price: string | number; listingIds?: string[]; status?: string; details?: Record<string, unknown> };
 export type HouseRuleRow = { id?: string; title: string; text: string };
 export type AdminLandmarkRow = { id?: string; label: string; distanceKm: string };
 export type AdminServiceRow = { id?: string; label: string; note: string };
 export type AdminExperienceRow = { id?: string; title: string; note: string };
+export type AccommodationRow = { id?: string; title: string; description: string; image: string; bedrooms: string; beds: string };
 
-export type ListingForm = { slug: string; title: string; description: string; location: string; basePrice: string; sellPrice: string; images: string[]; amenities: string; status: string; price: string; listingIds: string[]; details: Record<string, string>; mealPlan: string; breakfastIncluded: boolean; cuisineNotes: string; stayFacilities: Record<string, boolean>; faqs: AdminFaqRow[]; houseRules: HouseRuleRow[]; landmarks: AdminLandmarkRow[]; services: AdminServiceRow[]; experiences: AdminExperienceRow[] };
+export type ListingForm = { slug: string; title: string; description: string; location: string; basePrice: string; sellPrice: string; images: string[]; amenities: string; status: string; price: string; listingIds: string[]; details: Record<string, string>; mealPlan: string; breakfastIncluded: boolean; cuisineNotes: string; stayFacilities: Record<string, boolean>; faqs: AdminFaqRow[]; houseRules: HouseRuleRow[]; landmarks: AdminLandmarkRow[]; services: AdminServiceRow[]; experiences: AdminExperienceRow[]; accommodations: AccommodationRow[] };
 
 export type AdminFaqRow = { id?: string; question: string; answer: string };
 
@@ -62,6 +63,7 @@ const freshForm = (): ListingForm => ({
   landmarks: [],
   services: [],
   experiences: [],
+  accommodations: [],
 });
 
 export function ContentManager({ initialSection = 'STAY' }: { initialSection?: Section }) {
@@ -158,6 +160,7 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
         landmarks: (listing.landmarks || []).map((item) => ({ id: item.id, label: item.label, distanceKm: String(item.distanceKm ?? '') })),
         services: (listing.services || []).map((item) => ({ id: item.id, label: item.label, note: item.note ?? '' })),
         experiences: (listing.experiences || []).map((item) => ({ id: item.id, title: item.title, note: item.note ?? '' })),
+        accommodations: (listing.accommodations || []).map((item) => ({ id: item.id, title: item.title ?? '', description: item.description ?? '', image: item.image ?? '', bedrooms: String(item.bedrooms ?? ''), beds: String(item.beds ?? '') })),
       });
       void loadFaqs(item.id);
     }
@@ -248,6 +251,7 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
       ...(section === 'STAY' ? { mealPlan: form.mealPlan || null, breakfastIncluded: form.breakfastIncluded, cuisineNotes: form.cuisineNotes || null, landmarks, services, experiences } : {}),
       status: String(form.status || 'DRAFT').trim().toUpperCase(),
       ...(section === 'STAY' ? { houseRules: form.houseRules } : {}),
+      ...(section === 'STAY' ? { accommodations: form.accommodations.map((item) => ({ title: item.title.trim(), description: item.description.trim(), image: item.image.trim(), bedrooms: item.bedrooms, beds: item.beds })) } : {}),
     };
     const endpoint = `/api/admin/listings${editing ? `/${editing}` : ''}`;
     try {

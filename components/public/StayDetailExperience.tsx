@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronDown, Heart, MapPin, Share2, Star, Wifi, Car, Utensils, ShieldCheck, Users, Plane, X } from 'lucide-react';
+import { BedDouble, ChevronDown, ChevronLeft, ChevronRight, Heart, MapPin, Share2, Star, Wifi, Car, Utensils, ShieldCheck, Users, Plane, X } from 'lucide-react';
 import type { Listing } from '@/lib/mock-data';
 import type { StayReviewData } from '@/lib/reviews';
 import { defaultStayFacilities, stayFacilityGroups } from '@/lib/stay-facilities';
@@ -29,6 +29,7 @@ export function StayDetailExperience({ stay, reviewData }: { stay: Listing; revi
   const [showAllFacilities, setShowAllFacilities] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState<number | null>(null);
   const tabNavRef = useRef<HTMLElement>(null);
+  const accommodationsRef = useRef<HTMLDivElement>(null);
   const [tabCanScroll, setTabCanScroll] = useState(false);
   const isMobile = useIsMobile();
   const updateTabFade = () => {
@@ -110,6 +111,16 @@ export function StayDetailExperience({ stay, reviewData }: { stay: Listing; revi
   }, [groupedFacilities]);
 
   const faqs = (stay.faqs ?? []).filter((faq) => faq.question.trim() && faq.answer.trim());
+
+  // Private Spaces: admin-curated room/space cards shown only when present.
+  const accommodations = (stay.accommodations ?? []).filter((acc) => acc.title.trim());
+  const scrollAccommodations = (direction: -1 | 1) => {
+    const el = accommodationsRef.current;
+    if (!el) return;
+    const card = el.querySelector<HTMLElement>('[data-acc-card]');
+    const step = card ? card.offsetWidth + 16 : 280;
+    el.scrollBy({ left: direction * step, behavior: 'smooth' });
+  };
 
   // Compact facilities UI: show the first N items inline; the rest hide behind "View more".
   const defaultVisibleCount = 4;
@@ -357,6 +368,85 @@ export function StayDetailExperience({ stay, reviewData }: { stay: Listing; revi
                 </div>
               </div>
             </section>
+
+            {/* Private Spaces — accommodation cards, only when the admin added them */}
+            {accommodations.length > 0 && (
+              <section aria-label="Private spaces" className="mt-5 rounded-lg border border-[#d9e0e8] bg-white p-4 sm:p-5 md:p-7">
+                <div className="flex items-center justify-between gap-3">
+                  <h2 className="text-xl font-bold sm:text-2xl">
+                    Private Spaces <span className="text-sm font-normal text-[#536274]">({accommodations.length})</span>
+                  </h2>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <button
+                      type="button"
+                      aria-label="Scroll private spaces left"
+                      onClick={() => scrollAccommodations(-1)}
+                      className="grid h-9 w-9 place-items-center rounded-full border border-[#d9e0e8] bg-white text-[#0071c2] transition hover:bg-[#f5f7fa]"
+                    >
+                      <ChevronLeft size={18} />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Scroll private spaces right"
+                      onClick={() => scrollAccommodations(1)}
+                      className="grid h-9 w-9 place-items-center rounded-full border border-[#d9e0e8] bg-white text-[#0071c2] transition hover:bg-[#f5f7fa]"
+                    >
+                      <ChevronRight size={18} />
+                    </button>
+                  </div>
+                </div>
+                <div ref={accommodationsRef} className="mt-4 flex snap-x gap-4 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  {accommodations.map((acc, index) => (
+                    <div
+                      key={`${acc.title}-${index}`}
+                      data-acc-card
+                      className="w-[220px] shrink-0 snap-start overflow-hidden rounded-xl border border-[#e5e7eb] bg-white sm:w-[250px]"
+                    >
+                      <div className="relative h-36 w-full bg-[#eef3f0] sm:h-40">
+                        {acc.image ? (
+                          <Image
+                            src={acc.image}
+                            alt={acc.title}
+                            fill
+                            sizes="(max-width: 640px) 220px, 250px"
+                            unoptimized
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full items-center justify-center text-[#24584a]">
+                            <BedDouble size={30} strokeWidth={1.6} />
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-3 sm:p-4">
+                        <p className="text-sm font-bold text-[#23332e] sm:text-base">{acc.title}</p>
+                        <ul className="mt-2 grid gap-1.5 text-xs leading-5 text-[#536274] sm:text-[13px]">
+                          {acc.description.trim() && (
+                            <li className="flex gap-2">
+                              <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full border border-[#8aa0b5]" />
+                              <span>{acc.description.trim()}</span>
+                            </li>
+                          )}
+                          {(acc.bedrooms > 0 || acc.beds > 0) && (
+                            <li className="flex gap-2">
+                              <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full border border-[#8aa0b5]" />
+                              <span>
+                                {[
+                                  acc.bedrooms > 0 ? `${acc.bedrooms} Bedroom${acc.bedrooms > 1 ? 's' : ''}` : '',
+                                  acc.beds > 0 ? `${acc.beds} Bed${acc.beds > 1 ? 's' : ''}` : '',
+                                ]
+                                  .filter(Boolean)
+                                  .join(', ')}
+                              </span>
+                            </li>
+                          )}
+                        </ul>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
 
             {/* Facilities tab section — compact by default, expandable via View more */}
           <section id="facilities" className="mt-5 scroll-mt-24 rounded-lg border border-[#d9e0e8] bg-white p-4 sm:p-4 sm:p-5 md:p-7">

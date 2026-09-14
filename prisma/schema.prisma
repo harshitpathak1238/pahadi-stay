@@ -141,6 +141,7 @@ model Listing {
 	breakfastIncluded Boolean @default(false)
 	cuisineNotes String?          @db.Text
 	houseRules   Json?           @default("[]")
+	accommodations Json?          @default("[]")
 	status       ListingStatus    @default(DRAFT)
 	partner      Partner          @relation(fields: [partnerId], references: [id])
 	availability Availability[]
