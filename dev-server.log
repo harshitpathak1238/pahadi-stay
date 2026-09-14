@@ -2,266 +2,21 @@
 > pahadi-stay@1.0.0 dev
 > next dev
 
+ ⚠ Port 3000 is in use, trying 3001 instead.
   ▲ Next.js 14.2.35
-  - Local:        http://localhost:3000
+  - Local:        http://localhost:3001
   - Environments: .env.local, .env
 
  ✓ Starting...
- ✓ Ready in 18.5s
- ○ Compiling /middleware ...
- ✓ Compiled /middleware in 2.8s (177 modules)
- ○ Compiling /admin/[section] ...
-<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../typescript/lib/typescript' in d:\TourAndTravel\node_modules\next\dist\build for build dependencies doesn't lead to expected result 'D:\TourAndTravel\node_modules\typescript\lib\typescript.js', but to 'd:\TourAndTravel\node_modules\typescript\lib\typescript.js' instead. Resolving dependencies are ignored for this path.
-<w>  at resolve commonjs file ../../../typescript/lib/typescript (expected D:\TourAndTravel\node_modules\typescript\lib\typescript.js)
-<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\load-jsconfig.js
-<w>  at file d:\TourAndTravel\node_modules\next\dist\build\load-jsconfig.js
-<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\webpack-config.js
-<w>  at file d:\TourAndTravel\node_modules\next\dist\build\webpack-config.js
-<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
-<w>  at file d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
-<w>  at resolve commonjs d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
- ✓ Compiled /admin/[section] in 38.8s (1359 modules)
- GET /admin/stays 200 in 41590ms
- ○ Compiling /_not-found ...
-<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../typescript/lib/typescript' in d:\TourAndTravel\node_modules\next\dist\build for build dependencies doesn't lead to expected result 'D:\TourAndTravel\node_modules\typescript\lib\typescript.js', but to 'd:\TourAndTravel\node_modules\typescript\lib\typescript.js' instead. Resolving dependencies are ignored for this path.
-<w>  at resolve commonjs file ../../../typescript/lib/typescript (expected D:\TourAndTravel\node_modules\typescript\lib\typescript.js)
-<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\load-jsconfig.js
-<w>  at file d:\TourAndTravel\node_modules\next\dist\build\load-jsconfig.js
-<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\webpack-config.js
-<w>  at file d:\TourAndTravel\node_modules\next\dist\build\webpack-config.js
-<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\handle-externals.js
-<w>  at file d:\TourAndTravel\node_modules\next\dist\build\handle-externals.js
-<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
-<w>  at file d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
-<w>  at resolve commonjs d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
-<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../typescript/lib/typescript' in d:\TourAndTravel\node_modules\next\dist\build for build dependencies doesn't lead to expected result 'D:\TourAndTravel\node_modules\typescript\lib\typescript.js', but to 'd:\TourAndTravel\node_modules\typescript\lib\typescript.js' instead. Resolving dependencies are ignored for this path.
-<w>  at resolve commonjs file ../../../typescript/lib/typescript (expected D:\TourAndTravel\node_modules\typescript\lib\typescript.js)
-<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\load-jsconfig.js
-<w>  at file d:\TourAndTravel\node_modules\next\dist\build\load-jsconfig.js
-<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\webpack-config.js
-<w>  at file d:\TourAndTravel\node_modules\next\dist\build\webpack-config.js
-<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
-<w>  at file d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
-<w>  at resolve commonjs d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
- ✓ Compiled /api/admin/listings in 16.3s (1525 modules)
- ✓ Compiled in 2ms (950 modules)
- ✓ Compiled in 1111ms (1511 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 20453ms
- GET /admin/stays?_rsc=1awde 200 in 4075ms
- GET /api/admin/listings?category=STAY 200 in 17245ms
- GET /api/admin/listings?category=STAY 200 in 17359ms
- ○ Compiling /api/admin/listings/[id]/faqs ...
- ✓ Compiled /api/admin/listings/[id]/faqs in 657ms (965 modules)
- ✓ Compiled (967 modules)
- GET /api/admin/reviews?listingId=cmu0u5vd80005c5v4g8gi41vz 200 in 3519ms
- GET /api/admin/reviews?listingId=cmu0u5vd80005c5v4g8gi41vz 200 in 3556ms
- GET /api/admin/listings/cmu0u5vd80005c5v4g8gi41vz/faqs 200 in 4259ms
- ○ Compiling /api/admin/listings/[id] ...
- ✓ Compiled /api/admin/listings/[id] in 784ms (960 modules)
- PATCH /api/admin/listings/cmu0u5vd80005c5v4g8gi41vz 200 in 4242ms
- ✓ Compiled /api/admin/listings/[id]/faqs in 325ms (962 modules)
- GET /api/admin/listings/cmu0u5vd80005c5v4g8gi41vz/faqs 200 in 990ms
- ✓ Compiled /api/admin/listings/[id]/faqs/[faqId] in 413ms (964 modules)
- PATCH /api/admin/listings/cmu0u5vd80005c5v4g8gi41vz/faqs/cmu0u603n000dc5v4n9qx9tov 200 in 2233ms
- PATCH /api/admin/listings/cmu0u5vd80005c5v4g8gi41vz/faqs/cmu0u60i6000fc5v4qxzu4490 200 in 514ms
- PATCH /api/admin/listings/cmu0u5vd80005c5v4g8gi41vz/faqs/cmu0u60uh000hc5v4i9fpqsdp 200 in 476ms
- ✓ Compiled /api/admin/listings/revalidate in 375ms (966 modules)
- POST /api/admin/listings/revalidate 200 in 703ms
- ○ Compiling /api/admin/listings ...
- ✓ Compiled /api/admin/listings in 1484ms (968 modules)
- GET /api/admin/listings?category=STAY 200 in 2937ms
- ○ Compiling /stays/[slug] ...
- ✓ Compiled /stays/[slug] in 4.9s (1620 modules)
- GET /stays/Bhoomikas-Heart 200 in 7645ms
- ○ Compiling /rides ...
- ✓ Compiled /_not-found in 13.6s (1461 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 12269ms
- GET /admin/stays?_rsc=1awde 200 in 205ms
- GET /rides?_rsc=1dwbm 200 in 644ms
- ✓ Compiled in 17.1s (1538 modules)
- GET /admin/stays?_rsc=1awde 200 in 743ms
- GET /rides?_rsc=1dwbm 200 in 1221ms
- ✓ Compiled in 4s (1538 modules)
- GET /admin/stays?_rsc=1awde 200 in 3442ms
- GET /rides?_rsc=1dwbm 200 in 3534ms
- ✓ Compiled in 5.1s (1536 modules)
- GET /admin/stays?_rsc=1awde 200 in 526ms
- GET /rides?_rsc=1dwbm 200 in 735ms
-Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=0849381a351f8cc153c0eeae9c39717c.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
-Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
- GET /rides 200 in 695ms
- ✓ Compiled in 4.1s (624 modules)
- GET /admin/stays?_rsc=1awde 200 in 233ms
- GET /rides?_rsc=1dwbm 200 in 781ms
- ✓ Compiled in 4.2s (1536 modules)
- GET /admin/stays?_rsc=1awde 200 in 1252ms
- GET /rides?_rsc=1dwbm 200 in 1979ms
- ⨯ app\(public)\rides\page.tsx (63:42) @ RideQuickSearch
- ⨯ ReferenceError: RideQuickSearch is not defined
-    at Rides (rides/page.tsx:243:111)
-digest: "2374653505"
-[0m [90m 61 |[39m         [33m<[39m[33mh1[39m className[33m=[39m[32m"mt-2.5 max-w-xl text-3xl sm:mt-3 sm:text-4xl md:text-5xl"[39m[33m>[39m[33mYour[39m ride through the hills[33m.[39m[33m<[39m[33m/[39m[33mh1[39m[33m>[39m[0m
-[0m [90m 62 |[39m         [33m<[39m[33mp[39m className[33m=[39m[32m"sans mt-3 max-w-lg text-sm leading-6 text-[#6c7770] sm:mt-5 sm:text-base sm:leading-7"[39m[33m>[39m[33mAirport[39m transfers[33m,[39m temple visits[33m,[39m and local drivers who know the road beyond the map[33m.[39m[33m<[39m[33m/[39m[33mp[39m[33m>[39m[0m
-[0m[31m[1m>[22m[39m[90m 63 |[39m         [33m<[39m[33mdiv[39m className[33m=[39m[32m"mt-6 md:hidden"[39m[33m>[39m[33m<[39m[33mRideQuickSearch[39m [33m/[39m[33m>[39m[33m<[39m[33m/[39m[33mdiv[39m[33m>[39m[0m
-[0m [90m    |[39m                                          [31m[1m^[22m[39m[0m
-[0m [90m 64 |[39m         [33m<[39m[33mdiv[39m className[33m=[39m[32m"mt-10 hidden rounded-2xl bg-[#173f35] p-5 md:block"[39m[33m>[39m[33m<[39m[33mSearchBox[39m [33m/[39m[33m>[39m[33m<[39m[33m/[39m[33mdiv[39m[33m>[39m[0m
-[0m [90m 65 |[39m         {query[33m.[39mtrim() [33m&&[39m [33m<[39m[33mp[39m className[33m=[39m[32m"sans mt-6 text-sm"[39m[33m>[39m[33mShowing[39m {filtered[33m.[39mlength} rides matching {query[33m.[39mtrim()}[33m.[39m [33m<[39m[33mLink[39m href[33m=[39m[32m"/rides"[39m className[33m=[39m[32m"font-bold underline"[39m[33m>[39m[33mClear[39m search[33m<[39m[33m/[39m[33mLink[39m[33m>[39m[33m<[39m[33m/[39m[33mp[39m[33m>[39m}[0m
-[0m [90m 66 |[39m       [33m<[39m[33m/[39m[33msection[39m[33m>[39m[0m
- ⚠ Fast Refresh had to perform a full reload due to a runtime error.
- ⚠ Fast Refresh had to perform a full reload due to a runtime error.
- ✓ Compiled in 11.2s (1527 modules)
-Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=0849381a351f8cc153c0eeae9c39717c.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
-Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
- GET /rides 200 in 14648ms
- ○ Compiling /_not-found ...
- GET /admin/stays?_rsc=1awde 200 in 2960ms
- ✓ Compiled /_not-found in 7.4s (1530 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 10148ms
-Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=0849381a351f8cc153c0eeae9c39717c.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
-Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
- GET /rides 200 in 902ms
- ○ Compiling /rides/[slug] ...
- ✓ Compiled /rides/[slug] in 5.1s (1536 modules)
- ○ Compiling /admin/rides ...
- ✓ Compiled /admin/rides in 6.2s (1566 modules)
- ✓ Compiled in 1599ms (635 modules)
- GET /admin/rides?_rsc=kgshf 200 in 328ms
- GET /admin/rides?_rsc=kgshf 200 in 72ms
- GET /rides/testa?_rsc=65emy 200 in 2431ms
- ○ Compiling /api/admin/rides ...
- GET /rides/testa?_rsc=65emy 200 in 878ms
- ✓ Compiled /api/admin/rides in 1290ms (1039 modules)
- ✓ Compiled (1052 modules)
- GET /api/admin/vehicle-types 200 in 4807ms
- GET /api/admin/vehicle-types 200 in 4858ms
- GET /api/admin/vehicle-types 200 in 4882ms
- GET /api/admin/vehicle-types 200 in 4259ms
- GET /api/admin/rides 200 in 4734ms
- GET /api/admin/rides 200 in 5431ms
- ✓ Compiled in 4.5s (635 modules)
- ✓ Compiled in 1822ms (635 modules)
- GET /admin/rides?_rsc=kgshf 200 in 713ms
- GET /admin/rides?_rsc=kgshf 200 in 137ms
- GET /rides/testa?_rsc=65emy 200 in 2177ms
- GET /rides/testa?_rsc=65emy 200 in 1175ms
- ✓ Compiled in 9.4s (1579 modules)
- GET /admin/rides?_rsc=kgshf 200 in 112ms
- GET /rides/testa?_rsc=65emy 200 in 1217ms
- ✓ Compiled in 7.1s (1581 modules)
- GET /admin/rides?_rsc=kgshf 200 in 109ms
- GET /rides/testa?_rsc=65emy 200 in 1105ms
- ✓ Compiled in 6.5s (1581 modules)
- GET /admin/rides?_rsc=kgshf 200 in 113ms
- GET /rides/testa?_rsc=65emy 200 in 1131ms
- ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
- GET /admin/rides 200 in 398ms
- ○ Compiling /_not-found ...
- ✓ Compiled /_not-found in 1269ms (1570 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 2223ms
- ○ Compiling /api/admin/rides ...
- ✓ Compiled /api/admin/rides in 1628ms (1050 modules)
- ✓ Compiled (1063 modules)
- GET /api/admin/vehicle-types 200 in 5165ms
- GET /api/admin/vehicle-types 200 in 5206ms
- GET /api/admin/vehicle-types 200 in 5295ms
- GET /api/admin/vehicle-types 200 in 5397ms
- GET /api/admin/rides 200 in 5644ms
- GET /api/admin/rides 200 in 5747ms
- ✓ Compiled in 5.2s (1705 modules)
- GET /admin/rides?_rsc=kgshf 200 in 117ms
- GET /rides/testa?_rsc=65emy 200 in 847ms
- ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
- GET /admin/rides 200 in 386ms
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 231ms
- GET /api/admin/vehicle-types 200 in 373ms
- GET /api/admin/vehicle-types 200 in 419ms
- GET /api/admin/vehicle-types 200 in 450ms
- GET /api/admin/vehicle-types 200 in 202ms
- GET /api/admin/rides 200 in 740ms
- GET /api/admin/rides 200 in 637ms
- ✓ Compiled in 3.6s (1705 modules)
- GET /rides/testa?_rsc=65emy 200 in 854ms
- GET /admin/rides?_rsc=kgshf 200 in 104ms
- ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
- GET /admin/rides 200 in 434ms
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 151ms
- GET /api/admin/vehicle-types 200 in 271ms
- GET /api/admin/vehicle-types 200 in 333ms
- GET /api/admin/rides 200 in 537ms
- GET /api/admin/rides 200 in 519ms
- GET /api/admin/vehicle-types 200 in 562ms
- GET /api/admin/vehicle-types 200 in 634ms
- ✓ Compiled in 6.2s (1707 modules)
- GET /rides/testa?_rsc=65emy 200 in 999ms
- GET /admin/rides?_rsc=kgshf 200 in 98ms
- ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
- GET /admin/rides 200 in 302ms
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 150ms
- GET /api/admin/vehicle-types 200 in 366ms
- GET /api/admin/vehicle-types 200 in 235ms
- GET /api/admin/rides 200 in 739ms
- GET /api/admin/vehicle-types 200 in 739ms
- GET /api/admin/vehicle-types 200 in 609ms
- GET /api/admin/rides 200 in 736ms
- ✓ Compiled in 3.9s (1707 modules)
- GET /admin/rides?_rsc=kgshf 200 in 131ms
- ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
- GET /rides/testa?_rsc=65emy 200 in 933ms
- GET /admin/rides 200 in 293ms
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 126ms
- GET /api/admin/vehicle-types 200 in 355ms
- GET /api/admin/vehicle-types 200 in 333ms
- GET /api/admin/vehicle-types 200 in 353ms
- GET /api/admin/vehicle-types 200 in 373ms
- GET /api/admin/rides 200 in 716ms
- GET /api/admin/rides 200 in 817ms
- GET /rides/testb 404 in 279ms
-Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=0849381a351f8cc153c0eeae9c39717c.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
-Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
- GET /rides 200 in 523ms
- GET /rides/testa 200 in 1290ms
- ✓ Compiled in 6.6s (1583 modules)
- GET /admin/rides?_rsc=kgshf 200 in 196ms
- GET /rides/testa?_rsc=65emy 200 in 2651ms
- GET /rides/testa 200 in 471ms
- GET /rides/testa 200 in 734ms
- ○ Compiling /api/admin/rides/[id] ...
- ✓ Compiled /api/admin/rides/[id] in 2.1s (1061 modules)
- DELETE /api/admin/rides/cmu03exav0000lg04qd07ejvi 200 in 5499ms
- DELETE /api/admin/rides/cmu05lqz40000l604hfratgln 200 in 1314ms
- ○ Compiling /api/admin/vehicle-types ...
- ✓ Compiled /api/admin/vehicle-types in 856ms (1063 modules)
- ✓ Compiled (1065 modules)
- GET /api/admin/vehicle-types 200 in 2538ms
- GET /api/admin/vehicle-types 200 in 2573ms
- GET /api/admin/rides 200 in 2690ms
- GET /api/admin/rides 200 in 2665ms
- DELETE /api/admin/rides/cmu04lg980000jp04tytztk5z 200 in 956ms
- GET /api/admin/vehicle-types 200 in 525ms
- GET /api/admin/rides 200 in 642ms
- PATCH /api/admin/rides/cmu03tcyi000clg04jim6ixlk 200 in 2129ms
- GET /api/admin/vehicle-types 200 in 414ms
- GET /api/admin/rides 200 in 677ms
- DELETE /api/admin/rides/cmu05vpon0000jq045yc7rr1r 200 in 567ms
- GET /api/admin/vehicle-types 200 in 182ms
- GET /api/admin/rides 200 in 401ms
- GET /rides 200 in 891ms
- ○ Compiling /_not-found ...
- ✓ Compiled /_not-found in 2.8s (1709 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 5236ms
- GET /admin/rides?_rsc=kgshf 200 in 440ms
- GET /rides/Bhimtal-Kainchidham-Sightseeing 200 in 954ms
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 162ms
- ✓ Compiled in 1994ms (1583 modules)
- GET /admin/rides?_rsc=kgshf 200 in 2156ms
- GET /rides/Bhimtal-Kainchidham-Sightseeing?_rsc=1dfd3 200 in 2965ms
- GET /rides/testa 404 in 492ms
- GET /rides/Bhimtal-Kainchidham-Sightseeing 200 in 886ms
- ○ Compiling / ...
- ✓ Compiled / in 9.6s (1602 modules)
- GET /admin/rides?_rsc=kgshf 200 in 435ms
+[Error: EPERM: operation not permitted, open 'd:\TourAndTravel\.next\trace'] {
+  errno: -4048,
+  code: 'EPERM',
+  syscall: 'open',
+  path: 'd:\\TourAndTravel\\.next\\trace'
+}
+ ✓ Ready in 4.1s
  ○ Compiling /stays ...
- ✓ Compiled /stays in 3.9s (1615 modules)
+ ✓ Compiled /stays in 10.4s (1128 modules)
 Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=4cb190150481dad47a46d10ea8b3e645.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
 Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
 Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=e7dcd4465a1fda599febb1a66d6a7380.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
@@ -272,98 +27,7 @@ Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.ph
 Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
 Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=cc9249c24559d0fc6f4aaa7ea7050980.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
 Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
- GET /stays?guests=2 200 in 838ms
- ○ Compiling /_not-found ...
- ✓ Compiled /_not-found in 928ms (1603 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 2848ms
- ✓ Compiled in 4.3s (1515 modules)
- GET /admin/rides?_rsc=kgshf 200 in 218ms
- GET /stays?guests=2&_rsc=10jsv 200 in 1167ms
- ✓ Compiled in 4.7s (1515 modules)
- GET /admin/rides?_rsc=kgshf 200 in 289ms
- GET /stays?guests=2&_rsc=10jsv 200 in 502ms
- ⨯ ./components/public/StaysSearchBar.tsx
-Error: 
-  [31mx[0m Unexpected token `form`. Expected jsx identifier
-     ,-[[36;1;4md:\TourAndTravel\components\public\StaysSearchBar.tsx[0m:114:1]
- [2m114[0m |   };
- [2m115[0m | 
- [2m116[0m |   return (
- [2m117[0m |     <form onSubmit={submit} className="rounded-2xl bg-white p-1.5 shadow-[0_10px_28px_rgba(23,63,53,.10)] ring-1 ring-[#e4e8e2] md:rounded-full md:p-1">
-     : [31;1m     ^^^^[0m
- [2m118[0m |       <div className="grid grid-cols-6 gap-1 md:grid-cols-[1.35fr_1fr_1fr_0.8fr_1fr_auto] md:items-center md:gap-0">
- [2m119[0m |         <label className="col-span-6 flex min-w-0 items-center gap-2.5 rounded-xl bg-[#faf9f4] px-3 py-2 text-sm text-[#23332e] transition focus-within:bg-[#f4f6f1] md:col-span-1 md:rounded-full md:bg-transparent md:px-4 md:py-2 md:focus-within:bg-[#f6f8f5]">
- [2m119[0m |           <MapPin size={16} className="shrink-0 text-[#b66b45]" />
-     `----
-
-Caused by:
-    Syntax Error
-
-Import trace for requested module:
-./components/public/StaysSearchBar.tsx
-./components/public/StaysSearchPage.tsx
- ⨯ ./components/public/StaysSearchBar.tsx
-Error: 
-  [31mx[0m Unexpected token `form`. Expected jsx identifier
-     ,-[[36;1;4md:\TourAndTravel\components\public\StaysSearchBar.tsx[0m:114:1]
- [2m114[0m |   };
- [2m115[0m | 
- [2m116[0m |   return (
- [2m117[0m |     <form onSubmit={submit} className="rounded-2xl bg-white p-1.5 shadow-[0_10px_28px_rgba(23,63,53,.10)] ring-1 ring-[#e4e8e2] md:rounded-full md:p-1">
-     : [31;1m     ^^^^[0m
- [2m118[0m |       <div className="grid grid-cols-6 gap-1 md:grid-cols-[1.35fr_1fr_1fr_0.8fr_1fr_auto] md:items-center md:gap-0">
- [2m119[0m |         <label className="col-span-6 flex min-w-0 items-center gap-2.5 rounded-xl bg-[#faf9f4] px-3 py-2 text-sm text-[#23332e] transition focus-within:bg-[#f4f6f1] md:col-span-1 md:rounded-full md:bg-transparent md:px-4 md:py-2 md:focus-within:bg-[#f6f8f5]">
- [2m119[0m |           <MapPin size={16} className="shrink-0 text-[#b66b45]" />
-     `----
-
-Caused by:
-    Syntax Error
-
-Import trace for requested module:
-./components/public/StaysSearchBar.tsx
-./components/public/StaysSearchPage.tsx
- ⨯ ./components/public/StaysSearchBar.tsx
-Error: 
-  [31mx[0m Unexpected token `form`. Expected jsx identifier
-     ,-[[36;1;4md:\TourAndTravel\components\public\StaysSearchBar.tsx[0m:114:1]
- [2m114[0m |   };
- [2m115[0m | 
- [2m116[0m |   return (
- [2m117[0m |     <form onSubmit={submit} className="rounded-2xl bg-white p-1.5 shadow-[0_10px_28px_rgba(23,63,53,.10)] ring-1 ring-[#e4e8e2] md:rounded-full md:p-1">
-     : [31;1m     ^^^^[0m
- [2m118[0m |       <div className="grid grid-cols-6 gap-1 md:grid-cols-[1.35fr_1fr_1fr_0.8fr_1fr_auto] md:items-center md:gap-0">
- [2m119[0m |         <label className="col-span-6 flex min-w-0 items-center gap-2.5 rounded-xl bg-[#faf9f4] px-3 py-2 text-sm text-[#23332e] transition focus-within:bg-[#f4f6f1] md:col-span-1 md:rounded-full md:bg-transparent md:px-4 md:py-2 md:focus-within:bg-[#f6f8f5]">
- [2m119[0m |           <MapPin size={16} className="shrink-0 text-[#b66b45]" />
-     `----
-
-Caused by:
-    Syntax Error
-
-Import trace for requested module:
-./components/public/StaysSearchBar.tsx
-./components/public/StaysSearchPage.tsx
- ○ Compiling /_error ...
- GET /stays 500 in 9820ms
- ⨯ ./components/public/StaysSearchBar.tsx
-Error: 
-  [31mx[0m Unexpected token `form`. Expected jsx identifier
-     ,-[[36;1;4md:\TourAndTravel\components\public\StaysSearchBar.tsx[0m:114:1]
- [2m114[0m |   };
- [2m115[0m | 
- [2m116[0m |   return (
- [2m117[0m |     <form onSubmit={submit} className="rounded-2xl bg-white p-1.5 shadow-[0_10px_28px_rgba(23,63,53,.10)] ring-1 ring-[#e4e8e2] md:rounded-full md:p-1">
-     : [31;1m     ^^^^[0m
- [2m118[0m |       <div className="grid grid-cols-6 gap-1 md:grid-cols-[1.35fr_1fr_1fr_0.8fr_1fr_auto] md:items-center md:gap-0">
- [2m119[0m |         <label className="col-span-6 flex min-w-0 items-center gap-2.5 rounded-xl bg-[#faf9f4] px-3 py-2 text-sm text-[#23332e] transition focus-within:bg-[#f4f6f1] md:col-span-1 md:rounded-full md:bg-transparent md:px-4 md:py-2 md:focus-within:bg-[#f6f8f5]">
- [2m119[0m |           <MapPin size={16} className="shrink-0 text-[#b66b45]" />
-     `----
-
-Caused by:
-    Syntax Error
-
-Import trace for requested module:
-./components/public/StaysSearchBar.tsx
-./components/public/StaysSearchPage.tsx
+ GET /stays 200 in 12688ms
 <w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../typescript/lib/typescript' in d:\TourAndTravel\node_modules\next\dist\build for build dependencies doesn't lead to expected result 'D:\TourAndTravel\node_modules\typescript\lib\typescript.js', but to 'd:\TourAndTravel\node_modules\typescript\lib\typescript.js' instead. Resolving dependencies are ignored for this path.
 <w>  at resolve commonjs file ../../../typescript/lib/typescript (expected D:\TourAndTravel\node_modules\typescript\lib\typescript.js)
 <w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\load-jsconfig.js
@@ -375,36 +39,48 @@ Import trace for requested module:
 <w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
 <w>  at file d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
 <w>  at resolve commonjs d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
- GET /stays?guests=2 500 in 476ms
- ⨯ ./components/public/StaysSearchBar.tsx
-Error: 
-  [31mx[0m Unexpected token `form`. Expected jsx identifier
-     ,-[[36;1;4md:\TourAndTravel\components\public\StaysSearchBar.tsx[0m:114:1]
- [2m114[0m |   };
- [2m115[0m | 
- [2m116[0m |   return (
- [2m117[0m |     <form onSubmit={submit} className="rounded-2xl bg-white p-1.5 shadow-[0_10px_28px_rgba(23,63,53,.10)] ring-1 ring-[#e4e8e2] md:rounded-full md:p-1">
-     : [31;1m     ^^^^[0m
- [2m118[0m |       <div className="grid grid-cols-6 gap-1 md:grid-cols-[1.35fr_1fr_1fr_0.8fr_1fr_auto] md:items-center md:gap-0">
- [2m119[0m |         <label className="col-span-6 flex min-w-0 items-center gap-2.5 rounded-xl bg-[#faf9f4] px-3 py-2 text-sm text-[#23332e] transition focus-within:bg-[#f4f6f1] md:col-span-1 md:rounded-full md:bg-transparent md:px-4 md:py-2 md:focus-within:bg-[#f6f8f5]">
- [2m119[0m |           <MapPin size={16} className="shrink-0 text-[#b66b45]" />
-     `----
-
-Caused by:
-    Syntax Error
-
-Import trace for requested module:
-./components/public/StaysSearchBar.tsx
-./components/public/StaysSearchPage.tsx
- GET /stays 500 in 8557ms
- GET /admin/rides 500 in 13929ms
- GET /.well-known/appspecific/com.chrome.devtools.json 500 in 13889ms
- ✓ Compiled /_not-found in 12.6s (1728 modules)
- ⚠ Fast Refresh had to perform a full reload due to a runtime error.
- GET /_next/static/webpack/0a96d185a10708d1.webpack.hot-update.json 404 in 7353ms
- ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
- GET /_next/static/webpack/0a96d185a10708d1.webpack.hot-update.json 404 in 290ms
- GET /admin/rides 200 in 424ms
+ ○ Compiling /account/wishlist ...
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../typescript/lib/typescript' in d:\TourAndTravel\node_modules\next\dist\build for build dependencies doesn't lead to expected result 'D:\TourAndTravel\node_modules\typescript\lib\typescript.js', but to 'd:\TourAndTravel\node_modules\typescript\lib\typescript.js' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../typescript/lib/typescript (expected D:\TourAndTravel\node_modules\typescript\lib\typescript.js)
+<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\load-jsconfig.js
+<w>  at file d:\TourAndTravel\node_modules\next\dist\build\load-jsconfig.js
+<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\webpack-config.js
+<w>  at file d:\TourAndTravel\node_modules\next\dist\build\webpack-config.js
+<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
+<w>  at file d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
+<w>  at resolve commonjs d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
+ ✓ Compiled /account/wishlist in 12.4s (1137 modules)
+ GET /account/wishlist 200 in 13263ms
+ ✓ Compiled in 8.4s (461 modules)
+ ✓ Compiled in 4.4s (461 modules)
+ ✓ Compiled in 6.8s (461 modules)
+ ✓ Compiled in 6.1s (461 modules)
+ ✓ Compiled in 9.7s (461 modules)
+ ✓ Compiled in 8.4s (462 modules)
+ ✓ Compiled in 17.9s (462 modules)
+ ✓ Compiled in 3.9s (462 modules)
+ ✓ Compiled in 5.1s (462 modules)
+ ✓ Compiled in 3.2s (462 modules)
+ ✓ Compiled in 1603ms (462 modules)
+ ✓ Compiled in 4s (462 modules)
+ ✓ Compiled in 5.7s (462 modules)
+ ✓ Compiled in 4.1s (462 modules)
+ ✓ Compiled in 3.8s (462 modules)
+ ✓ Compiled in 1460ms (462 modules)
+ ✓ Compiled in 1612ms (462 modules)
+ ✓ Compiled in 3.3s (462 modules)
+ ✓ Compiled in 4s (462 modules)
+ ✓ Compiled in 4.2s (462 modules)
+ ✓ Compiled in 1745ms (462 modules)
+ ✓ Compiled in 1512ms (462 modules)
+ ✓ Compiled in 1669ms (462 modules)
+ ✓ Compiled in 1005ms (462 modules)
+ ✓ Compiled in 874ms (462 modules)
+ ✓ Compiled in 647ms (462 modules)
+ ✓ Compiled in 787ms (462 modules)
+ ✓ Compiled in 682ms (462 modules)
+ ○ Compiling /stays ...
+ ✓ Compiled /stays in 586ms (671 modules)
 Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=4cb190150481dad47a46d10ea8b3e645.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
 Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
 Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=e7dcd4465a1fda599febb1a66d6a7380.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
@@ -415,39 +91,29 @@ Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.ph
 Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
 Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=cc9249c24559d0fc6f4aaa7ea7050980.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
 Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
- GET /stays?guests=2 200 in 3406ms
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 127ms
- ○ Compiling /api/admin/rides ...
- ✓ Compiled /api/admin/rides in 3s (1005 modules)
- ✓ Compiled (1018 modules)
- GET /api/admin/vehicle-types 200 in 6677ms
- GET /api/admin/vehicle-types 200 in 6861ms
- GET /api/admin/vehicle-types 200 in 6923ms
- GET /api/admin/vehicle-types 200 in 6914ms
- GET /api/admin/rides 200 in 7143ms
- GET /api/admin/rides 200 in 7235ms
-Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=4cb190150481dad47a46d10ea8b3e645.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+ GET /stays 200 in 2593ms
+ ○ Compiling /blog ...
+ ✓ Compiled /blog in 2.6s (1151 modules)
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=865c9f23f0e1d0bfc05423d16b1c6cd4.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
 Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
-Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=e7dcd4465a1fda599febb1a66d6a7380.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=0849381a351f8cc153c0eeae9c39717c.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
 Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
-Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=de41c316340adeae0a819e758534dc10.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=cd44c7c0f1532f118fdde04a75a2088a.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
 Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
-Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=e87c083ccfc468fca51aca0f153d2af3.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=59566d464b843af942bebf8174d87bbf.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
 Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
-Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=cc9249c24559d0fc6f4aaa7ea7050980.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=b0137d76b38ae3decf1651adb6664d5a.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
 Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
- GET /stays 200 in 784ms
- ✓ Compiled in 8.1s (1739 modules)
- GET /stays?guests=2&_rsc=10jsv 200 in 3400ms
- GET /admin/rides?_rsc=kgshf 200 in 3816ms
-Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=4cb190150481dad47a46d10ea8b3e645.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=874240b96a0d879005a0fe9753eda1f6.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
 Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
-Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=e7dcd4465a1fda599febb1a66d6a7380.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=58fffddff335767cd3a7599e381f97c7.png" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
 Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
-Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=de41c316340adeae0a819e758534dc10.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=c8de1e6d5b1fbb13cbbf1e1deec1105f.webp" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
 Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
-Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=e87c083ccfc468fca51aca0f153d2af3.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Image with src "https://springgreen-salmon-184354.hostingersite.com/uploads/blog/c3b788eb-cb5c-4a91-a05a-386979ccc9d4.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
 Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
-Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=cc9249c24559d0fc6f4aaa7ea7050980.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
-Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
- GET /stays 200 in 952ms
+ GET /blog 200 in 3240ms
+ GET /stays?location=Nainital 200 in 316ms
+ ○ Compiling /rentals ...
+ ✓ Compiled /rentals in 2.2s (1068 modules)
+ GET /rentals 200 in 3006ms

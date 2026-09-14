@@ -7,6 +7,8 @@ import type { Listing } from '@/lib/mock-data';
 import { FilterSidebar } from './FilterSidebar';
 import { ResultCard } from './ResultCard';
 import { StaysSearchBar } from './StaysSearchBar';
+import { Breadcrumbs } from './Breadcrumbs';
+import { useWishlist } from '@/hooks/use-wishlist';
 
 const filters = ['Free WiFi', 'Breakfast included', 'Parking', 'Lake view', 'Pet friendly'];
 
@@ -32,7 +34,7 @@ export function StaysSearchPage({ stays, initialLocation, initialCheckIn, initia
   const [minPrice, setMinPrice] = useState(initialMinPrice);
   const [sort, setSort] = useState('Recommended');
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
-  const [wishlist, setWishlist] = useState<string[]>([]);
+  const { slugs: wishlist, toggle: toggleWishlist } = useWishlist();
   const [filterOpen, setFilterOpen] = useState(false);
   const [view, setView] = useState<'list' | 'grid'>('list');
   const [maxPrice, setMaxPrice] = useState(initialMaxPrice ?? datasetMaxPrice);
@@ -94,8 +96,7 @@ export function StaysSearchPage({ stays, initialLocation, initialCheckIn, initia
 
   const toggleFilter = (filter: string) =>
     setActiveFilters((current) => (current.includes(filter) ? current.filter((item) => item !== filter) : [...current, filter]));
-  const toggleWishlist = (slug: string) =>
-    setWishlist((current) => (current.includes(slug) ? current.filter((item) => item !== slug) : [...current, slug]));
+  // Wishlist toggling is handled by the shared useWishlist hook.
 
   return (
     <div className="bg-[#f5f7fa] text-[#1f2937]">
@@ -113,11 +114,23 @@ export function StaysSearchPage({ stays, initialLocation, initialCheckIn, initia
           onSearch={handleSearch}
         />
 
-        {/* Breadcrumb */}
-        <div className="mt-4 overflow-x-auto whitespace-nowrap text-xs text-[#536274]">
-          Home <span className="mx-2">›</span> India <span className="mx-2">›</span> Uttarakhand <span className="mx-2">›</span> Bhimtal
-          <span className="mx-2">›</span> Search results
-        </div>
+        {/* Breadcrumb: Home › Stays › City / Search results */}
+        <Breadcrumbs
+          className="mt-4"
+          items={
+            destination.trim()
+              ? [
+                  { label: 'Home', href: '/' },
+                  { label: 'Stays', href: '/stays' },
+                  { label: destination.trim() },
+                ]
+              : [
+                  { label: 'Home', href: '/' },
+                  { label: 'Stays', href: '/stays' },
+                  { label: 'Search results' },
+                ]
+          }
+        />
 
         {/* Two-column layout: filters (left) + results (right) */}
         <div className="mt-5 grid gap-5 lg:grid-cols-[280px_minmax(0,1fr)]">

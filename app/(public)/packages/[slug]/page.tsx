@@ -5,6 +5,7 @@ import { bhimtalPackage } from '../package-data';
 import { getPublicPackage, type PublicPackage } from '@/lib/packages';
 import { isFullBlogDocument, sanitizeBlogHtml } from '@/lib/sanitize-html';
 import { AutoHeightIframe } from '@/components/public/AutoHeightIframe';
+import { Breadcrumbs } from '@/components/public/Breadcrumbs';
 
 export const metadata = { title: 'Bhimtal holiday package', description: 'A 3 Nights / 4 Days Bhimtal holiday package from Haldwani.' };
 
@@ -18,7 +19,7 @@ export default async function PackageDetail({ params }: { params: { slug: string
 	let packageItem: PublicPackage | null = null;
 	if (params.slug !== bhimtalPackage.slug) packageItem = (await getPublicPackage(params.slug)).data;
 	if (params.slug !== bhimtalPackage.slug && !packageItem) notFound();
-	if (packageItem) return <div className="pb-20"><section className="relative flex min-h-[560px] items-end overflow-hidden bg-[#173f35] px-5 pb-12 pt-32 text-white md:min-h-[680px] md:pb-16"><Image src={packageItem.image} alt={packageItem.title} fill priority sizes="100vw" className="object-cover opacity-60" /><div className="absolute inset-0 bg-gradient-to-t from-[#102f27] via-[#173f35]/45 to-[#173f35]/20" /><div className="relative mx-auto w-full max-w-7xl"><p className="sans text-xs font-bold uppercase tracking-[.2em] text-[#e6b17e]">{packageItem.location} · Travel package</p><h1 className="mt-4 max-w-4xl text-5xl leading-[.98] md:text-7xl">{packageItem.title}</h1></div></section><main className="mx-auto max-w-5xl px-5 py-14 md:py-20"><div className="rounded-2xl border border-[#e4e3da] bg-white p-7 shadow-[0_18px_50px_rgba(23,63,53,.08)] md:p-10"><p className="sans text-xs font-bold uppercase tracking-[.16em] text-[#7c877d]">Total package price</p><p className="mt-2 text-5xl text-[#173f35]">₹{packageItem.price.toLocaleString('en-IN')}</p><div className="mt-6"><StoredPackageBody html={packageItem.description} title={packageItem.title} /></div><p className="sans mt-5 text-sm text-[#526057]">{packageItem.listingIds.length} included listing{packageItem.listingIds.length === 1 ? '' : 's'}.</p><Button href="/contact">Enquire about this trip</Button></div></main></div>;
+	if (packageItem) return <div className="pb-20"><section className="relative flex min-h-[560px] items-end overflow-hidden bg-[#173f35] px-5 pb-12 pt-32 text-white md:min-h-[680px] md:pb-16"><Image src={packageItem.image} alt={packageItem.title} fill priority sizes="100vw" className="object-cover opacity-60" /><div className="absolute inset-0 bg-gradient-to-t from-[#102f27] via-[#173f35]/45 to-[#173f35]/20" /><div className="relative mx-auto w-full max-w-7xl"><Breadcrumbs variant="dark" className="mb-8" items={[{ label: 'Home', href: '/' }, { label: 'Packages', href: '/packages' }, { label: packageItem.title }]} /><p className="sans text-xs font-bold uppercase tracking-[.2em] text-[#e6b17e]">{packageItem.location} · Travel package</p><h1 className="mt-4 max-w-4xl text-5xl leading-[.98] md:text-7xl">{packageItem.title}</h1></div></section><main className="mx-auto max-w-5xl px-5 py-14 md:py-20"><div className="rounded-2xl border border-[#e4e3da] bg-white p-7 shadow-[0_18px_50px_rgba(23,63,53,.08)] md:p-10"><p className="sans text-xs font-bold uppercase tracking-[.16em] text-[#7c877d]">Total package price</p><p className="mt-2 text-5xl text-[#173f35]">₹{packageItem.price.toLocaleString('en-IN')}</p><div className="mt-6"><StoredPackageBody html={packageItem.description} title={packageItem.title} /></div><p className="sans mt-5 text-sm text-[#526057]">{packageItem.listingIds.length} included listing{packageItem.listingIds.length === 1 ? '' : 's'}.</p><Button href="/contact">Enquire about this trip</Button></div></main></div>;
 
 	return (
 		<div className="pb-20">
@@ -26,6 +27,7 @@ export default async function PackageDetail({ params }: { params: { slug: string
 				<Image src={bhimtalPackage.image} alt="Misty mountains and a lake in Kumaon" fill priority sizes="100vw" className="object-cover opacity-60" />
 				<div className="absolute inset-0 bg-gradient-to-t from-[#102f27] via-[#173f35]/45 to-[#173f35]/20" />
 				<div className="relative mx-auto w-full max-w-7xl">
+					<Breadcrumbs variant="dark" className="mb-8" items={[{ label: 'Home', href: '/' }, { label: 'Packages', href: '/packages' }, { label: bhimtalPackage.title }]} />
 					<p className="sans text-xs font-bold uppercase tracking-[.2em] text-[#e6b17e]">{bhimtalPackage.eyebrow} · {bhimtalPackage.duration}</p>
 					<h1 className="mt-4 max-w-4xl text-5xl leading-[.98] md:text-7xl">{bhimtalPackage.title}</h1>
 					<p className="sans mt-6 max-w-2xl text-base leading-7 text-white/75">{bhimtalPackage.description}</p>

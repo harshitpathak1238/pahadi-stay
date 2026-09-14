@@ -14,9 +14,34 @@ import { StayTripPanel } from '@/components/trip/StayTripPanel';
 import { StayReviews } from '@/components/public/StayReviews';
 import { StayBottomBar } from '@/components/public/StayBottomBar';
 import { useIsMobile } from '@/hooks/use-is-mobile';
+import { useWishlist } from '@/hooks/use-wishlist';
+import { Breadcrumbs } from '@/components/public/Breadcrumbs';
 
 export function StayDetailExperience({ stay, reviewData }: { stay: Listing; reviewData?: StayReviewData | null }) {
-  const [saved, setSaved] = useState(false);
+  const { isWishlisted, toggle: toggleWishlist } = useWishlist();
+  const saved = isWishlisted(stay.slug);
+  const [heartPop, setHeartPop] = useState(false);
+  const [shareMessage, setShareMessage] = useState('');
+  const prevSaved = useRef(saved);
+  useEffect(() => {
+    if (saved && !prevSaved.current) {
+      setHeartPop(true);
+      const timer = window.setTimeout(() => setHeartPop(false), 650);
+      return () => window.clearTimeout(timer);
+    }
+    prevSaved.current = saved;
+  }, [saved]);
+  const shareStay = async () => {
+    const url = window.location.href;
+    try {
+      if (navigator.share) await navigator.share({ title: stay.title, text: `${stay.title} — ${stay.location}`, url });
+      else {
+        await navigator.clipboard.writeText(url);
+        setShareMessage('Link copied');
+        window.setTimeout(() => setShareMessage(''), 2000);
+      }
+    } catch { /* visitor dismissed the share sheet */ }
+  };
   const [activeTab, setActiveTab] = useState('overview');
   const [reviewCount, setReviewCount] = useState<number | null>(reviewData ? reviewData.reviews.length : null);
   // Header rating follows approved reviews once they exist. When there are no
@@ -155,10 +180,16 @@ export function StayDetailExperience({ stay, reviewData }: { stay: Listing; revi
   return (
     <div className="bg-[#f5f7fa] text-[#1f2937]">
       <main className="mx-auto max-w-[1180px] px-4 py-5 md:px-6">
-        {/* Breadcrumb */}
-        <div className="mb-4 pt-3 text-xs leading-relaxed text-[#536274]">
-          Home <span className="mx-2">›</span> Stays <span className="mx-2">›</span> {stay.location} <span className="mx-2">›</span> {stay.title}
-        </div>
+        {/* Breadcrumb: Home › Stays › City › Property — ancestors are links */}
+        <Breadcrumbs
+          className="mb-4 pt-3"
+          items={[
+            { label: 'Home', href: '/' },
+            { label: 'Stays', href: '/stays' },
+            { label: stay.location, href: `/stays?location=${encodeURIComponent(stay.location)}` },
+            { label: stay.title },
+          ]}
+        />
 
         {/* Title, rating, location, and actions — sits flush on the page background; spacing (not a card) separates it from the breadcrumb above and the tab row below. Stacked on mobile (actions wrap below the title block), row from sm up. */}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-x-6 md:mb-8">
@@ -199,21 +230,27 @@ export function StayDetailExperience({ stay, reviewData }: { stay: Listing; revi
             </p>
           </div>
 
-          {/* Actions: wishlist, share, reserve — top-aligned with the badge/title block on desktop, wrapping below it (right-aligned) on mobile */}
-          <div className="ml-auto flex gap-2">
+          {/* Wishlist + share + reserve — sits beside the title so photo cards read clean */}
+          <div className="ml-auto flex shrink-0 flex-wrap items-center gap-2 self-start">
+            {shareMessage && (
+              <span className="sans shrink-0 rounded-full bg-[#173f35] px-2.5 py-1 text-[10px] font-bold text-white">{shareMessage}</span>
+            )}
             <button
-              aria-label="Save property"
-              onClick={() => setSaved(!saved)}
-              className="grid h-10 w-10 place-items-center rounded border border-[#b9c5d1] bg-white hover:bg-[#f5f7fa]"
+              aria-label={saved ? 'Remove from wishlist' : 'Save to wishlist'}
+              aria-pressed={saved}
+              onClick={() => toggleWishlist(stay.slug)}
+              title={saved ? 'Remove from wishlist' : 'Save to wishlist'}
+              className={`grid h-10 w-10 place-items-center rounded-full bg-white shadow-sm ring-1 transition hover:bg-[#f5f7fa] ${saved ? 'ring-[#f3c3cf]' : 'ring-[#e4e8e2]'} ${heartPop ? 'heart-pop' : ''}`}
             >
-              <Heart
-                size={17}
-                fill={saved ? '#e11d48' : 'none'}
-                className={saved ? 'text-rose-600' : ''}
-              />
+              <Heart size={17} fill={saved ? '#e11d48' : 'none'} className={saved ? 'text-rose-600' : 'text-[#536274]'} />
             </button>
-            <button aria-label="Share property" className="grid h-10 w-10 place-items-center rounded border border-[#b9c5d1] bg-white hover:bg-[#f5f7fa]">
-              <Share2 size={17} />
+            <button
+              aria-label="Share property"
+              title="Share this stay"
+              onClick={shareStay}
+              className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-sm ring-1 ring-[#e4e8e2] transition hover:bg-[#f5f7fa]"
+            >
+              <Share2 size={16} className="text-[#536274]" />
             </button>
             <Link href="#trip-builder" className="flex items-center rounded bg-[#0071c2] px-4 py-2.5 text-xs font-bold text-white hover:bg-[#005b9d]">
               Reserve

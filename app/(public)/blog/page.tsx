@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, BookOpen, CalendarDays, MapPin, Sparkles } from 'lucide-react';
 import { getPublishedBlogs } from '@/lib/blog';
+import { Breadcrumbs } from '@/components/public/Breadcrumbs';
 
 export const metadata = {
   title: 'Kumaon travel journal',
@@ -16,6 +17,8 @@ export default async function BlogPage() {
   return (
     <div className="bg-[#f7f5f0]">
       <section className="mx-auto max-w-7xl px-5 pb-10 pt-12 md:pb-16 md:pt-16">
+        {/* Breadcrumb: Home › Journal */}
+        <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Journal' }]} className="mb-6" />
         <div className="overflow-hidden rounded-[2rem] border border-[#e5e3dc] bg-[radial-gradient(circle_at_top_left,_rgba(214,160,109,0.18),_transparent_30%),linear-gradient(135deg,#f7f4ec_0%,#eef2eb_100%)] shadow-[0_30px_80px_rgba(23,63,53,0.06)]">
           <div className="grid gap-8 px-6 py-8 md:grid-cols-[1.1fr_0.9fr] md:px-10 md:py-10">
             <div className="flex flex-col justify-center">

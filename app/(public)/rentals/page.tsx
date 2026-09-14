@@ -1,5 +1,6 @@
 import { RentalCard } from "@/components/ui/RentalCard";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
+import { Breadcrumbs } from "@/components/public/Breadcrumbs";
 import { getPublicRentals } from "@/lib/listings";
 export const metadata = {
   title: "Scooty and bike rentals",
@@ -15,6 +16,8 @@ export default async function Rentals() {
         </div>
       )}
       <section className="py-6 md:py-10">
+        {/* Breadcrumb: Home › Rentals */}
+        <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Rentals' }]} className="mb-6" />
         <div className="flex items-end justify-between gap-5">
           <div>
             <p className="sans text-xs font-bold uppercase tracking-[.2em] text-[#b66b45]">

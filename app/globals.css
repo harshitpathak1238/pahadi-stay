@@ -49,6 +49,11 @@ button, input, select { font:inherit; }
 .whatsapp-drag { cursor:grab; touch-action:none; animation:whatsapp-float 3.5s ease-in-out infinite; box-shadow:0 14px 30px rgba(18,120,64,.25), 0 4px 8px rgba(18,120,64,.16); }
 .whatsapp-drag:active { cursor:grabbing; }
 @keyframes whatsapp-float { 0%, 100% { transform:translateY(0); } 50% { transform:translateY(-6px); } }
+
+/* Wishlist heart: playful fill pop + one soft radiating ring. */
+@keyframes heart-pop { 0% { transform:scale(1); } 28% { transform:scale(1.4); } 46% { transform:scale(.9); } 66% { transform:scale(1.15); } 100% { transform:scale(1); } }
+@keyframes heart-ring { 0% { box-shadow:0 0 0 0 rgba(225,29,72,.32); } 100% { box-shadow:0 0 0 16px rgba(225,29,72,0); } }
+.heart-pop { animation:heart-pop .5s cubic-bezier(.22,1.2,.36,1), heart-ring .65s ease-out; }
 @media (prefers-reduced-motion:reduce) { .whatsapp-drag { animation:none; } }
 @media (min-width:768px) { .auth-panel { padding:2.25rem; } }
 @media (min-width:900px) { .login-shell { grid-template-columns:minmax(28rem, .92fr) minmax(28rem, 1.08fr); padding-top:0; } .login-form-side { padding:7rem 4rem 4rem; } .login-visual { display:block; } }

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getPublishedBlog, getPublishedBlogs, normalizeBlogImageSources } from '@/lib/blog';
 import { AutoHeightIframe } from '@/components/public/AutoHeightIframe';
+import { Breadcrumbs } from '@/components/public/Breadcrumbs';
 
 export async function generateStaticParams() { return (await getPublishedBlogs()).map((blog) => ({ slug: blog.slug })); }
 
@@ -21,6 +22,9 @@ export default async function Article({ params }: { params: { slug: string } }) 
   return (
     <div className="w-full">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <div className="mx-auto max-w-3xl px-5 pb-2 pt-12 md:pt-14">
+        <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Journal', href: '/blog' }, { label: blog.title }]} />
+      </div>
       <AutoHeightIframe
         title={blog.title}
         srcDoc={normalizeBlogImageSources(blog.body)}

@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
+import { Breadcrumbs } from '@/components/public/Breadcrumbs';
 import { bhimtalPackage } from './package-data';
 import { getPublicPackages } from '@/lib/packages';
 
@@ -18,6 +19,8 @@ export default async function Packages() {
 				</div>
 			)}
 			<section className="mx-auto max-w-7xl px-5 pb-12 pt-28 md:pb-16 md:pt-36">
+				{/* Breadcrumb: Home › Packages */}
+				<Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Packages' }]} className="mb-8" />
 				<div className="max-w-3xl">
 					<p className="sans text-xs font-bold uppercase tracking-[.2em] text-[#b66b45]">Curated escapes</p>
 					<h1 className="mt-4 text-5xl leading-[.98] md:text-7xl">The hills, with the important bits taken care of.</h1>

@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Heart, MapPin, Star } from 'lucide-react';
@@ -18,11 +19,22 @@ function ratingLabel(rating: number) {
 }
 
 function SaveButton({ stay, isWishlisted, onToggleWishlist }: Pick<ResultCardProps, 'stay' | 'isWishlisted' | 'onToggleWishlist'>) {
+  const [pop, setPop] = useState(false);
+  const previous = useRef(isWishlisted);
+  useEffect(() => {
+    if (isWishlisted && !previous.current) {
+      setPop(true);
+      const timer = window.setTimeout(() => setPop(false), 650);
+      return () => window.clearTimeout(timer);
+    }
+    previous.current = isWishlisted;
+  }, [isWishlisted]);
   return (
     <button
-      aria-label={`Save ${stay.title}`}
+      aria-label={isWishlisted ? `Remove ${stay.title} from wishlist` : `Save ${stay.title} to wishlist`}
+      aria-pressed={isWishlisted}
       onClick={() => onToggleWishlist(stay.slug)}
-      className="absolute right-2 top-2 rounded-full bg-white/95 p-2 shadow-[0_2px_8px_rgba(23,63,53,.18)] transition hover:bg-white"
+      className={`absolute right-2 top-2 rounded-full bg-white/95 p-2 shadow-[0_2px_8px_rgba(23,63,53,.18)] transition hover:bg-white ${pop ? 'heart-pop' : ''}`}
     >
       <Heart
         size={17}

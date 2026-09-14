@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getPublicRide, getPublicRides } from '@/lib/rides';
-import Link from 'next/link';
-import { ChevronRight, Clock, MapPin, Route as RouteIcon } from 'lucide-react';
+import { Clock, MapPin, Route as RouteIcon } from 'lucide-react';
 import { FareBookingSection } from './FareBookingSection';
 import { RideGallery } from '@/components/public/RideGallery';
+import { Breadcrumbs } from '@/components/public/Breadcrumbs';
 
 export const revalidate = 60;
 
@@ -34,14 +34,14 @@ export default async function RideDetail({ params }: { params: { slug: string } 
     <div className="min-h-screen pb-20">
       {degraded && <div className="border-b px-5 py-3 text-center text-sm font-semibold" role="status">Ride details are temporarily unavailable.</div>}
       <section className="mx-auto max-w-6xl px-5 pt-5 sm:pt-6 md:pt-8">
-        {/* Breadcrumb */}
-        <nav aria-label="Breadcrumb" className="sans flex items-center gap-1.5 text-xs text-[#8a948c] sm:text-sm">
-          <Link href="/" className="transition hover:text-[#173f35]">Home</Link>
-          <ChevronRight size={13} className="shrink-0 text-[#c4c9c0]" />
-          <Link href="/rides" className="transition hover:text-[#173f35]">Rides</Link>
-          <ChevronRight size={13} className="shrink-0 text-[#c4c9c0]" />
-          <span className="truncate font-semibold text-[#173f35]">{ride.title}</span>
-        </nav>
+        {/* Breadcrumb: Home › Rides › Ride */}
+        <Breadcrumbs
+          items={[
+            { label: 'Home', href: '/' },
+            { label: 'Rides', href: '/rides' },
+            { label: ride.title },
+          ]}
+        />
 
         {/* Media carousel (images + videos) */}
         <div className="mt-4">
