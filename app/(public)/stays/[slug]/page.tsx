@@ -10,13 +10,14 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const { data: stay } = await getPublicListing(params.slug);
-  return { title: stay?.title ?? 'Stay', description: stay?.description.replace(/<[^>]+>/g, '').slice(0, 160) };
+  const { data: stay } = await getPublicListing(decodeURIComponent(params.slug));
+  return { title: stay?.title ?? 'Stay', description: stay?.description?.replace(/<[^>]+>/g, '').slice(0, 160) };
 }
 
 export default async function StayDetail({ params }: { params: { slug: string } }) {
-  const { data: stay } = await getPublicListing(params.slug);
+  const slug = decodeURIComponent(params.slug);
+  const { data: stay } = await getPublicListing(slug);
   if (!stay) notFound();
-  const reviewData = await getStayReviewData(params.slug);
+  const reviewData = await getStayReviewData(slug);
   return <StayDetailExperience stay={stay} reviewData={reviewData} />;
 }
