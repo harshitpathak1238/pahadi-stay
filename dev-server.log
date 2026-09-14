@@ -56,3 +56,13 @@ Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
 Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=cd44c7c0f1532f118fdde04a75a2088a.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
 Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
  GET / 200 in 3851ms
+ GET / 200 in 562ms
+ ✓ Compiled in 4.6s (1118 modules)
+ GET /?_rsc=1p60s 200 in 1418ms
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=865c9f23f0e1d0bfc05423d16b1c6cd4.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=0849381a351f8cc153c0eeae9c39717c.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=cd44c7c0f1532f118fdde04a75a2088a.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
+ GET / 200 in 517ms
