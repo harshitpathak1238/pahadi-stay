@@ -33,7 +33,7 @@ export default async function RideDetail({ params }: { params: { slug: string } 
   return (
     <div className="min-h-screen pb-20">
       {degraded && <div className="border-b px-5 py-3 text-center text-sm font-semibold" role="status">Ride details are temporarily unavailable.</div>}
-      <section className="mx-auto max-w-6xl px-5 pt-24 md:pt-28">
+      <section className="mx-auto max-w-6xl px-5 pt-5 sm:pt-6 md:pt-8">
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="sans flex items-center gap-1.5 text-xs text-[#8a948c] sm:text-sm">
           <Link href="/" className="transition hover:text-[#173f35]">Home</Link>

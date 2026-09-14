@@ -252,3 +252,188 @@ Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
  GET /admin/rides?_rsc=kgshf 200 in 440ms
  GET /rides/Bhimtal-Kainchidham-Sightseeing 200 in 954ms
  GET /.well-known/appspecific/com.chrome.devtools.json 404 in 162ms
+ ✓ Compiled in 1994ms (1583 modules)
+ GET /admin/rides?_rsc=kgshf 200 in 2156ms
+ GET /rides/Bhimtal-Kainchidham-Sightseeing?_rsc=1dfd3 200 in 2965ms
+ GET /rides/testa 404 in 492ms
+ GET /rides/Bhimtal-Kainchidham-Sightseeing 200 in 886ms
+ ○ Compiling / ...
+ ✓ Compiled / in 9.6s (1602 modules)
+ GET /admin/rides?_rsc=kgshf 200 in 435ms
+ ○ Compiling /stays ...
+ ✓ Compiled /stays in 3.9s (1615 modules)
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=4cb190150481dad47a46d10ea8b3e645.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=e7dcd4465a1fda599febb1a66d6a7380.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=de41c316340adeae0a819e758534dc10.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=e87c083ccfc468fca51aca0f153d2af3.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=cc9249c24559d0fc6f4aaa7ea7050980.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
+ GET /stays?guests=2 200 in 838ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 928ms (1603 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 2848ms
+ ✓ Compiled in 4.3s (1515 modules)
+ GET /admin/rides?_rsc=kgshf 200 in 218ms
+ GET /stays?guests=2&_rsc=10jsv 200 in 1167ms
+ ✓ Compiled in 4.7s (1515 modules)
+ GET /admin/rides?_rsc=kgshf 200 in 289ms
+ GET /stays?guests=2&_rsc=10jsv 200 in 502ms
+ ⨯ ./components/public/StaysSearchBar.tsx
+Error: 
+  [31mx[0m Unexpected token `form`. Expected jsx identifier
+     ,-[[36;1;4md:\TourAndTravel\components\public\StaysSearchBar.tsx[0m:114:1]
+ [2m114[0m |   };
+ [2m115[0m | 
+ [2m116[0m |   return (
+ [2m117[0m |     <form onSubmit={submit} className="rounded-2xl bg-white p-1.5 shadow-[0_10px_28px_rgba(23,63,53,.10)] ring-1 ring-[#e4e8e2] md:rounded-full md:p-1">
+     : [31;1m     ^^^^[0m
+ [2m118[0m |       <div className="grid grid-cols-6 gap-1 md:grid-cols-[1.35fr_1fr_1fr_0.8fr_1fr_auto] md:items-center md:gap-0">
+ [2m119[0m |         <label className="col-span-6 flex min-w-0 items-center gap-2.5 rounded-xl bg-[#faf9f4] px-3 py-2 text-sm text-[#23332e] transition focus-within:bg-[#f4f6f1] md:col-span-1 md:rounded-full md:bg-transparent md:px-4 md:py-2 md:focus-within:bg-[#f6f8f5]">
+ [2m119[0m |           <MapPin size={16} className="shrink-0 text-[#b66b45]" />
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./components/public/StaysSearchBar.tsx
+./components/public/StaysSearchPage.tsx
+ ⨯ ./components/public/StaysSearchBar.tsx
+Error: 
+  [31mx[0m Unexpected token `form`. Expected jsx identifier
+     ,-[[36;1;4md:\TourAndTravel\components\public\StaysSearchBar.tsx[0m:114:1]
+ [2m114[0m |   };
+ [2m115[0m | 
+ [2m116[0m |   return (
+ [2m117[0m |     <form onSubmit={submit} className="rounded-2xl bg-white p-1.5 shadow-[0_10px_28px_rgba(23,63,53,.10)] ring-1 ring-[#e4e8e2] md:rounded-full md:p-1">
+     : [31;1m     ^^^^[0m
+ [2m118[0m |       <div className="grid grid-cols-6 gap-1 md:grid-cols-[1.35fr_1fr_1fr_0.8fr_1fr_auto] md:items-center md:gap-0">
+ [2m119[0m |         <label className="col-span-6 flex min-w-0 items-center gap-2.5 rounded-xl bg-[#faf9f4] px-3 py-2 text-sm text-[#23332e] transition focus-within:bg-[#f4f6f1] md:col-span-1 md:rounded-full md:bg-transparent md:px-4 md:py-2 md:focus-within:bg-[#f6f8f5]">
+ [2m119[0m |           <MapPin size={16} className="shrink-0 text-[#b66b45]" />
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./components/public/StaysSearchBar.tsx
+./components/public/StaysSearchPage.tsx
+ ⨯ ./components/public/StaysSearchBar.tsx
+Error: 
+  [31mx[0m Unexpected token `form`. Expected jsx identifier
+     ,-[[36;1;4md:\TourAndTravel\components\public\StaysSearchBar.tsx[0m:114:1]
+ [2m114[0m |   };
+ [2m115[0m | 
+ [2m116[0m |   return (
+ [2m117[0m |     <form onSubmit={submit} className="rounded-2xl bg-white p-1.5 shadow-[0_10px_28px_rgba(23,63,53,.10)] ring-1 ring-[#e4e8e2] md:rounded-full md:p-1">
+     : [31;1m     ^^^^[0m
+ [2m118[0m |       <div className="grid grid-cols-6 gap-1 md:grid-cols-[1.35fr_1fr_1fr_0.8fr_1fr_auto] md:items-center md:gap-0">
+ [2m119[0m |         <label className="col-span-6 flex min-w-0 items-center gap-2.5 rounded-xl bg-[#faf9f4] px-3 py-2 text-sm text-[#23332e] transition focus-within:bg-[#f4f6f1] md:col-span-1 md:rounded-full md:bg-transparent md:px-4 md:py-2 md:focus-within:bg-[#f6f8f5]">
+ [2m119[0m |           <MapPin size={16} className="shrink-0 text-[#b66b45]" />
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./components/public/StaysSearchBar.tsx
+./components/public/StaysSearchPage.tsx
+ ○ Compiling /_error ...
+ GET /stays 500 in 9820ms
+ ⨯ ./components/public/StaysSearchBar.tsx
+Error: 
+  [31mx[0m Unexpected token `form`. Expected jsx identifier
+     ,-[[36;1;4md:\TourAndTravel\components\public\StaysSearchBar.tsx[0m:114:1]
+ [2m114[0m |   };
+ [2m115[0m | 
+ [2m116[0m |   return (
+ [2m117[0m |     <form onSubmit={submit} className="rounded-2xl bg-white p-1.5 shadow-[0_10px_28px_rgba(23,63,53,.10)] ring-1 ring-[#e4e8e2] md:rounded-full md:p-1">
+     : [31;1m     ^^^^[0m
+ [2m118[0m |       <div className="grid grid-cols-6 gap-1 md:grid-cols-[1.35fr_1fr_1fr_0.8fr_1fr_auto] md:items-center md:gap-0">
+ [2m119[0m |         <label className="col-span-6 flex min-w-0 items-center gap-2.5 rounded-xl bg-[#faf9f4] px-3 py-2 text-sm text-[#23332e] transition focus-within:bg-[#f4f6f1] md:col-span-1 md:rounded-full md:bg-transparent md:px-4 md:py-2 md:focus-within:bg-[#f6f8f5]">
+ [2m119[0m |           <MapPin size={16} className="shrink-0 text-[#b66b45]" />
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./components/public/StaysSearchBar.tsx
+./components/public/StaysSearchPage.tsx
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../typescript/lib/typescript' in d:\TourAndTravel\node_modules\next\dist\build for build dependencies doesn't lead to expected result 'D:\TourAndTravel\node_modules\typescript\lib\typescript.js', but to 'd:\TourAndTravel\node_modules\typescript\lib\typescript.js' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../typescript/lib/typescript (expected D:\TourAndTravel\node_modules\typescript\lib\typescript.js)
+<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\load-jsconfig.js
+<w>  at file d:\TourAndTravel\node_modules\next\dist\build\load-jsconfig.js
+<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\webpack-config.js
+<w>  at file d:\TourAndTravel\node_modules\next\dist\build\webpack-config.js
+<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\handle-externals.js
+<w>  at file d:\TourAndTravel\node_modules\next\dist\build\handle-externals.js
+<w>  at file dependencies d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
+<w>  at file d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
+<w>  at resolve commonjs d:\TourAndTravel\node_modules\next\dist\build\webpack\loaders\next-swc-loader.js
+ GET /stays?guests=2 500 in 476ms
+ ⨯ ./components/public/StaysSearchBar.tsx
+Error: 
+  [31mx[0m Unexpected token `form`. Expected jsx identifier
+     ,-[[36;1;4md:\TourAndTravel\components\public\StaysSearchBar.tsx[0m:114:1]
+ [2m114[0m |   };
+ [2m115[0m | 
+ [2m116[0m |   return (
+ [2m117[0m |     <form onSubmit={submit} className="rounded-2xl bg-white p-1.5 shadow-[0_10px_28px_rgba(23,63,53,.10)] ring-1 ring-[#e4e8e2] md:rounded-full md:p-1">
+     : [31;1m     ^^^^[0m
+ [2m118[0m |       <div className="grid grid-cols-6 gap-1 md:grid-cols-[1.35fr_1fr_1fr_0.8fr_1fr_auto] md:items-center md:gap-0">
+ [2m119[0m |         <label className="col-span-6 flex min-w-0 items-center gap-2.5 rounded-xl bg-[#faf9f4] px-3 py-2 text-sm text-[#23332e] transition focus-within:bg-[#f4f6f1] md:col-span-1 md:rounded-full md:bg-transparent md:px-4 md:py-2 md:focus-within:bg-[#f6f8f5]">
+ [2m119[0m |           <MapPin size={16} className="shrink-0 text-[#b66b45]" />
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./components/public/StaysSearchBar.tsx
+./components/public/StaysSearchPage.tsx
+ GET /stays 500 in 8557ms
+ GET /admin/rides 500 in 13929ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 500 in 13889ms
+ ✓ Compiled /_not-found in 12.6s (1728 modules)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /_next/static/webpack/0a96d185a10708d1.webpack.hot-update.json 404 in 7353ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /_next/static/webpack/0a96d185a10708d1.webpack.hot-update.json 404 in 290ms
+ GET /admin/rides 200 in 424ms
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=4cb190150481dad47a46d10ea8b3e645.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=e7dcd4465a1fda599febb1a66d6a7380.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=de41c316340adeae0a819e758534dc10.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=e87c083ccfc468fca51aca0f153d2af3.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=cc9249c24559d0fc6f4aaa7ea7050980.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
+ GET /stays?guests=2 200 in 3406ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 127ms
+ ○ Compiling /api/admin/rides ...
+ ✓ Compiled /api/admin/rides in 3s (1005 modules)
+ ✓ Compiled (1018 modules)
+ GET /api/admin/vehicle-types 200 in 6677ms
+ GET /api/admin/vehicle-types 200 in 6861ms
+ GET /api/admin/vehicle-types 200 in 6923ms
+ GET /api/admin/vehicle-types 200 in 6914ms
+ GET /api/admin/rides 200 in 7143ms
+ GET /api/admin/rides 200 in 7235ms
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=4cb190150481dad47a46d10ea8b3e645.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=e7dcd4465a1fda599febb1a66d6a7380.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=de41c316340adeae0a819e758534dc10.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=e87c083ccfc468fca51aca0f153d2af3.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
+Image with src "https://springgreen-salmon-184354.hostingersite.com/media-api.php?file=cc9249c24559d0fc6f4aaa7ea7050980.jpg" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
+ GET /stays 200 in 784ms

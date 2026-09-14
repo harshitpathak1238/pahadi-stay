@@ -114,60 +114,60 @@ export function StaysSearchBar({
   };
 
   return (
-    <form onSubmit={submit} className="rounded-2xl bg-white p-1.5 shadow-[0_10px_28px_rgba(23,63,53,.10)] ring-1 ring-[#e4e8e2]">
-      <div className="grid md:grid-cols-[1.35fr_1fr_1fr_0.85fr_1fr_auto]">
-        <label className="flex min-w-0 items-center gap-3 rounded-xl px-3 py-3 text-sm text-[#23332e] transition focus-within:bg-[#f6f8f5] focus-within:shadow-[inset_0_0_0_1px_rgba(36,88,74,.35)] md:px-4 md:py-2">
-          <MapPin size={18} className="shrink-0 text-[#173f35]" />
+    <form onSubmit={submit} className="rounded-2xl bg-white p-1.5 shadow-[0_10px_28px_rgba(23,63,53,.10)] ring-1 ring-[#e4e8e2] md:rounded-full md:p-1">
+      <div className="grid grid-cols-6 gap-1 md:grid-cols-[1.35fr_1fr_1fr_0.8fr_1fr_auto] md:items-center md:gap-0">
+        <label className="col-span-6 flex min-w-0 items-center gap-2.5 rounded-xl bg-[#faf9f4] px-3 py-2 text-sm text-[#23332e] transition focus-within:bg-[#f4f6f1] md:col-span-1 md:rounded-full md:bg-transparent md:px-4 md:py-2 md:focus-within:bg-[#f6f8f5]">
+          <MapPin size={16} className="shrink-0 text-[#b66b45]" />
           <span className="min-w-0 flex-1">
-            <span className="block text-[10px] font-bold uppercase tracking-[.14em] text-[#6c7770]">Where</span>
-            <input value={location} onChange={(event) => setLocation(event.target.value)} placeholder="City, property, or location" className="mt-0.5 w-full min-w-0 bg-transparent outline-none" aria-label="City, property, or location" />
+            <span className="block text-[9px] font-bold uppercase tracking-[.14em] text-[#8b9591]">Where</span>
+            <input value={location} onChange={(event) => setLocation(event.target.value)} placeholder="City, property, or location" className="w-full min-w-0 bg-transparent text-[13px] outline-none placeholder:text-[#9aa39c] md:text-sm" aria-label="City, property, or location" />
           </span>
         </label>
 
-        <label className="flex min-w-0 items-center gap-3 rounded-xl border-t border-[#eef1ec] px-3 py-3 text-sm text-[#23332e] transition focus-within:bg-[#f6f8f5] focus-within:shadow-[inset_0_0_0_1px_rgba(36,88,74,.35)] md:border-t-0 md:border-l md:border-[#e4e8e2] md:px-4 md:py-2">
-          <CalendarDays size={18} className="shrink-0 text-[#173f35]" />
+        <label className="col-span-3 flex min-w-0 items-center gap-2 rounded-xl bg-[#faf9f4] px-2.5 py-2 text-sm text-[#23332e] transition focus-within:bg-[#f4f6f1] md:col-span-1 md:rounded-none md:bg-transparent md:px-4 md:py-2 md:focus-within:bg-[#f6f8f5] md:hover:bg-[#f6f8f5] md:border-l md:border-[#eceae1]">
+          <CalendarDays size={15} className="hidden shrink-0 text-[#b66b45] sm:block" />
           <span className="min-w-0 flex-1">
-            <span className="block text-[10px] font-bold uppercase tracking-[.14em] text-[#6c7770]">Check-in</span>
-            <input type="date" value={checkIn} onChange={(event) => setCheckIn(event.target.value)} className="mt-0.5 w-full min-w-0 bg-transparent text-sm outline-none" aria-label="Check-in date" />
+            <span className="block text-[9px] font-bold uppercase tracking-[.14em] text-[#8b9591]">Check-in</span>
+            <input type="date" value={checkIn} onChange={(event) => setCheckIn(event.target.value)} className="w-full min-w-0 bg-transparent text-[12px] outline-none sm:text-[13px] md:text-sm" aria-label="Check-in date" />
           </span>
         </label>
 
-        <label className="flex min-w-0 items-center gap-3 rounded-xl border-t border-[#eef1ec] px-3 py-3 text-sm text-[#23332e] transition focus-within:bg-[#f6f8f5] focus-within:shadow-[inset_0_0_0_1px_rgba(36,88,74,.35)] md:border-t-0 md:border-l md:border-[#e4e8e2] md:px-4 md:py-2">
-          <CalendarDays size={18} className="shrink-0 text-[#173f35]" />
+        <label className="col-span-3 flex min-w-0 items-center gap-2 rounded-xl bg-[#faf9f4] px-2.5 py-2 text-sm text-[#23332e] transition focus-within:bg-[#f4f6f1] md:col-span-1 md:rounded-none md:bg-transparent md:px-4 md:py-2 md:focus-within:bg-[#f6f8f5] md:hover:bg-[#f6f8f5] md:border-l md:border-[#eceae1]">
+          <CalendarDays size={15} className="hidden shrink-0 text-[#b66b45] sm:block" />
           <span className="min-w-0 flex-1">
-            <span className="block text-[10px] font-bold uppercase tracking-[.14em] text-[#6c7770]">Check-out</span>
-            <input type="date" value={checkOut} onChange={(event) => setCheckOut(event.target.value)} className="mt-0.5 w-full min-w-0 bg-transparent text-sm outline-none" aria-label="Check-out date" />
+            <span className="block text-[9px] font-bold uppercase tracking-[.14em] text-[#8b9591]">Check-out</span>
+            <input type="date" value={checkOut} onChange={(event) => setCheckOut(event.target.value)} className="w-full min-w-0 bg-transparent text-[12px] outline-none sm:text-[13px] md:text-sm" aria-label="Check-out date" />
           </span>
         </label>
 
-        <div className="relative flex min-w-0 items-center gap-3 rounded-xl border-t border-[#eef1ec] px-3 py-3 text-sm text-[#23332e] md:border-t-0 md:border-l md:border-[#e4e8e2] md:px-4 md:py-2">
-          <Users size={18} className="shrink-0 text-[#173f35]" />
+        <div className="relative col-span-2 flex min-w-0 items-center gap-2 rounded-xl bg-[#faf9f4] px-2.5 py-2 text-sm text-[#23332e] transition md:col-span-1 md:rounded-none md:bg-transparent md:px-4 md:py-2 md:hover:bg-[#f6f8f5] md:border-l md:border-[#eceae1]">
+          <Users size={15} className="hidden shrink-0 text-[#b66b45] sm:block" />
           <span className="min-w-0 flex-1">
-            <span className="block text-[10px] font-bold uppercase tracking-[.14em] text-[#6c7770]">Guests</span>
-            <button type="button" aria-haspopup="listbox" aria-expanded={guestMenu} onClick={() => setGuestMenu((open) => !open)} className="mt-0.5 flex w-full items-center justify-between gap-2 text-left outline-none">
-              <span>{guests} {guests === 1 ? 'guest' : 'guests'}</span>
-              <ChevronDown size={15} className={`text-[#6c7770] transition ${guestMenu ? 'rotate-180' : ''}`} />
+            <span className="block text-[9px] font-bold uppercase tracking-[.14em] text-[#8b9591]">Guests</span>
+            <button type="button" aria-haspopup="listbox" aria-expanded={guestMenu} onClick={() => setGuestMenu((open) => !open)} className="flex w-full items-center justify-between gap-1 text-left text-[12px] font-semibold outline-none sm:text-[13px] md:text-sm">
+              <span className="truncate">{guests} {guests === 1 ? 'guest' : 'guests'}</span>
+              <ChevronDown size={13} className={`shrink-0 text-[#6c7770] transition ${guestMenu ? 'rotate-180' : ''}`} />
             </button>
           </span>
           {guestMenu && <div role="listbox" aria-label="Number of guests" className="absolute inset-x-2 top-[calc(100%+8px)] z-30 max-h-64 overflow-y-auto rounded-xl border border-[#e4e8e2] bg-white p-1 shadow-[0_16px_36px_rgba(23,63,53,.16)]">{Array.from({ length: 20 }, (_, index) => index + 1).map((count) => <button type="button" role="option" aria-selected={guests === count} key={count} onClick={() => { setGuests(count); setGuestMenu(false); }} className={`block w-full rounded-lg px-3 py-2 text-left text-sm ${guests === count ? 'bg-[#e7eadf] font-bold text-[#173f35]' : 'text-[#526057] hover:bg-[#f2f4ed]'}`}>{count} {count === 1 ? 'guest' : 'guests'}</button>)}</div>}
         </div>
 
-        <label className="flex min-w-0 items-center gap-3 rounded-xl border-t border-[#eef1ec] px-3 py-3 text-sm text-[#23332e] transition focus-within:bg-[#f6f8f5] focus-within:shadow-[inset_0_0_0_1px_rgba(36,88,74,.35)] md:border-t-0 md:border-l md:border-[#e4e8e2] md:px-4 md:py-2">
-          <span className="shrink-0 text-[#173f35]"><IndianRupee size={18} /></span>
+        <label className="col-span-2 flex min-w-0 items-center gap-2 rounded-xl bg-[#faf9f4] px-2.5 py-2 text-sm text-[#23332e] transition focus-within:bg-[#f4f6f1] md:col-span-1 md:rounded-none md:bg-transparent md:px-4 md:py-2 md:focus-within:bg-[#f6f8f5] md:hover:bg-[#f6f8f5] md:border-l md:border-[#eceae1]">
+          <span className="hidden shrink-0 text-[#b66b45] sm:block"><IndianRupee size={15} /></span>
           <span className="min-w-0 flex-1">
-            <span className="block text-[10px] font-bold uppercase tracking-[.14em] text-[#6c7770]">Price / night</span>
-            <span className="relative mt-0.5 block">
-              <select value={activePriceKey} onChange={(event) => { const bucket = priceBuckets.find((item) => `${item.minPrice ?? ''}-${item.maxPrice ?? ''}` === event.target.value); if (bucket) selectPriceBucket(bucket); }} className="w-full min-w-0 appearance-none bg-transparent pr-5 text-sm font-semibold outline-none" aria-label="Price per night">{priceBuckets.map((bucket) => <option key={`${bucket.minPrice ?? ''}-${bucket.maxPrice ?? ''}`} value={`${bucket.minPrice ?? ''}-${bucket.maxPrice ?? ''}`}>{bucket.label}</option>)}</select>
-              <ChevronDown size={15} className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 text-[#6c7770]" />
+            <span className="block text-[9px] font-bold uppercase tracking-[.14em] text-[#8b9591]">Price / night</span>
+            <span className="relative block">
+              <select value={activePriceKey} onChange={(event) => { const bucket = priceBuckets.find((item) => `${item.minPrice ?? ''}-${item.maxPrice ?? ''}` === event.target.value); if (bucket) selectPriceBucket(bucket); }} className="w-full min-w-0 cursor-pointer appearance-none bg-transparent pr-4 text-[12px] font-semibold outline-none sm:text-[13px] md:text-sm" aria-label="Price per night">{priceBuckets.map((bucket) => <option key={`${bucket.minPrice ?? ''}-${bucket.maxPrice ?? ''}`} value={`${bucket.minPrice ?? ''}-${bucket.maxPrice ?? ''}`}>{bucket.label}</option>)}</select>
+              <ChevronDown size={13} className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 text-[#6c7770]" />
             </span>
           </span>
         </label>
 
-        <button type="submit" className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-[#173f35] px-6 py-3.5 font-bold text-white shadow-[0_8px_20px_rgba(23,63,53,.28)] transition hover:bg-[#24584a] focus:outline-none focus:ring-2 focus:ring-[#24584a]/40 focus:ring-offset-2 md:mx-1 md:mt-0 md:px-5" aria-label="Search stays">
-          <Search size={18} /> <span className="md:hidden">Search stays</span>
+        <button type="submit" aria-label="Search stays" className="col-span-2 inline-flex h-10 items-center justify-center gap-2 self-stretch rounded-full bg-[#173f35] px-5 text-sm font-bold text-white shadow-[0_8px_20px_rgba(23,63,53,.28)] transition hover:bg-[#24584a] focus:outline-none focus:ring-2 focus:ring-[#24584a]/40 focus:ring-offset-2 md:col-span-1 md:ml-1.5 md:h-10 md:w-10 md:self-center md:px-0">
+          <Search size={16} />
+          <span className="md:hidden">Search</span>
         </button>
       </div>
-      <p className="px-3 pb-1.5 pt-2 text-[10px] tracking-wide text-[#8b9591]">We&rsquo;ll match your dates once you search.</p>
     </form>
   );
 }
