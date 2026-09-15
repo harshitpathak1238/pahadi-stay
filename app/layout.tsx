@@ -32,7 +32,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="en" suppressHydrationWarning className={`${display.variable} ${sans.variable}`}>
       <body><ThemeProvider><TripCartProvider>
-        <SiteHeader>
+        <SiteHeader initialHero={pathname === '/'}>
             <Link href="/" aria-label="KainchiDarshan home" className="shrink-0"><Image src="/images/Logo.png" alt="Kainchi Darshan" width={210} height={80} priority className="h-8 w-auto object-contain sm:h-9 md:h-11" /></Link>
             <SiteNavigation />
             <div className="flex items-center gap-1.5 text-sm sm:gap-2 md:gap-3">

@@ -89,16 +89,19 @@ export async function getPublicListings(category: ListingCategory): Promise<Publ
     const records = await db.listing.findMany({ where: { category, status: 'LIVE' }, select: { slug: true, title: true, location: true, sellPrice: true, basePrice: true, category: true, images: true, amenities: true, details: true, accommodations: true, fullyBooked: true, description: true }, orderBy: { createdAt: 'desc' } });
     if (records.length) return { data: records.map((record) => ({ ...mapRecord(record as { slug: string; title: string; location: string; sellPrice: unknown; basePrice?: unknown; category: ListingCategory; images: unknown; amenities: unknown; details?: unknown; accommodations?: unknown; fullyBooked?: unknown }), description: record.description })), degraded: false };
     return fallbackListings(category);
-  } catch {
+  } catch (error) {
+    console.error(`Public listings (${category}) unavailable:`, error);
     return fallbackListings(category);
   }
 }
 
 export async function getPublicListing(slug: string): Promise<PublicResult<Listing | null>> {
   try {
-    const record = await db.listing.findFirst({ where: { slug, status: 'LIVE' }, select: { slug: true, title: true, location: true, sellPrice: true, basePrice: true, category: true, images: true, amenities: true, details: true, accommodations: true, fullyBooked: true, description: true, faqs: { select: { question: true, answer: true }, orderBy: { order: 'asc' } } }, });
+    const record = await db.listing.findFirst({ where: { slug, status: 'LIVE' }, select: { slug: true, title: true, location: true, sellPrice: true, basePrice: true, category: true, images: true, amenities: true, details: true, accommodations: true, fullyBooked: true, description: true }, });
     if (record) return { data: { ...mapRecord(record as { slug: string; title: string; location: string; sellPrice: unknown; basePrice?: unknown; category: ListingCategory; images: unknown; amenities: unknown; details?: unknown; accommodations?: unknown; fullyBooked?: unknown }), description: record.description }, degraded: false };
-  } catch { /* fall through to the degraded fallback below */ }
+  } catch (error) {
+    console.error(`Public listing (${slug}) unavailable:`, error);
+  }
   if (process.env.NODE_ENV === 'production') return { data: null, degraded: true };
   return { data: stays.find((stay) => stay.slug === slug) || null, degraded: true };
 }

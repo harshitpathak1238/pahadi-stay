@@ -1,0 +1,22 @@
+
+> pahadi-stay@1.0.0 dev
+> next dev
+
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3000
+  - Environments: .env.local, .env
+
+ ✓ Starting...
+ ✓ Ready in 2.3s
+ ✓ Compiled /middleware in 259ms (177 modules)
+ ○ Compiling /stays ...
+ ✓ Compiled /stays in 105.2s (1179 modules)
+Image with src "/images/Logo.png" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
+ GET /stays 200 in 148ms
+ ○ Compiling /stays/[slug] ...
+ ✓ Compiled /stays/[slug] in 1416ms (1287 modules)
+Image with src "/images/Logo.png" has a "loader" property that does not implement width. Please implement it or use the "unoptimized" property instead.
+Read more: https://nextjs.org/docs/messages/next-image-missing-loader-width
+ GET /stays/kainchidarshan-by-lake-darshan 200 in 3736ms
+^C^CTerminate batch job (Y/N)? 

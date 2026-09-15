@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from 'react';
 
-export function SiteHeader({ children }: { children: React.ReactNode }) {
+export function SiteHeader({ children, initialHero = false }: { children: React.ReactNode; initialHero?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
-  const [overHero, setOverHero] = useState(false);
+  // Start in hero (light-text) mode on the home page so the hamburger is
+  // white-on-dark from the very first paint — before the scroll listener runs.
+  const [overHero, setOverHero] = useState(initialHero);
 
   useEffect(() => {
     let frame = 0;
