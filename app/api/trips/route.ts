@@ -14,9 +14,11 @@ export async function POST(request: Request) {
   const data = parsed.data;
   try {
     const result = await db.$transaction(async (transaction) => {
-      const listings = await transaction.listing.findMany({ where: { slug: { in: data.items.map((item) => item.slug) }, status: 'LIVE' } });
+      const listings = await transaction.listing.findMany({ where: { slug: { in: data.items.map((item) => item.slug) }, status: 'LIVE' }, select: { id: true, slug: true, title: true, category: true, sellPrice: true, fullyBooked: true, bikeQuantity: true, scootyQuantity: true } });
       const unavailable = data.items.filter((item) => !listings.some((listing) => listing.slug === item.slug));
       if (unavailable.length) throw new Error(`Unavailable: ${unavailable.map((item) => item.slug).join(', ')}`);
+      const soldOut = listings.filter((listing) => listing.fullyBooked).map((listing) => listing.title);
+      if (soldOut.length) throw new Error(`Fully booked right now: ${soldOut.join(', ')}. Please remove ${soldOut.length === 1 ? 'it' : 'them'} from your trip to continue.`);
       for (const item of data.items) {
         const listing = listings.find((record) => record.slug === item.slug)!;
         const start = item.startDate;

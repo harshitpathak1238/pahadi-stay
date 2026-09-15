@@ -206,6 +206,7 @@ export function StaysSearchPage({ stays, initialLocation, initialCheckIn, initia
                   isWishlisted={wishlist.includes(stay.slug)}
                   onToggleWishlist={toggleWishlist}
                   view={view}
+                  fullyBooked={Boolean(stay.fullyBooked)}
                 />
               ))}
             </div>

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
-import { ArrowLeft, Bold, Code2, Edit3, ImagePlus, Italic, Link as LinkIcon, List, ListOrdered, Pencil, Plus, Quote, Save, Trash2, Upload, X, type LucideIcon } from 'lucide-react';
+import { ArrowLeft, Ban, Bold, CheckCircle2, Code2, Edit3, ImagePlus, Italic, Link as LinkIcon, List, ListOrdered, Pencil, Plus, Quote, Save, Trash2, Upload, X, type LucideIcon } from 'lucide-react';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import ImageExtension from '@tiptap/extension-image';
@@ -21,7 +21,7 @@ import { DefaultHouseRules, type HouseRule } from '@/lib/listings';
 
 type Category = 'STAY' | 'RIDE' | 'RENTAL' | 'ACTIVITY';
 type Section = Category | 'PACKAGE';
-type Listing = { id: string; title: string; slug: string; category: Category; location: string; sellPrice: string | number; basePrice: string | number; status: string; description: string; images?: string[]; amenities?: string[]; details?: Record<string, unknown>; mealPlan?: string | null; breakfastIncluded?: boolean; cuisineNotes?: string | null; landmarks?: AdminLandmarkRow[]; services?: AdminServiceRow[]; experiences?: AdminExperienceRow[]; accommodations?: AccommodationRow[] };
+type Listing = { id: string; title: string; slug: string; category: Category; location: string; sellPrice: string | number; basePrice: string | number; status: string; fullyBooked?: boolean; description: string; images?: string[]; amenities?: string[]; details?: Record<string, unknown>; mealPlan?: string | null; breakfastIncluded?: boolean; cuisineNotes?: string | null; landmarks?: AdminLandmarkRow[]; services?: AdminServiceRow[]; experiences?: AdminExperienceRow[]; accommodations?: AccommodationRow[] };
 type TravelPackage = { id: string; title: string; description: string; price: string | number; listingIds?: string[]; status?: string; details?: Record<string, unknown> };
 export type HouseRuleRow = { id?: string; title: string; text: string };
 export type AdminLandmarkRow = { id?: string; label: string; distanceKm: string };
@@ -29,7 +29,7 @@ export type AdminServiceRow = { id?: string; label: string; note: string };
 export type AdminExperienceRow = { id?: string; title: string; note: string };
 export type AccommodationRow = { id?: string; title: string; description: string; image: string; images: string[]; price: string; bedrooms: string; beds: string };
 
-export type ListingForm = { slug: string; title: string; description: string; location: string; basePrice: string; sellPrice: string; images: string[]; amenities: string; status: string; price: string; listingIds: string[]; details: Record<string, string>; mealPlan: string; breakfastIncluded: boolean; cuisineNotes: string; stayFacilities: Record<string, boolean>; faqs: AdminFaqRow[]; houseRules: HouseRuleRow[]; landmarks: AdminLandmarkRow[]; services: AdminServiceRow[]; experiences: AdminExperienceRow[]; accommodations: AccommodationRow[] };
+export type ListingForm = { slug: string; title: string; description: string; location: string; basePrice: string; sellPrice: string; images: string[]; amenities: string; status: string; fullyBooked: boolean; price: string; listingIds: string[]; details: Record<string, string>; mealPlan: string; breakfastIncluded: boolean; cuisineNotes: string; stayFacilities: Record<string, boolean>; faqs: AdminFaqRow[]; houseRules: HouseRuleRow[]; landmarks: AdminLandmarkRow[]; services: AdminServiceRow[]; experiences: AdminExperienceRow[]; accommodations: AccommodationRow[] };
 
 export type AdminFaqRow = { id?: string; question: string; answer: string };
 
@@ -51,6 +51,7 @@ const freshForm = (): ListingForm => ({
   images: [],
   amenities: '',
   status: 'DRAFT',
+  fullyBooked: false,
   price: '',
   listingIds: [],
   details: {},
@@ -150,6 +151,7 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
         images: listing.images || [],
         amenities: (listing.amenities || []).join(', '),
         status: listing.status,
+        fullyBooked: Boolean(listing.fullyBooked),
         details: Object.fromEntries(Object.entries(rawDetails).filter(([key]) => key !== 'facilities' && key !== 'houseRules' && key !== 'amenities').map(([key, value]) => [key, String(value ?? '')])),
         mealPlan: listing.mealPlan ?? '',
         breakfastIncluded: Boolean(listing.breakfastIncluded),
@@ -250,6 +252,7 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
       details: section === 'STAY' ? { ...form.details, facilities: form.stayFacilities } : form.details,
       ...(section === 'STAY' ? { mealPlan: form.mealPlan || null, breakfastIncluded: form.breakfastIncluded, cuisineNotes: form.cuisineNotes || null, landmarks, services, experiences } : {}),
       status: String(form.status || 'DRAFT').trim().toUpperCase(),
+      fullyBooked: form.fullyBooked,
       ...(section === 'STAY' ? { houseRules: form.houseRules } : {}),
       ...(section === 'STAY' ? { accommodations: form.accommodations.map((item) => ({ title: item.title.trim(), description: item.description.trim(), image: item.image.trim(), images: (item.images || []).map((url) => url.trim()).filter(Boolean), price: item.price, bedrooms: item.bedrooms, beds: item.beds })) } : {}),
     };
@@ -330,6 +333,21 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
     if (response.ok) load();
   };
 
+  const toggleFullyBooked = async (item: Listing) => {
+    const next = !item.fullyBooked;
+    setBusy(true);
+    setMessage('');
+    const response = await fetch(`/api/admin/listings/${item.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fullyBooked: next }) });
+    const result = await response.json().catch(() => ({}));
+    setBusy(false);
+    if (!response.ok) {
+      setMessage(result.error || 'Could not update booking availability.');
+      return;
+    }
+    setItems((current) => current.map((row) => row.id === item.id ? { ...row, fullyBooked: next } : row));
+    setMessage(next ? `${item.title} is now marked as fully booked.` : `${item.title} is accepting bookings again.`);
+  };
+
   const label = section === 'PACKAGE' ? 'package' : section.toLowerCase();
   const records = section === 'PACKAGE' ? packages : items;
 
@@ -365,7 +383,7 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
         <div>
           <p className="sans text-xs font-bold uppercase tracking-[.16em] text-[#b66b45]">Content management</p>
           <h2 className="mt-2 text-2xl text-[#173f35]">{tabs.find((tab) => tab.key === section)?.label} inventory</h2>
-          <p className="mt-1 sans text-sm text-[#6c7770]">Existing records appear below. Add, edit, publish, pause, or delete them.</p>
+          <p className="mt-1 sans text-sm text-[#6c7770]">Existing records appear below. Add, edit, publish, pause, or turn off bookings from them.</p>
         </div>
         <button type="button" onClick={add} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#b66b45] px-4 py-3 sans text-sm font-bold text-white hover:bg-[#9f5938]"><Plus size={16} /> Add new {label}</button>
       </div>
@@ -384,14 +402,24 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
         {records.map((item) => (
           <div key={item.id} className="flex flex-col gap-4 py-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <h3 className="truncate font-bold text-[#173f35]">{item.title}</h3>
+              <h3 className="flex flex-wrap items-center gap-2 truncate font-bold text-[#173f35]">
+                {item.title}
+                {section !== 'PACKAGE' && (item as Listing).fullyBooked && (
+                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#fdecec] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#a44a4a] ring-1 ring-[#e2b5b5]"><Ban size={11} aria-hidden="true" /> Fully booked</span>
+                )}
+              </h3>
               <p className="mt-1 sans text-sm text-[#6c7770]">
                 {section === 'PACKAGE'
                   ? `₹${Number((item as TravelPackage).price).toLocaleString('en-IN')} · ${(item as TravelPackage).listingIds?.length || 0} included listings`
                   : `${(item as Listing).location} · ₹${Number((item as Listing).sellPrice).toLocaleString('en-IN')} · ${(item as Listing).status}`}
               </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
+              {section !== 'PACKAGE' && (
+                <button type="button" disabled={busy} onClick={() => toggleFullyBooked(item as Listing)} aria-pressed={Boolean((item as Listing).fullyBooked)} className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-[12px] font-semibold transition disabled:opacity-60 ${(item as Listing).fullyBooked ? 'border-[#8db9a0] bg-[#e8f3ec] text-[#24584a] hover:bg-[#dcefe2]' : 'border-[#e2b5b5] bg-[#fff6f6] text-[#a44a4a] hover:bg-[#fdecec]'}`}>
+                  {(item as Listing).fullyBooked ? <><CheckCircle2 size={14} /> Mark available</> : <><Ban size={14} /> Mark fully booked</>}
+                </button>
+              )}
               <button type="button" onClick={() => edit(item)} className="inline-flex items-center gap-2 rounded-full border border-[#d9d9dc] bg-white px-3 py-2 text-[12px] font-semibold text-[#173f35] hover:bg-[#f4f4f4]"><Pencil size={14} /> Edit</button>
               <button type="button" onClick={() => remove(item.id, section === 'PACKAGE')} className="inline-flex items-center gap-2 rounded-full border border-[#e2b5b5] bg-[#fff6f6] px-3 py-2 text-[12px] font-semibold text-[#a44a4a] hover:bg-[#fff0f0]"><Trash2 size={14} /> Delete</button>
             </div>

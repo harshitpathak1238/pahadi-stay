@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Sparkles } from 'lucide-react';
+import { Ban, Sparkles } from 'lucide-react';
 
-export function StayBottomBar({ price, basePrice, slug }: { price: number; basePrice?: number | null; slug: string }) {
+export function StayBottomBar({ price, basePrice, slug, fullyBooked = false }: { price: number; basePrice?: number | null; slug: string; fullyBooked?: boolean }) {
   const [visible, setVisible] = useState(false);
   const rafRef = useRef<number | null>(null);
 
@@ -51,10 +51,13 @@ export function StayBottomBar({ price, basePrice, slug }: { price: number; baseP
         <button
           type="button"
           onClick={openTripBuilder}
-          className="pointer-events-auto flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#f7f4ec] px-5 text-sm font-bold text-[#173f35] shadow-[0_6px_14px_rgba(23,63,53,.22)] active:scale-[.97] sm:inline-flex sm:visible"
+          disabled={fullyBooked}
+          title={fullyBooked ? 'This stay is fully booked right now' : undefined}
+          className={fullyBooked
+            ? 'pointer-events-auto flex h-11 shrink-0 cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-[#c9d3cc] px-5 text-sm font-bold text-[#6d7a72] shadow-none sm:inline-flex sm:visible'
+            : 'pointer-events-auto flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#f7f4ec] px-5 text-sm font-bold text-[#173f35] shadow-[0_6px_14px_rgba(23,63,53,.22)] active:scale-[.97] sm:inline-flex sm:visible'}
         >
-          <Sparkles size={15} className="shrink-0" />
-          Add to your trip
+          {fullyBooked ? <><Ban size={15} className="shrink-0" /> Fully booked</> : <><Sparkles size={15} className="shrink-0" /> Add to your trip</>}
         </button>
       </div>
     </div>

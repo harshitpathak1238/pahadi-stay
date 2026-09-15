@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Heart, MapPin, Star } from 'lucide-react';
+import { BadgeCheck, Heart, MapPin, Star } from 'lucide-react';
 import type { Listing } from '@/lib/mock-data';
 import { cardDescriptionSnippet } from '@/lib/sanitize-html';
 
@@ -12,6 +12,7 @@ interface ResultCardProps {
   isWishlisted: boolean;
   onToggleWishlist: (slug: string) => void;
   view: 'list' | 'grid';
+  fullyBooked?: boolean;
 }
 
 function ratingLabel(rating: number) {
@@ -92,10 +93,10 @@ function Snippet({ description }: { description: string }) {
   return <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-[#536274]">{snippet}</p>;
 }
 
-export function ResultCard({ stay, isWishlisted, onToggleWishlist, view }: ResultCardProps) {
+export function ResultCard({ stay, isWishlisted, onToggleWishlist, view, fullyBooked }: ResultCardProps) {
   if (view === 'grid') {
     return (
-      <article className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-[0_10px_28px_rgba(23,63,53,.10)] ring-1 ring-[#e4e8e2] transition hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgba(23,63,53,.14)]">
+      <article className={`relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-[0_10px_28px_rgba(23,63,53,.10)] ring-1 ring-[#e4e8e2] transition ${fullyBooked ? 'grayscale-[55%] opacity-75' : 'hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgba(23,63,53,.14)]'}`}>
         <div className="relative h-44 w-full sm:h-48">
           <Image src={stay.image} alt={stay.title} fill sizes="(max-width: 768px) 92vw, 33vw" className="object-cover" />
           <SaveButton stay={stay} isWishlisted={isWishlisted} onToggleWishlist={onToggleWishlist} />
@@ -105,7 +106,11 @@ export function ResultCard({ stay, isWishlisted, onToggleWishlist, view }: Resul
           <Link href={`/stays/${stay.slug}`} className="line-clamp-2 text-lg font-bold text-[#173f35] hover:text-[#24584a]">
             {stay.title}
           </Link>
-
+          {fullyBooked && (
+            <span className="mt-1.5 flex w-max items-center gap-1 rounded-full bg-[#f3f4f3] px-2 text-[10px] font-bold text-[#3b5a4e] dark:bg-white/10 dark:text-[#d5eadb]">
+              <BadgeCheck size={12} /> Fully booked
+            </span>
+          )}
           <RatingRow stay={stay} />
 
           <p className="mt-1.5 flex min-w-0 items-center gap-1 truncate text-sm text-[#536274]">
@@ -121,21 +126,32 @@ export function ResultCard({ stay, isWishlisted, onToggleWishlist, view }: Resul
               <StayPrice price={stay.price} basePrice={stay.basePrice} />
               <p className="text-xs font-semibold text-[#536274]"> / night</p>
             </div>
-            <Link href={`/stays/${stay.slug}`} className="rounded-full bg-[#173f35] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#24584a]">
-              Show prices
-            </Link>
+            {fullyBooked ? (
+              <span className="rounded-full bg-[#171717]/70 px-4 py-2 text-xs font-bold text-white cursor-not-allowed select-none">
+                Fully booked
+              </span>
+            ) : (
+              <Link href={`/stays/${stay.slug}`} className="rounded-full bg-[#173f35] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#24584a]">
+                Show prices
+              </Link>
+            )}
           </div>
         </div>
       </article>
     );
   }
 
-  // List view - horizontal card
+    // List view - horizontal card
   return (
-    <article className="grid min-w-0 overflow-hidden rounded-2xl bg-white shadow-[0_10px_28px_rgba(23,63,53,.10)] ring-1 ring-[#e4e8e2] transition hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgba(23,63,53,.14)] md:grid-cols-[220px_minmax(0,1fr)_200px]">
+    <article className={`grid min-w-0 overflow-hidden rounded-2xl bg-white shadow-[0_10px_28px_rgba(23,63,53,.10)] ring-1 ring-[#e4e8e2] transition ${fullyBooked ? 'grayscale-[55%] opacity-75' : 'hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgba(23,63,53,.14)]'} md:grid-cols-[220px_minmax(0,1fr)_200px]`}>
       <div className="relative h-36 w-full sm:h-40 md:h-full md:min-h-[200px]">
         <Image src={stay.image} alt={stay.title} fill sizes="(max-width: 768px) 92vw, 220px" className="object-cover" />
         <SaveButton stay={stay} isWishlisted={isWishlisted} onToggleWishlist={onToggleWishlist} />
+        {fullyBooked && (
+          <span className="absolute bottom-1.5 left-1.5 flex items-center gap-1 rounded-full bg-[#171717]/75 px-2 py-0.5 text-[10px] font-bold text-white">
+            <BadgeCheck size={11} /> Fully booked
+          </span>
+        )}
       </div>
 
       <div className="flex min-w-0 flex-col p-4 sm:p-5">
@@ -159,9 +175,15 @@ export function ResultCard({ stay, isWishlisted, onToggleWishlist, view }: Resul
           <StayPrice price={stay.price} basePrice={stay.basePrice} />
           <p className="text-xs font-semibold text-[#536274]"> / night</p>
         </div>
-        <Link href={`/stays/${stay.slug}`} className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-[#173f35] px-5 py-2.5 text-xs font-bold text-white transition hover:bg-[#24584a] md:mt-3">
-          Show prices
-        </Link>
+        {fullyBooked ? (
+          <span className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-[#171717] px-5 py-2.5 text-xs font-bold text-white cursor-not-allowed select-none md:mt-3">
+            Fully booked
+          </span>
+        ) : (
+          <Link href={`/stays/${stay.slug}`} className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-[#173f35] px-5 py-2.5 text-xs font-bold text-white transition hover:bg-[#24584a] md:mt-3">
+            Show prices
+          </Link>
+        )}
       </div>
     </article>
   );

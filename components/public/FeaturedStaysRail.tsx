@@ -22,12 +22,15 @@ export function FeaturedStaysRail({ stays }: { stays: Listing[] }) {
       <div ref={railRef} className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth px-4 pb-2 md:-mx-2 md:px-2">
         {stays.map((stay) => {
           const discount = discountPercent(stay.price, stay.basePrice);
+          const fullyBooked = Boolean(stay.fullyBooked);
           return (
-            <Link key={stay.slug} href={`/stays/${stay.slug}`} data-featured-stay className="group grid w-[86vw] max-w-[420px] shrink-0 snap-start grid-cols-[126px_minmax(0,1fr)] overflow-hidden rounded-[1.1rem] bg-white text-left ring-1 ring-[#e4e3da] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(23,63,53,.14)] sm:w-[400px] sm:grid-cols-[150px_minmax(0,1fr)]">
+            <Link key={stay.slug} href={`/stays/${stay.slug}`} data-featured-stay aria-disabled={fullyBooked || undefined} className={`group grid w-[86vw] max-w-[420px] shrink-0 snap-start grid-cols-[126px_minmax(0,1fr)] overflow-hidden rounded-[1.1rem] bg-white text-left ring-1 ring-[#e4e3da] transition duration-300 ${fullyBooked ? 'opacity-75 grayscale-[45%]' : 'hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(23,63,53,.14)]'} sm:w-[400px] sm:grid-cols-[150px_minmax(0,1fr)]`}>
               <div className="relative min-h-[186px] overflow-hidden bg-[#eef3f0] sm:min-h-[198px]">
                 {stay.image ? (<img src={stay.image} alt={stay.title} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.05]" />) : (<div className="absolute inset-0 grid place-items-center text-[#173f35]"><Star size={28} /></div>)}
-                {discount !== null && (<span className="sans absolute left-2 top-2 rounded-[0.55rem] bg-[#c46a3a] px-2 py-1 text-[11px] font-bold leading-none text-white shadow-sm">{discount}% off</span>)}
-                <span className="sans absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-[3px] text-[11px] font-bold text-[#173f35] shadow-sm"><Star size={11} fill="currentColor" /> {stay.rating}</span>
+                {fullyBooked ? (
+                  <span className="sans absolute left-2 top-2 rounded-[0.55rem] bg-[#171717]/85 px-2 py-1 text-[11px] font-bold leading-none text-white shadow-sm">Fully booked</span>
+                ) : discount !== null && (<span className="sans absolute left-2 top-2 rounded-[0.55rem] bg-[#c46a3a] px-2 py-1 text-[11px] font-bold leading-none text-white shadow-sm">{discount}% off</span>)}
+                {!fullyBooked && <span className="sans absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-[3px] text-[11px] font-bold text-[#173f35] shadow-sm"><Star size={11} fill="currentColor" /> {stay.rating}</span>}
               </div>
               <div className="flex min-w-0 flex-col px-4 py-3.5 sm:px-5 sm:py-4">
                 <h3 className="truncate text-[16px] font-bold leading-snug text-[#3d2b1f] sm:text-[17px]">{stay.title}</h3>

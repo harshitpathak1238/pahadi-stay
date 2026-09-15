@@ -155,6 +155,7 @@ model Listing {
 	houseRules   Json?           @default("[]")
 	accommodations Json?          @default("[]")
 	status       ListingStatus    @default(DRAFT)
+	fullyBooked  Boolean          @default(false)
 	partner      Partner          @relation(fields: [partnerId], references: [id])
 	availability Availability[]
 	bookings     Booking[]

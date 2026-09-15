@@ -37,7 +37,7 @@ function faqs(value: unknown): ListingFaqItem[] {
     .map((item) => ({ question: String(item.question ?? ''), answer: String(item.answer ?? '') }))
     .filter((item) => item.question.trim() && item.answer.trim());
 }
-function mapRecord(record: { slug: string; title: string; location: string; sellPrice: unknown; basePrice?: unknown; category: ListingCategory; images: unknown; amenities: unknown; details?: unknown; faqs?: unknown; houseRules?: unknown; accommodations?: unknown }): Listing {
+function mapRecord(record: { slug: string; title: string; location: string; sellPrice: unknown; basePrice?: unknown; category: ListingCategory; images: unknown; amenities: unknown; details?: unknown; faqs?: unknown; houseRules?: unknown; accommodations?: unknown; fullyBooked?: unknown }): Listing {
   const details = record.details && typeof record.details === 'object' ? record.details as Record<string, unknown> : {};
   const facilities = details.facilities && typeof details.facilities === 'object' ? Object.fromEntries(Object.entries(details.facilities).filter(([, value]) => typeof value === 'boolean')) as Record<string, boolean> : { ...defaultStayFacilities };
   const recordFaqs = (record as { faqs?: unknown }).faqs;
@@ -45,7 +45,7 @@ function mapRecord(record: { slug: string; title: string; location: string; sell
   const recordAccommodations = (record as { accommodations?: unknown }).accommodations;
   const price = Number(record.sellPrice);
   const base = Number(record.basePrice);
-  return { slug: record.slug, title: record.title, location: record.location, price, ...((Number.isFinite(base) && base > 0 && base > price) ? { basePrice: base } : {}), rating: 5, category: record.category === 'RENTAL' ? 'rental' : record.category === 'ACTIVITY' ? 'activity' : 'stay', image: strings(record.images)[0] || '/images/Logo.png', images: strings(record.images), description: '', amenities: strings(record.amenities), facilities, faqs: faqs(recordFaqs), houseRules: parseHouseRules(recordHouseRules), mapPin: typeof details.mapPin === 'string' ? details.mapPin : '', accommodations: parseAccommodations(recordAccommodations) };
+  return { slug: record.slug, title: record.title, location: record.location, price, ...((Number.isFinite(base) && base > 0 && base > price) ? { basePrice: base } : {}), fullyBooked: Boolean(record.fullyBooked), rating: 5, category: record.category === 'RENTAL' ? 'rental' : record.category === 'ACTIVITY' ? 'activity' : 'stay', image: strings(record.images)[0] || '/images/Logo.png', images: strings(record.images), description: '', amenities: strings(record.amenities), facilities, faqs: faqs(recordFaqs), houseRules: parseHouseRules(recordHouseRules), mapPin: typeof details.mapPin === 'string' ? details.mapPin : '', accommodations: parseAccommodations(recordAccommodations) };
 }
 
 export function discountPercent(price: unknown, basePrice: unknown): number | null {
@@ -86,8 +86,8 @@ const fallbackListings = (category: ListingCategory): PublicResult<Listing[]> =>
 
 export async function getPublicListings(category: ListingCategory): Promise<PublicResult<Listing[]>> {
   try {
-    const records = await db.listing.findMany({ where: { category, status: 'LIVE' }, orderBy: { createdAt: 'desc' } });
-    if (records.length) return { data: records.map((record) => ({ ...mapRecord(record), description: record.description })), degraded: false };
+    const records = await db.listing.findMany({ where: { category, status: 'LIVE' }, select: { slug: true, title: true, location: true, sellPrice: true, basePrice: true, category: true, images: true, amenities: true, details: true, accommodations: true, fullyBooked: true, description: true }, orderBy: { createdAt: 'desc' } });
+    if (records.length) return { data: records.map((record) => ({ ...mapRecord(record as { slug: string; title: string; location: string; sellPrice: unknown; basePrice?: unknown; category: ListingCategory; images: unknown; amenities: unknown; details?: unknown; accommodations?: unknown; fullyBooked?: unknown }), description: record.description })), degraded: false };
     return fallbackListings(category);
   } catch {
     return fallbackListings(category);
@@ -96,8 +96,8 @@ export async function getPublicListings(category: ListingCategory): Promise<Publ
 
 export async function getPublicListing(slug: string): Promise<PublicResult<Listing | null>> {
   try {
-    const record = await db.listing.findFirst({ where: { slug, status: 'LIVE' }, include: { faqs: { orderBy: { order: 'asc' } } } });
-    if (record) return { data: { ...mapRecord(record), description: record.description }, degraded: false };
+    const record = await db.listing.findFirst({ where: { slug, status: 'LIVE' }, select: { slug: true, title: true, location: true, sellPrice: true, basePrice: true, category: true, images: true, amenities: true, details: true, accommodations: true, fullyBooked: true, description: true, faqs: { select: { question: true, answer: true }, orderBy: { order: 'asc' } } }, });
+    if (record) return { data: { ...mapRecord(record as { slug: string; title: string; location: string; sellPrice: unknown; basePrice?: unknown; category: ListingCategory; images: unknown; amenities: unknown; details?: unknown; accommodations?: unknown; fullyBooked?: unknown }), description: record.description }, degraded: false };
   } catch { /* fall through to the degraded fallback below */ }
   if (process.env.NODE_ENV === 'production') return { data: null, degraded: true };
   return { data: stays.find((stay) => stay.slug === slug) || null, degraded: true };

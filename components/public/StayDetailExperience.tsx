@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { BedDouble, ChevronDown, ChevronLeft, ChevronRight, Heart, MapPin, Share2, Star, Wifi, Car, Utensils, ShieldCheck, Users, Plane, X } from 'lucide-react';
+import { Ban, BedDouble, ChevronDown, ChevronLeft, ChevronRight, Heart, MapPin, Share2, Star, Wifi, Car, Utensils, ShieldCheck, Users, Plane, X } from 'lucide-react';
 import type { Listing } from '@/lib/mock-data';
 import type { StayReviewData } from '@/lib/reviews';
 import { defaultStayFacilities, stayFacilityGroups } from '@/lib/stay-facilities';
@@ -273,9 +273,19 @@ export function StayDetailExperience({ stay, reviewData }: { stay: Listing; revi
             >
               <Share2 size={16} className="text-[#536274]" />
             </button>
-            <Link href="#trip-builder" className="flex items-center rounded bg-[#0071c2] px-4 py-2.5 text-xs font-bold text-white hover:bg-[#005b9d]">
-              Reserve
-            </Link>
+            {stay.fullyBooked ? (
+              <span
+                aria-disabled="true"
+                title="This stay is fully booked right now"
+                className="flex cursor-not-allowed select-none items-center gap-1.5 rounded bg-[#e5e7eb] px-4 py-2.5 text-xs font-bold text-[#8b95a1]"
+              >
+                <Ban size={14} /> Fully booked
+              </span>
+            ) : (
+              <Link href="#trip-builder" className="flex items-center rounded bg-[#0071c2] px-4 py-2.5 text-xs font-bold text-white hover:bg-[#005b9d]">
+                Reserve
+              </Link>
+            )}
           </div>
         </div>
 
@@ -608,7 +618,7 @@ export function StayDetailExperience({ stay, reviewData }: { stay: Listing; revi
                 </p>
               )}
               <p className="mt-2 text-xs text-[#536274]">Includes taxes and fees estimate</p>
-              <StayTripPanel slug={stay.slug} title={stay.title} price={stay.price} />
+              <StayTripPanel slug={stay.slug} title={stay.title} price={stay.price} fullyBooked={Boolean(stay.fullyBooked)} />
             </div>
 
             {/* Property location */}
@@ -709,7 +719,7 @@ export function StayDetailExperience({ stay, reviewData }: { stay: Listing; revi
 
       {/* Mobile bottom static bar: price + Add-to-trip shortcut, sticky to screen */}
       {isMobile && stay.category === 'stay' && (
-        <StayBottomBar slug={stay.slug} price={stay.price} basePrice={basePrice} />
+        <StayBottomBar slug={stay.slug} price={stay.price} basePrice={basePrice} fullyBooked={Boolean(stay.fullyBooked)} />
       )}
     </div>
   );

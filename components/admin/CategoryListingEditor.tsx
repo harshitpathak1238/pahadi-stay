@@ -611,15 +611,21 @@ function ReviewPanel({ editingId, title, reviewCount, open }: { editingId?: stri
 
 function StatusField({ form, setForm }: { form: ListingForm; setForm: Dispatch<SetStateAction<ListingForm>> }) {
   return (
-    <label className="grid gap-1 text-[12px] font-semibold text-[#173f35] md:col-span-2">
-      <span>Status</span>
-      <select value={form.status} onChange={(event) => setForm((current) => ({ ...current, status: event.target.value }))} className="h-10 rounded-xl border border-[#d6d9d1] px-3 font-normal">
-        <option value="DRAFT">Draft</option>
-        <option value="LIVE">Live</option>
-        <option value="PAUSED">Paused</option>
-        <option value="PENDING_REVIEW">Pending review</option>
-      </select>
-    </label>
+    <>
+      <label className="grid gap-1 text-[12px] font-semibold text-[#173f35] md:col-span-2">
+        <span>Status</span>
+        <select value={form.status} onChange={(event) => setForm((current) => ({ ...current, status: event.target.value }))} className="h-10 rounded-xl border border-[#d6d9d1] px-3 font-normal">
+          <option value="DRAFT">Draft</option>
+          <option value="LIVE">Live</option>
+          <option value="PAUSED">Paused</option>
+          <option value="PENDING_REVIEW">Pending review</option>
+        </select>
+      </label>
+      <label className="flex items-center gap-3 rounded-xl border border-[#e2b5b5] bg-[#fff6f6] px-4 py-3 text-[13px] font-semibold text-[#a44a4a] md:col-span-2">
+        <input type="checkbox" checked={form.fullyBooked} onChange={(event) => setForm((current) => ({ ...current, fullyBooked: event.target.checked }))} className="h-4 w-4 accent-[#a44a4a]" />
+        <span>Fully booked — grey out this stay on the site and disable Reserve / Add to trip</span>
+      </label>
+    </>
   );
 }
 
