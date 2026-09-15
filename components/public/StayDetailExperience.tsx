@@ -13,6 +13,7 @@ import { AutoHeightIframe } from '@/components/public/AutoHeightIframe';
 import { StayTripPanel } from '@/components/trip/StayTripPanel';
 import { StayReviews } from '@/components/public/StayReviews';
 import { StayBottomBar } from '@/components/public/StayBottomBar';
+import { StayEnquireButton, StayWhatsAppEnquiryModal } from '@/components/public/StayWhatsAppEnquiry';
 import { useIsMobile } from '@/hooks/use-is-mobile';
 import { useWishlist } from '@/hooks/use-wishlist';
 import { Breadcrumbs } from '@/components/public/Breadcrumbs';
@@ -61,6 +62,7 @@ export function StayDetailExperience({ stay, reviewData }: { stay: Listing; revi
   const [showAllFacilities, setShowAllFacilities] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState<number | null>(null);
   const [roomGallery, setRoomGallery] = useState<{ accIndex: number; photoIndex: number } | null>(null);
+  const [enquiryOpen, setEnquiryOpen] = useState(false);
   const tabNavRef = useRef<HTMLElement>(null);
   const accommodationsRef = useRef<HTMLDivElement>(null);
   const [tabCanScroll, setTabCanScroll] = useState(false);
@@ -619,6 +621,10 @@ export function StayDetailExperience({ stay, reviewData }: { stay: Listing; revi
               )}
               <p className="mt-2 text-xs text-[#536274]">Includes taxes and fees estimate</p>
               <StayTripPanel slug={stay.slug} title={stay.title} price={stay.price} fullyBooked={Boolean(stay.fullyBooked)} />
+              <div className="mt-4 rounded-xl border border-[#d6e8dd] bg-[#f2faf5] p-3.5">
+                <StayEnquireButton onClick={() => setEnquiryOpen(true)} className="w-full" />
+                <p className="sans mt-2 text-center text-[11px] leading-4 text-[#4c6a5d]">Pick your bedroom(s) &amp; send a ready-made enquiry on WhatsApp.</p>
+              </div>
             </div>
 
             {/* Property location */}
@@ -717,9 +723,12 @@ export function StayDetailExperience({ stay, reviewData }: { stay: Listing; revi
         </div>
       )}
 
+      {/* WhatsApp bedroom enquiry popup (bedroom picker + prefilled message) */}
+      <StayWhatsAppEnquiryModal stay={stay} open={enquiryOpen} onClose={() => setEnquiryOpen(false)} />
+
       {/* Mobile bottom static bar: price + Add-to-trip shortcut, sticky to screen */}
       {isMobile && stay.category === 'stay' && (
-        <StayBottomBar slug={stay.slug} price={stay.price} basePrice={basePrice} fullyBooked={Boolean(stay.fullyBooked)} />
+        <StayBottomBar slug={stay.slug} price={stay.price} basePrice={basePrice} fullyBooked={Boolean(stay.fullyBooked)} onEnquire={() => setEnquiryOpen(true)} />
       )}
     </div>
   );

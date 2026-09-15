@@ -7,7 +7,6 @@ import { SiteNavigation } from '@/components/ui/SiteNavigation';
 import { SiteHeader } from '@/components/ui/SiteHeader';
 import { AccountMenu } from '@/components/auth/AccountMenu';
 import { auth } from '@/lib/auth';
-import { WhatsAppButton, defaultWhatsAppMessage } from '@/components/ui/WhatsAppButton';
 import { MobileMenu } from '@/components/ui/MobileMenu';
 import { SiteFooter } from '@/components/ui/SiteFooter';
 import { TripCartProvider, TripSummary } from '@/components/trip/TripCart';
@@ -44,7 +43,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
             </div>
         </SiteHeader>
         <main className={`pb-24 lg:pb-0${pathname === '/' ? '' : ' site-header-padding'}`}>{children}</main>
-        <TripSummary /><WhatsAppButton message={defaultWhatsAppMessage} children={<span className="hidden sm:inline">Chat with us on WhatsApp</span>} className="whatsapp-float fixed bottom-24 left-4 z-50 h-12 w-12 rounded-full border-0 !bg-[#25D366] p-0 !text-white shadow-[0_4px_14px_rgba(18,120,64,.28)] hover:!bg-[#128C7E] sm:bottom-5 sm:left-5 sm:h-auto sm:w-auto sm:px-4 sm:py-3" />
+        <TripSummary />
         <SiteFooter />
       </TripCartProvider></ThemeProvider></body>
     </html>
