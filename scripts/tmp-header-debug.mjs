@@ -1,37 +1,37 @@
-import { chromium } from '@playwright/test';
+﻿import { chromium } from '@playwright/test';
+import { writeFileSync } from 'fs';
 
-const BASE = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000';
-const path = process.argv[2] || '/stays';
-const width = Number(process.argv[3] || 452);
-const height = Number(process.argv[4] || 900);
-const scrolls = (process.argv[5] || '0,40,100').split(',').map(Number);
+const t0 = Date.now();
+const out = { steps: [] };
+const writeResult = () => writeFileSync('tmp-acc-result.json', JSON.stringify(out, null, 2));
+const deadline = setTimeout(() => { out.steps.push('deadline hit'); writeResult(); process.exit(0); }, 22000);
 
-const browser = await chromium.launch();
-const page = await browser.newPage({ viewport: { width, height } });
-const theme = process.argv[6] || 'light';
-if (theme !== 'light') {
-  await page.addInitScript((t) => localStorage.setItem('kainchi-theme', t), theme);
-}
-await page.goto(BASE + path, { waitUntil: 'networkidle' });
-
-for (const y of scrolls) {
-  await page.evaluate((v) => window.scrollTo(0, v), y);
-  await page.waitForTimeout(600); // let scroll listener/rAF settle
-  const data = await page.evaluate(() => {
-    const header = document.querySelector('header.site-header');
-    const form = document.querySelector('form');
-    const rect = (el) => {
-      const r = el.getBoundingClientRect();
-      return { top: Math.round(r.top), bottom: Math.round(r.bottom) };
-    };
-    return {
-      scrollY: window.scrollY,
-      headerClass: header?.className,
-      header: rect(header),
-      form: rect(form),
-    };
+try {
+  const browser = await chromium.launch();
+  out.steps.push(`launched ${((Date.now() - t0) / 1000).toFixed(1)}s`);
+  const page = await browser.newPage({ viewport: { width: 452, height: 900 } });
+  await page.goto('http://localhost:3000/stays/kainchidarshan-by-sanobar', { waitUntil: 'domcontentloaded', timeout: 12000 });
+  out.steps.push(`loaded ${((Date.now() - t0) / 1000).toFixed(1)}s`);
+  const cards = page.locator('[data-acc-card]');
+  await cards.first().waitFor({ timeout: 8000 });
+  out.accCards = await cards.count();
+  const card = cards.first();
+  const badge = card.locator('span', { hasText: '/ night' }).first();
+  out.badgeText = (await badge.textContent({ timeout: 4000 })).trim();
+  out.badgeStyles = await badge.evaluate((el) => {
+    const cs = getComputedStyle(el);
+    return { bg: cs.backgroundColor, color: cs.color, pointerEvents: cs.pointerEvents };
   });
-  console.log(`scroll=${y}`, JSON.stringify(data));
-  await page.screenshot({ path: `tmp-header-${theme}-scroll-${y}.png` });
+  await card.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(5000);
+  await card.screenshot({ path: 'tmp-acc-card.png' });
+  out.screenshot = 'tmp-acc-card.png';
+  await browser.close();
+} catch (err) {
+  out.error = String(err && err.message ? err.message : err);
 }
-await browser.close();
+clearTimeout(deadline);
+out.elapsedSec = ((Date.now() - t0) / 1000).toFixed(1);
+writeResult();
+process.exit(0);
+

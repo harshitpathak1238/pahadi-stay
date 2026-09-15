@@ -759,8 +759,8 @@ function AccommodationCard({ acc, onOpen }: { acc: AccommodationCardData; onOpen
           </div>
         )}
         {acc.price != null && acc.price > 0 && (
-          <span className="absolute right-2 top-2 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-[#173f35] shadow-sm">
-            ₹{acc.price.toLocaleString('en-IN')} <span className="font-medium text-[#536274]">/ night</span>
+          <span className="pointer-events-none absolute right-2 top-2 rounded-full bg-[#173f35] px-2.5 py-1 text-[11px] font-bold text-white shadow-[0_4px_12px_rgba(7,26,21,.35)] sm:text-xs">
+            ₹{acc.price.toLocaleString('en-IN')} <span className="font-medium text-white/80">/ night</span>
           </span>
         )}
         {photos.length > 1 && (
