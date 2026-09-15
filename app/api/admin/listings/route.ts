@@ -4,13 +4,14 @@ import type { Prisma } from '@prisma/client';
 import { db } from '@/lib/db';
 import { getAdminPartner, requireAdmin } from '@/lib/admin';
 import { isFullBlogDocument, sanitizeBlogHtml } from '@/lib/sanitize-html';
+import { slugifyTitle } from '@/lib/slug';
 
 const listingStatus = z.preprocess((value) => typeof value === 'string' ? value.trim().toUpperCase() : value, z.enum(['DRAFT', 'LIVE', 'PAUSED', 'PENDING_REVIEW']).default('DRAFT'));
 const optionalStringList = z.array(z.string().trim().max(500)).default([]).transform((items) => items.map((item) => item.trim()).filter(Boolean));
 const houseRuleSchema = z.object({ title: z.string().trim().max(120), text: z.string().trim().max(500) });
 const optionalHouseRules = z.array(houseRuleSchema).max(30).optional().transform((rules) => rules ? rules.map((rule) => ({ title: rule.title.trim(), text: rule.text.trim() })).filter((rule) => rule.title && rule.text) : rules);
-const accommodationSchema = z.object({ title: z.string().trim().max(160), description: z.string().trim().max(2000).optional().default(''), image: z.string().trim().max(1000).optional().default(''), bedrooms: z.coerce.number().int().nonnegative().max(50).optional().default(0), beds: z.coerce.number().int().nonnegative().max(100).optional().default(0) });
-const optionalAccommodations = z.array(accommodationSchema).max(50).optional().transform((items) => items ? items.map((item) => ({ ...item, description: item.description.trim(), image: item.image.trim() })).filter((item) => item.title) : items);
+const accommodationSchema = z.object({ title: z.string().trim().max(160), description: z.string().trim().max(2000).optional().default(''), image: z.string().trim().max(1000).optional().default(''), images: z.array(z.string().trim().max(1000)).max(20).optional().default([]), price: z.coerce.number().nonnegative().max(10000000).optional().default(0), bedrooms: z.coerce.number().int().nonnegative().max(50).optional().default(0), beds: z.coerce.number().int().nonnegative().max(100).optional().default(0) });
+const optionalAccommodations = z.array(accommodationSchema).max(50).optional().transform((items) => items ? items.map((item) => ({ ...item, description: item.description.trim(), image: item.image.trim(), images: item.images.map((url) => url.trim()).filter(Boolean) })).filter((item) => item.title) : items);
 const mealPlans = ['Breakfast included', 'Half board', 'Full board', 'Self-catering / no meals'] as const;
 const optionalMealPlan = z.union([z.enum(mealPlans), z.literal(''), z.null()]).optional().transform((value) => value || null);
 const landmarkSchema = z.object({ label: z.string().trim().max(120), distanceKm: z.coerce.number().nonnegative().optional(), order: z.coerce.number().int().nonnegative().optional() });
@@ -38,7 +39,7 @@ export async function POST(request: Request) {
   try {
     const partner = await getAdminPartner();
     const title = parsed.data.title || 'Untitled listing';
-    const slug = parsed.data.slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || `listing-${Date.now()}`;
+    const slug = slugifyTitle(parsed.data.slug || title) || `listing-${Date.now()}`;
     const { details, houseRules, accommodations, landmarks, services, experiences, ...fields } = parsed.data;
     fields.description = isFullBlogDocument(fields.description) ? fields.description : sanitizeBlogHtml(fields.description);
     const listing = await db.listing.create({ data: { ...fields, details: details as Prisma.InputJsonObject, ...(houseRules ? { houseRules: houseRules as Prisma.InputJsonValue } : {}), ...(accommodations?.length ? { accommodations: accommodations as Prisma.InputJsonValue } : {}), landmarks: { create:ordered(landmarks).map((item) => ({ label: item.label, distanceKm: item.distanceKm ?? 0, order: item.order })) }, services: { create: ordered(services).map((item) => ({ label: item.label, note: item.note || null, order: item.order })) }, experiences: { create: ordered(experiences).map((item) => ({ title: item.title, note: item.note || null, order: item.order })) }, slug, title, partnerId: partner.id, basePrice: parsed.data.basePrice, sellPrice: parsed.data.sellPrice, category: (parsed.data.category || 'STAY') as 'STAY' | 'RIDE' | 'RENTAL' | 'ACTIVITY' } });

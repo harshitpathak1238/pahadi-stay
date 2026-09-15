@@ -130,23 +130,37 @@ function AccommodationItem({ accommodation, index, total, onChange, onMove, onRe
     }
     setUrlError('');
     setImageUrl('');
-    onChange({ ...accommodation, image: url });
+    if (!accommodation.image) onChange({ ...accommodation, image: url });
+    else onChange({ ...accommodation, images: [...(accommodation.images || []), url] });
   };
+
+  const removeExtraImage = (target: number) => onChange({ ...accommodation, images: (accommodation.images || []).filter((_, i) => i !== target) });
+  const makeCover = (target: number) => onChange({ ...accommodation, image: (accommodation.images || [])[target] || accommodation.image, images: [accommodation.image, ...(accommodation.images || [])].filter(Boolean).filter((url, i, all) => all.indexOf(url) === i).slice(1) });
 
   return (
     <RepeatableRow label="Accommodation" index={index} total={total} onMove={onMove} onRemove={onRemove}>
       <DetailInput label="Title" value={accommodation.title} onChange={(value) => onChange({ ...accommodation, title: value })} placeholder="Deluxe King Bedroom" />
       <DetailTextarea label="Description" value={accommodation.description} onChange={(value) => onChange({ ...accommodation, description: value })} placeholder="Spacious room with a king-size bed..." />
       <div className="grid gap-1 text-[12px] font-semibold text-[#173f35] md:col-span-2">
-        <span>Image</span>
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+        <span>Photos <span className="font-normal text-[#6c7770]">(the first photo is the cover shown on the card; visitors can swipe through all of them)</span></span>
+        <div className="flex flex-wrap items-start gap-2 sm:gap-3">
           {accommodation.image && (
             <span className="relative inline-block">
               <img src={accommodation.image} alt={accommodation.title || 'Accommodation'} className="h-16 w-16 rounded-lg object-cover" />
-              <button type="button" title="Remove image" aria-label="Remove image" onClick={() => onChange({ ...accommodation, image: '' })} className="absolute -right-1.5 -top-1.5 grid h-5 w-5 place-items-center rounded-full bg-[#a44a4a] text-white"><Trash2 size={11} /></button>
+              <span className="absolute inset-x-0 bottom-0 rounded-b-lg bg-[#173f35]/80 py-px text-center text-[9px] font-bold uppercase tracking-wide text-white">Cover</span>
+              <button type="button" title="Remove cover photo" aria-label="Remove cover photo" onClick={() => onChange({ ...accommodation, image: (accommodation.images || [])[0] || '', images: (accommodation.images || []).slice(1) })} className="absolute -right-1.5 -top-1.5 grid h-5 w-5 place-items-center rounded-full bg-[#a44a4a] text-white"><Trash2 size={11} /></button>
             </span>
           )}
-          <button type="button" onClick={onUploadImage} className="inline-flex items-center gap-2 rounded-xl border border-[#173f35] px-4 py-2 text-xs font-bold text-[#173f35] hover:bg-[#eef4ef]"><Upload size={14} /> Upload image</button>
+          {(accommodation.images || []).map((url, i) => (
+            <span key={`${url}-${i}`} className="relative inline-block">
+              <img src={url} alt="" className="h-16 w-16 rounded-lg object-cover" />
+              <button type="button" title="Remove photo" aria-label="Remove photo" onClick={() => removeExtraImage(i)} className="absolute -right-1.5 -top-1.5 grid h-5 w-5 place-items-center rounded-full bg-[#a44a4a] text-white"><Trash2 size={11} /></button>
+              {accommodation.image && <button type="button" title="Make cover photo" aria-label="Make cover photo" onClick={() => makeCover(i)} className="absolute inset-x-0 bottom-0 rounded-b-lg bg-black/55 py-0.5 text-[9px] font-bold text-white">Set cover</button>}
+            </span>
+          ))}
+        </div>
+        <div className="mt-1 flex flex-wrap items-center gap-2 sm:gap-3">
+          <button type="button" onClick={onUploadImage} className="inline-flex items-center gap-2 rounded-xl border border-[#173f35] px-4 py-2 text-xs font-bold text-[#173f35] hover:bg-[#eef4ef]"><Upload size={14} /> Upload photos</button>
           <span className="text-[11px] font-normal text-[#6c7770]">or</span>
           <span className="flex items-center gap-1.5">
             <input
@@ -162,6 +176,7 @@ function AccommodationItem({ accommodation, index, total, onChange, onMove, onRe
         </div>
         {urlError && <span className="mt-1 text-[11px] font-normal text-[#a44a4a]">{urlError}</span>}
       </div>
+      <DetailInput label="Price per night (₹)" type="number" value={accommodation.price} onChange={(value) => onChange({ ...accommodation, price: value })} placeholder="2500" />
       <DetailInput label="Bedrooms" type="number" value={accommodation.bedrooms} onChange={(value) => onChange({ ...accommodation, bedrooms: value })} />
       <DetailInput label="Beds" type="number" value={accommodation.beds} onChange={(value) => onChange({ ...accommodation, beds: value })} />
     </RepeatableRow>
@@ -174,7 +189,7 @@ function AccommodationsEditor({ form, setForm, uploadAccommodationImage }: { for
     <SectionPanel title="Accommodations" note="Add detailed bedroom/accommodation entries with images. These appear in the accommodations gallery on the public stay page.">
       {accommodations.length === 0 && <p className="rounded-xl border border-dashed border-[#c9c9cc] bg-white p-4 text-center text-xs text-[#777]">No accommodations added yet.</p>}
             <div className="grid gap-3">{accommodations.map((acc, index) => <AccommodationItem key={acc.id ?? `new-${index}`} accommodation={acc} index={index} total={accommodations.length} onChange={(next) => setForm((current) => ({ ...current, accommodations: current.accommodations.map((item, i) => i === index ? next : item) }))} onMove={(direction) => setForm((current) => ({ ...current, accommodations: reorder(current.accommodations, index, direction) }))} onRemove={() => setForm((current) => ({ ...current, accommodations: current.accommodations.filter((_, i) => i !== index) }))} onUploadImage={() => uploadAccommodationImage(index)} />)}</div>
-      <div className="mt-3 flex gap-2"><button type="button" onClick={() => setForm((current) => ({ ...current, accommodations: [...(current.accommodations || []), { title: '', description: '', image: '', bedrooms: '', beds: '' }] }))} className="inline-flex items-center gap-2 rounded-xl border border-[#173f35] px-4 py-2 text-xs font-bold text-[#173f35] hover:bg-[#eef4ef]"><Plus size={14} /> Add accommodation</button></div>
+      <div className="mt-3 flex gap-2"><button type="button" onClick={() => setForm((current) => ({ ...current, accommodations: [...(current.accommodations || []), { title: '', description: '', image: '', images: [], price: '', bedrooms: '', beds: '' }] }))} className="inline-flex items-center gap-2 rounded-xl border border-[#173f35] px-4 py-2 text-xs font-bold text-[#173f35] hover:bg-[#eef4ef]"><Plus size={14} /> Add accommodation</button></div>
     </SectionPanel>
   );
 }
@@ -331,16 +346,20 @@ export function CategoryListingEditor({ category, form, setForm, busy, message, 
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/jpeg,image/png,image/webp';
+    input.multiple = true;
     input.onchange = async () => {
-      const file = input.files?.[0];
-      if (!file) return;
-      const body = new FormData();
-      body.append('file', file);
-      const response = await fetch('/api/admin/media', { method: 'POST', body });
-      const result = await response.json().catch(() => ({}));
-      if (response.ok && typeof result.asset?.url === 'string') {
-        setForm((current) => ({ ...current, accommodations: current.accommodations.map((item, i) => i === index ? { ...item, image: result.asset.url } : item) }));
+      const files = Array.from(input.files || []);
+      if (!files.length) return;
+      const uploaded: string[] = [];
+      for (const file of files) {
+        const body = new FormData();
+        body.append('file', file);
+        const response = await fetch('/api/admin/media', { method: 'POST', body });
+        const result = await response.json().catch(() => ({}));
+        if (response.ok && typeof result.asset?.url === 'string') uploaded.push(result.asset.url);
       }
+      if (!uploaded.length) return;
+      setForm((current) => ({ ...current, accommodations: current.accommodations.map((item, i) => i === index ? { ...item, image: item.image || uploaded[0], images: item.image ? [...(item.images || []), ...uploaded] : uploaded.slice(1) } : item) }));
     };
     input.click();
   };

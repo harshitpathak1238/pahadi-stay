@@ -61,17 +61,23 @@ function parseAccommodations(value: unknown): Accommodation[] {
   if (!Array.isArray(value)) return [];
   return value
     .filter((item): item is Record<string, unknown> => typeof item === 'object' && item !== null)
-    .map((item) => ({
-      title: String(item.title ?? ''),
-      description: String(item.description ?? ''),
-      image: String(item.image ?? ''),
-      bedrooms: Number(item.bedrooms ?? 0),
-      beds: Number(item.beds ?? 0),
-    }))
+    .map((item) => {
+      const cover = String(item.image ?? '').trim();
+      const extras = strings(item.images).filter((url) => url !== cover);
+      return {
+        title: String(item.title ?? ''),
+        description: String(item.description ?? ''),
+        image: cover,
+        images: cover ? [cover, ...extras] : extras,
+        price: Number.isFinite(Number(item.price)) && Number(item.price) > 0 ? Number(item.price) : 0,
+        bedrooms: Number(item.bedrooms ?? 0),
+        beds: Number(item.beds ?? 0),
+      };
+    })
     .filter((item) => item.title.trim());
 }
 
-type Accommodation = { title: string; description: string; image: string; bedrooms: number; beds: number };
+type Accommodation = { title: string; description: string; image: string; images: string[]; price: number; bedrooms: number; beds: number };
 
 const localRentals = (): Listing[] => rentals.map((rental) => ({ slug: rental.slug, title: rental.title, location: rental.pickup, price: rental.price, rating: 5, category: 'rental' as const, image: rental.image, description: rental.description, amenities: rental.features }));
 // Mock data keeps local development usable without a database; production

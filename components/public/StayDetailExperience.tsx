@@ -60,6 +60,7 @@ export function StayDetailExperience({ stay, reviewData }: { stay: Listing; revi
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [showAllFacilities, setShowAllFacilities] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState<number | null>(null);
+  const [roomGallery, setRoomGallery] = useState<{ accIndex: number; photoIndex: number } | null>(null);
   const tabNavRef = useRef<HTMLElement>(null);
   const accommodationsRef = useRef<HTMLDivElement>(null);
   const [tabCanScroll, setTabCanScroll] = useState(false);
@@ -183,6 +184,19 @@ export function StayDetailExperience({ stay, reviewData }: { stay: Listing; revi
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
   }, [galleryOpen, gallery.length]);
+
+  // Room photo lightbox: same keyboard behaviour, scoped to one accommodation.
+  const roomPhotos = roomGallery ? photosOf(accommodations[roomGallery.accIndex]) : [];
+  useEffect(() => {
+    if (!roomGallery) return;
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setRoomGallery(null);
+      if (event.key === 'ArrowLeft') setRoomGallery((current) => current ? { ...current, photoIndex: (current.photoIndex + roomPhotos.length - 1) % roomPhotos.length } : current);
+      if (event.key === 'ArrowRight') setRoomGallery((current) => current ? { ...current, photoIndex: (current.photoIndex + 1) % roomPhotos.length } : current);
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [roomGallery, roomPhotos.length]);
 
   return (
     <div className="bg-[#f5f7fa] text-[#1f2937]">
@@ -441,52 +455,11 @@ export function StayDetailExperience({ stay, reviewData }: { stay: Listing; revi
                 </div>
                 <div ref={accommodationsRef} className="mt-4 flex snap-x gap-4 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                   {accommodations.map((acc, index) => (
-                    <div
+                    <AccommodationCard
                       key={`${acc.title}-${index}`}
-                      data-acc-card
-                      className="w-[220px] shrink-0 snap-start overflow-hidden rounded-xl border border-[#e5e7eb] bg-white sm:w-[250px]"
-                    >
-                      <div className="relative h-36 w-full bg-[#eef3f0] sm:h-40">
-                        {acc.image ? (
-                          <Image
-                            src={acc.image}
-                            alt={acc.title}
-                            fill
-                            sizes="(max-width: 640px) 220px, 250px"
-                            unoptimized
-                            className="object-cover"
-                          />
-                        ) : (
-                          <div className="flex h-full items-center justify-center text-[#24584a]">
-                            <BedDouble size={30} strokeWidth={1.6} />
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-3 sm:p-4">
-                        <p className="text-sm font-bold text-[#23332e] sm:text-base">{acc.title}</p>
-                        <ul className="mt-2 grid gap-1.5 text-xs leading-5 text-[#536274] sm:text-[13px]">
-                          {acc.description.trim() && (
-                            <li className="flex gap-2">
-                              <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full border border-[#8aa0b5]" />
-                              <span>{acc.description.trim()}</span>
-                            </li>
-                          )}
-                          {(acc.bedrooms > 0 || acc.beds > 0) && (
-                            <li className="flex gap-2">
-                              <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full border border-[#8aa0b5]" />
-                              <span>
-                                {[
-                                  acc.bedrooms > 0 ? `${acc.bedrooms} Bedroom${acc.bedrooms > 1 ? 's' : ''}` : '',
-                                  acc.beds > 0 ? `${acc.beds} Bed${acc.beds > 1 ? 's' : ''}` : '',
-                                ]
-                                  .filter(Boolean)
-                                  .join(', ')}
-                              </span>
-                            </li>
-                          )}
-                        </ul>
-                      </div>
-                    </div>
+                      acc={acc}
+                      onOpen={(photoIndex) => setRoomGallery({ accIndex: index, photoIndex })}
+                    />
                   ))}
                 </div>
               </section>
@@ -701,10 +674,125 @@ export function StayDetailExperience({ stay, reviewData }: { stay: Listing; revi
         </div>
       )}
 
+      {/* Room photo lightbox — swipe/arrow through one accommodation's photos */}
+      {roomGallery && roomPhotos.length > 0 && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4" role="dialog" aria-modal="true" aria-label={`${accommodations[roomGallery.accIndex]?.title ?? 'Room'} photos`}>
+          <button aria-label="Close photos" onClick={() => setRoomGallery(null)} className="absolute right-5 top-5 z-10 rounded-full bg-white p-2 text-black hover:bg-[#f5f7fa]">
+            <X size={20} />
+          </button>
+          <div className="relative h-[80vh] w-full max-w-[1180px]">
+            <Image src={roomPhotos[roomGallery.photoIndex]} alt={`${accommodations[roomGallery.accIndex]?.title ?? 'Room'} photo ${roomGallery.photoIndex + 1}`} fill sizes="100vw" className="object-contain" />
+          </div>
+          {roomPhotos.length > 1 && (
+            <>
+              <button
+                aria-label="Previous photo"
+                onClick={() => setRoomGallery((current) => current ? { ...current, photoIndex: (current.photoIndex + roomPhotos.length - 1) % roomPhotos.length } : current)}
+                className="absolute left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white p-3 text-black hover:bg-[#f5f7fa]"
+              >
+                ‹
+              </button>
+              <button
+                aria-label="Next photo"
+                onClick={() => setRoomGallery((current) => current ? { ...current, photoIndex: (current.photoIndex + 1) % roomPhotos.length } : current)}
+                className="absolute right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white p-3 text-black hover:bg-[#f5f7fa]"
+              >
+                ›
+              </button>
+            </>
+          )}
+          <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-black">
+            {accommodations[roomGallery.accIndex]?.title} · {roomGallery.photoIndex + 1} / {roomPhotos.length}
+          </span>
+        </div>
+      )}
+
       {/* Mobile bottom static bar: price + Add-to-trip shortcut, sticky to screen */}
       {isMobile && stay.category === 'stay' && (
         <StayBottomBar slug={stay.slug} price={stay.price} basePrice={basePrice} />
       )}
+    </div>
+  );
+}
+
+type AccommodationCardData = { title: string; description: string; image: string; images?: string[]; price?: number | null; bedrooms: number; beds: number };
+
+function photosOf(acc?: AccommodationCardData | null): string[] {
+  if (!acc) return [];
+  return [...new Set([acc.image, ...(acc.images ?? [])])].filter(Boolean);
+}
+
+function AccommodationCard({ acc, onOpen }: { acc: AccommodationCardData; onOpen: (photoIndex: number) => void }) {
+  const photos = photosOf(acc);
+  const [photoIndex, setPhotoIndex] = useState(0);
+  const touchStartX = useRef<number | null>(null);
+  const go = (delta: number) => setPhotoIndex((current) => (current + delta + photos.length) % photos.length);
+  return (
+    <div data-acc-card className="w-[220px] shrink-0 snap-start overflow-hidden rounded-xl border border-[#e5e7eb] bg-white sm:w-[250px]">
+      <div
+        className="relative h-36 w-full touch-pan-y bg-[#eef3f0] sm:h-40"
+        onTouchStart={(event) => { touchStartX.current = event.touches[0].clientX; }}
+        onTouchEnd={(event) => {
+          if (touchStartX.current === null || photos.length < 2) return;
+          const deltaX = event.changedTouches[0].clientX - touchStartX.current;
+          touchStartX.current = null;
+          if (Math.abs(deltaX) > 40) go(deltaX < 0 ? 1 : -1);
+        }}
+      >
+        {photos.length > 0 ? (
+          <button type="button" aria-label={`Open ${acc.title} photos`} onClick={() => onOpen(Math.min(photoIndex, photos.length - 1))} className="absolute inset-0 block cursor-zoom-in">
+            <Image src={photos[photoIndex]} alt={acc.title} fill sizes="(max-width: 640px) 220px, 250px" unoptimized className="object-cover" />
+          </button>
+        ) : (
+          <div className="flex h-full items-center justify-center text-[#24584a]">
+            <BedDouble size={30} strokeWidth={1.6} />
+          </div>
+        )}
+        {acc.price != null && acc.price > 0 && (
+          <span className="absolute right-2 top-2 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-[#173f35] shadow-sm">
+            ₹{acc.price.toLocaleString('en-IN')} <span className="font-medium text-[#536274]">/ night</span>
+          </span>
+        )}
+        {photos.length > 1 && (
+          <>
+            <button type="button" aria-label="Previous photo" onClick={(event) => { event.stopPropagation(); go(-1); }} className="absolute left-1.5 top-1/2 z-10 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full bg-white/85 text-[#23332e] shadow-sm transition hover:bg-white">
+              <ChevronLeft size={15} />
+            </button>
+            <button type="button" aria-label="Next photo" onClick={(event) => { event.stopPropagation(); go(1); }} className="absolute right-1.5 top-1/2 z-10 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full bg-white/85 text-[#23332e] shadow-sm transition hover:bg-white">
+              <ChevronRight size={15} />
+            </button>
+            <div className="pointer-events-none absolute bottom-2 left-1/2 z-10 flex -translate-x-1/2 gap-1">
+              {photos.map((_, dotIndex) => (
+                <span key={dotIndex} className={`h-1.5 w-1.5 rounded-full transition ${dotIndex === photoIndex ? 'bg-white' : 'bg-white/50'}`} />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+      <div className="p-3 sm:p-4">
+        <p className="text-sm font-bold text-[#23332e] sm:text-base">{acc.title}</p>
+        <ul className="mt-2 grid gap-1.5 text-xs leading-5 text-[#536274] sm:text-[13px]">
+          {acc.description.trim() && (
+            <li className="flex gap-2">
+              <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full border border-[#8aa0b5]" />
+              <span>{acc.description.trim()}</span>
+            </li>
+          )}
+          {(acc.bedrooms > 0 || acc.beds > 0) && (
+            <li className="flex gap-2">
+              <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full border border-[#8aa0b5]" />
+              <span>
+                {[
+                  acc.bedrooms > 0 ? `${acc.bedrooms} Bedroom${acc.bedrooms > 1 ? 's' : ''}` : '',
+                  acc.beds > 0 ? `${acc.beds} Bed${acc.beds > 1 ? 's' : ''}` : '',
+                ]
+                  .filter(Boolean)
+                  .join(', ')}
+              </span>
+            </li>
+          )}
+        </ul>
+      </div>
     </div>
   );
 }

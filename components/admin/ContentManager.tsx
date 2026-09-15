@@ -27,7 +27,7 @@ export type HouseRuleRow = { id?: string; title: string; text: string };
 export type AdminLandmarkRow = { id?: string; label: string; distanceKm: string };
 export type AdminServiceRow = { id?: string; label: string; note: string };
 export type AdminExperienceRow = { id?: string; title: string; note: string };
-export type AccommodationRow = { id?: string; title: string; description: string; image: string; bedrooms: string; beds: string };
+export type AccommodationRow = { id?: string; title: string; description: string; image: string; images: string[]; price: string; bedrooms: string; beds: string };
 
 export type ListingForm = { slug: string; title: string; description: string; location: string; basePrice: string; sellPrice: string; images: string[]; amenities: string; status: string; price: string; listingIds: string[]; details: Record<string, string>; mealPlan: string; breakfastIncluded: boolean; cuisineNotes: string; stayFacilities: Record<string, boolean>; faqs: AdminFaqRow[]; houseRules: HouseRuleRow[]; landmarks: AdminLandmarkRow[]; services: AdminServiceRow[]; experiences: AdminExperienceRow[]; accommodations: AccommodationRow[] };
 
@@ -160,7 +160,7 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
         landmarks: (listing.landmarks || []).map((item) => ({ id: item.id, label: item.label, distanceKm: String(item.distanceKm ?? '') })),
         services: (listing.services || []).map((item) => ({ id: item.id, label: item.label, note: item.note ?? '' })),
         experiences: (listing.experiences || []).map((item) => ({ id: item.id, title: item.title, note: item.note ?? '' })),
-        accommodations: (listing.accommodations || []).map((item) => ({ id: item.id, title: item.title ?? '', description: item.description ?? '', image: item.image ?? '', bedrooms: String(item.bedrooms ?? ''), beds: String(item.beds ?? '') })),
+        accommodations: (listing.accommodations || []).map((item) => ({ id: item.id, title: item.title ?? '', description: item.description ?? '', image: item.image ?? '', images: Array.isArray((item as { images?: unknown }).images) ? ((item as { images: unknown[] }).images.filter((url): url is string => typeof url === 'string')) : [], price: (item as { price?: unknown }).price != null ? String((item as { price: unknown }).price) : '', bedrooms: String(item.bedrooms ?? ''), beds: String(item.beds ?? '') })),
       });
       void loadFaqs(item.id);
     }
@@ -251,7 +251,7 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
       ...(section === 'STAY' ? { mealPlan: form.mealPlan || null, breakfastIncluded: form.breakfastIncluded, cuisineNotes: form.cuisineNotes || null, landmarks, services, experiences } : {}),
       status: String(form.status || 'DRAFT').trim().toUpperCase(),
       ...(section === 'STAY' ? { houseRules: form.houseRules } : {}),
-      ...(section === 'STAY' ? { accommodations: form.accommodations.map((item) => ({ title: item.title.trim(), description: item.description.trim(), image: item.image.trim(), bedrooms: item.bedrooms, beds: item.beds })) } : {}),
+      ...(section === 'STAY' ? { accommodations: form.accommodations.map((item) => ({ title: item.title.trim(), description: item.description.trim(), image: item.image.trim(), images: (item.images || []).map((url) => url.trim()).filter(Boolean), price: item.price, bedrooms: item.bedrooms, beds: item.beds })) } : {}),
     };
     const endpoint = `/api/admin/listings${editing ? `/${editing}` : ''}`;
     try {

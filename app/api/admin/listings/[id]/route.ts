@@ -5,13 +5,14 @@ import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin';
 import { isFullBlogDocument, sanitizeBlogHtml } from '@/lib/sanitize-html';
+import { slugifyTitle } from '@/lib/slug';
 
 const updateStatus = z.preprocess((value) => typeof value === 'string' ? value.trim().toUpperCase() : value, z.enum(['DRAFT', 'LIVE', 'PAUSED', 'PENDING_REVIEW']).optional());
 const optionalStringList = z.array(z.string().trim().max(500)).optional().transform((items) => items ? items.map((item) => item.trim()).filter(Boolean) : items);
 const houseRuleSchema = z.object({ title: z.string().trim().max(120), text: z.string().trim().max(500) });
 const optionalHouseRules = z.array(houseRuleSchema).max(30).optional().transform((rules) => rules ? rules.map((rule) => ({ title: rule.title.trim(), text: rule.text.trim() })).filter((rule) => rule.title && rule.text) : rules);
-const accommodationSchema = z.object({ title: z.string().trim().max(160), description: z.string().trim().max(2000).optional().default(''), image: z.string().trim().max(1000).optional().default(''), bedrooms: z.coerce.number().int().nonnegative().max(50).optional().default(0), beds: z.coerce.number().int().nonnegative().max(100).optional().default(0) });
-const optionalAccommodations = z.array(accommodationSchema).max(50).optional().transform((items) => items ? items.map((item) => ({ ...item, description: item.description.trim(), image: item.image.trim() })).filter((item) => item.title) : items);
+const accommodationSchema = z.object({ title: z.string().trim().max(160), description: z.string().trim().max(2000).optional().default(''), image: z.string().trim().max(1000).optional().default(''), images: z.array(z.string().trim().max(1000)).max(20).optional().default([]), price: z.coerce.number().nonnegative().max(10000000).optional().default(0), bedrooms: z.coerce.number().int().nonnegative().max(50).optional().default(0), beds: z.coerce.number().int().nonnegative().max(100).optional().default(0) });
+const optionalAccommodations = z.array(accommodationSchema).max(50).optional().transform((items) => items ? items.map((item) => ({ ...item, description: item.description.trim(), image: item.image.trim(), images: item.images.map((url) => url.trim()).filter(Boolean) })).filter((item) => item.title) : items);
 const mealPlans = ['Breakfast included', 'Half board', 'Full board', 'Self-catering / no meals'] as const;
 const optionalMealPlan = z.union([z.enum(mealPlans), z.literal(''), z.null()]).optional().transform((value) => value || null);
 const landmarkSchema = z.object({ label: z.string().trim().max(120), distanceKm: z.coerce.number().nonnegative().optional(), order: z.coerce.number().int().nonnegative().optional() });
@@ -28,6 +29,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   const existing = await db.listing.findUnique({ where: { id: params.id }, select: { category: true, slug: true, title: true, description: true, basePrice: true, sellPrice: true, images: true, location: true } });
   if (!existing) return NextResponse.json({ error: 'Listing not found.' }, { status: 404 });
   const { category, partnerId, details, houseRules, accommodations, landmarks, services, experiences, ...fields } = parsed.data;
+  if (fields.slug !== undefined) fields.slug = slugifyTitle(fields.slug || existing.title) || existing.slug;
   const data = { ...fields, ...(fields.description !== undefined ? { description: isFullBlogDocument(fields.description) ? fields.description : sanitizeBlogHtml(fields.description) } : {}), ...(details ? { details: details as Prisma.InputJsonObject } : {}), ...(houseRules !== undefined ? { houseRules: houseRules as Prisma.InputJsonValue } : {}), ...(accommodations !== undefined ? { accommodations: accommodations as Prisma.InputJsonValue } : {}), ...(category ? { category } : {}), ...(partnerId ? { partner: { connect: { id: partnerId } } } : {}) };
   const listing = await db.$transaction(async (tx) => {
     const updated = await tx.listing.update({ where: { id: params.id }, data });
