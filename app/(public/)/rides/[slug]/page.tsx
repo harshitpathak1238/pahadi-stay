@@ -6,6 +6,8 @@ import { FareBookingSection } from './FareBookingSection';
 import { RideGallery } from '@/components/public/RideGallery';
 import { Breadcrumbs } from '@/components/public/Breadcrumbs';
 import { RideDetailClient } from './RideDetailClient';
+import { RideBottomBar } from '@/components/public/RideBottomBar';
+import { RideEnquireButton, RideWhatsAppEnquiryModal } from '@/components/public/RideWhatsAppEnquiry';
 
 export const revalidate = 60;
 
@@ -31,11 +33,11 @@ export default async function RideDetail({ params }: { params: { slug: string } 
   if (ride.durationDays !== null) stats.push({ icon: Clock, label: ride.durationDays === 1 ? '1 day' : `${ride.durationDays} days` });
   const routeLine = [ride.fromLocation, ride.toLocation].filter(Boolean).join(' to ');
   const paragraphs = ride.description.split(/\n+/).map((p) => p.trim()).filter(Boolean);
+
   return (
     <div className="min-h-screen pb-28">
       {degraded && <div className="border-b px-5 py-3 text-center text-sm font-semibold" role="status">Ride details are temporarily unavailable.</div>}
       <section className="mx-auto max-w-6xl px-5 pt-5 sm:pt-6 md:pt-8">
-        {/* Breadcrumb: Home › Rides › Ride */}
         <Breadcrumbs
           items={[
             { label: 'Home', href: '/' },
@@ -43,14 +45,9 @@ export default async function RideDetail({ params }: { params: { slug: string } 
             { label: ride.title },
           ]}
         />
-
-        {/* Media carousel (images + videos) */}
         <div className="mt-4">
           <RideGallery media={ride.images} title={ride.title} />
-          <RideDetailClient ride={ride} degraded={degraded} />
-    </div>
-
-        {/* Title block */}
+        </div>
         <div className="mt-6 md:mt-8">
           <span className="sans inline-block rounded-full bg-[#eef3f0] px-3 py-1 text-[10px] font-bold uppercase tracking-[.16em] text-[#24584a] sm:text-[11px]">{ride.type === 'TRANSFER' ? 'Transfer' : 'Sightseeing'}</span>
           <h1 className="mt-3 text-3xl font-semibold leading-tight text-[#173f35] sm:text-4xl md:text-5xl">{ride.title}</h1>
@@ -70,14 +67,12 @@ export default async function RideDetail({ params }: { params: { slug: string } 
               ))}
             </p>
           )}
-          <RideDetailClient ride={ride} degraded={degraded} />
-    </div>
+        </div>
 
-        {/* Content + sticky booking */}
         <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_380px]">
           <div className="min-w-0">
             {ride.type === 'SIGHTSEEING' && ride.stops.length > 0 && (
-              <div>
+              <div id="trip-builder">
                 <p className="sans text-xs font-bold uppercase tracking-[.2em] text-[#b66b45]">The journey</p>
                 <h2 className="mt-2 text-2xl font-semibold text-[#173f35] sm:text-3xl">Itinerary &amp; checkpoints</h2>
                 <ol className="relative mt-6 space-y-6 border-l-2 border-[#e4e3da] pl-8">
@@ -89,8 +84,7 @@ export default async function RideDetail({ params }: { params: { slug: string } 
                     </li>
                   ))}
                 </ol>
-                <RideDetailClient ride={ride} degraded={degraded} />
-    </div>
+              </div>
             )}
 
             {paragraphs.length > 0 && (
@@ -98,24 +92,21 @@ export default async function RideDetail({ params }: { params: { slug: string } 
                 <p className="sans text-xs font-bold uppercase tracking-[.2em] text-[#b66b45]">About this ride</p>
                 <div className="mt-3 rounded-3xl bg-white p-6 ring-1 ring-[#e4e3da] sm:p-8">
                   {paragraphs.map((paragraph, i) => (
-                    <p key={i} className={`sans leading-7 text-[#3d4a42] ${i === 0 ? 'text-base sm:text-lg sm:leading-8' : 'mt-4 text-sm sm:text-[15px]'} ${i > 0 ? '' : ''}`}>{paragraph}</p>
+                    <p key={i} className={`sans leading-7 text-[#3d4a42] ${i === 0 ? 'text-base sm:text-lg sm:leading-8' : 'mt-4 text-sm sm:text-[15px]'}`}>{paragraph}</p>
                   ))}
-                  <RideDetailClient ride={ride} degraded={degraded} />
-    </div>
-                <RideDetailClient ride={ride} degraded={degraded} />
-    </div>
+                </div>
+              </div>
             )}
-            <RideDetailClient ride={ride} degraded={degraded} />
-    </div>
+          </div>
 
           <aside className="self-start lg:sticky lg:top-24">
             <FareBookingSection ride={ride} />
           </aside>
-          <RideDetailClient ride={ride} degraded={degraded} />
-    </div>
+        </div>
       </section>
-      <RideDetailClient ride={ride} degraded={degraded} />
+
+      <RideBottomBar price={ride.minFare ?? ride.fares?.[0]?.price ?? 0} slug={ride.slug} />
+      <RideWhatsAppEnquiryModal ride={ride} open={false} onClose={() => {}} />
     </div>
   );
 }
-

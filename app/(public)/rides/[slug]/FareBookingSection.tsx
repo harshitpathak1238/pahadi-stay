@@ -57,7 +57,6 @@ export function FareBookingSection({ ride }: { ride: PublicRide }) {
             <button type="button" aria-label="Add a passenger" disabled={passengers >= 12} onClick={() => setPassengers((c) => Math.min(12, c + 1))} className="grid h-8 w-8 place-items-center rounded-full bg-white text-[#173f35] shadow-sm transition hover:bg-[#eef3f0] disabled:opacity-40"><Plus size={14} /></button>
           </div>
         </div>
-
         {/* Vehicle selection */}
         <div className="mt-6">
           <div className="flex items-center justify-between">
