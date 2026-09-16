@@ -42,21 +42,18 @@ export function RideEnquireButton({ onClick, className = '', label = 'Enquire on
 /**
  * Vehicle-picker popup opened from "Enquire on WhatsApp" — the ride-side twin
  * of the stay bedroom picker. The visitor taps the vehicle(s) they want
- * (bright green border + check chip), can open any photo full-size, and
+ * (bright green border + check chip), can swipe through each vehicle's photos, and
  * finally sends a prefilled inquiry message to the KainchiDarshan WhatsApp.
  */
 export function RideWhatsAppEnquiryModal({ ride, open, onClose }: { ride: RideLike; open: boolean; onClose: () => void }) {
   const vehicles = useMemo(() => enquiryVehiclesFromRide(ride), [ride]);
   const routeLine = rideEnquiryRouteLine(ride);
   const [selected, setSelected] = useState<number[]>([]);
-  const [lightbox, setLightbox] = useState<{ vehicleIndex: number; photoIndex: number } | null>(null);
-  const touchStartX = useRef<number | null>(null);
 
   // Fresh selection every time the popup opens.
   useEffect(() => {
     if (open) {
       setSelected([]);
-      setLightbox(null);
     }
   }, [open]);
 
@@ -70,26 +67,18 @@ export function RideWhatsAppEnquiryModal({ ride, open, onClose }: { ride: RideLi
     };
   }, [open]);
 
-  const lightboxPhotos = lightbox ? vehicles[lightbox.vehicleIndex]?.photos ?? [] : [];
-  const moveLightbox = (delta: number) =>
-    setLightbox((current) => (current && lightboxPhotos.length ? { ...current, photoIndex: (current.photoIndex + delta + lightboxPhotos.length) % lightboxPhotos.length } : current));
-
-  // Escape closes the lightbox first, then the popup; arrows move photos.
+  // Escape closes the popup.
   useEffect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault();
-        if (lightbox) setLightbox(null);
-        else onClose();
+        onClose();
       }
-      if (lightbox && event.key === 'ArrowLeft') moveLightbox(-1);
-      if (lightbox && event.key === 'ArrowRight') moveLightbox(1);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, lightbox, lightboxPhotos.length, onClose]);
+  }, [open, onClose]);
 
   const toggle = (index: number) => setSelected((current) => (current.includes(index) ? current.filter((item) => item !== index) : [...current, index]));
 
@@ -149,7 +138,6 @@ export function RideWhatsAppEnquiryModal({ ride, open, onClose }: { ride: RideLi
                   vehicle={vehicle}
                   selected={selected.includes(index)}
                   onToggle={() => toggle(index)}
-                  onOpenPhoto={(photoIndex) => setLightbox({ vehicleIndex: index, photoIndex })}
                 />
               ))}
             </div>
@@ -198,7 +186,7 @@ export function RideWhatsAppEnquiryModal({ ride, open, onClose }: { ride: RideLi
 }
 
 /** One selectable vehicle: small photo-first card with a bright green check chip when picked. */
-function VehicleCard({ vehicle, selected, onToggle, onOpenPhoto }: { vehicle: EnquiryVehicle; selected: boolean; onToggle: () => void; onOpenPhoto: (photoIndex: number) => void }) {
+function VehicleCard({ vehicle, selected, onToggle }: { vehicle: EnquiryVehicle; selected: boolean; onToggle: () => void }) {
   const [photoIndex, setPhotoIndex] = useState(0);
   const localTouchStartX = useRef<number | null>(null);
   const photos = vehicle.photos;
@@ -231,14 +219,9 @@ function VehicleCard({ vehicle, selected, onToggle, onOpenPhoto }: { vehicle: En
         }}
       >
         {photos.length > 0 ? (
-          <button
-            type="button"
-            aria-label={`View ${vehicle.name} photos`}
-            onClick={(event) => { event.stopPropagation(); onOpenPhoto(photoIndex); }}
-            className="absolute inset-0 block cursor-zoom-in"
-          >
+          <div className="absolute inset-0">
             <Image src={photos[photoIndex]} alt={vehicle.name} fill sizes="(max-width: 640px) 46vw, 300px" unoptimized className="object-cover" />
-          </button>
+          </div>
         ) : (
           <div className="flex h-full items-center justify-center text-[#24584a]">
             <Car size={26} strokeWidth={1.6} />
