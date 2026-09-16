@@ -44,16 +44,23 @@ export function useWishlist() {
     const current = sharedSlugs ?? [];
     const isSaved = current.includes(slug);
     publish(isSaved ? current.filter((item) => item !== slug) : [...current, slug]);
-    const response = await fetch('/api/wishlist', {
-      method: isSaved ? 'DELETE' : 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      ...(isSaved ? {} : { body: JSON.stringify({ slug }) }),
-    });
-    if (response.status === 401) {
-      window.location.href = `/login?callbackUrl=${encodeURIComponent(window.location.pathname + window.location.search)}`;
-      return;
+    try {
+      // DELETE takes the slug as a query param (API contract, same as WishlistWorkspace).
+      // Sending a bodyless DELETE used to hit the API's 400 "Invalid stay reference." guard.
+      const response = await fetch(
+        isSaved ? `/api/wishlist?slug=${encodeURIComponent(slug)}` : '/api/wishlist',
+        isSaved
+          ? { method: 'DELETE' }
+          : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug }) },
+      );
+      if (response.status === 401) {
+        window.location.href = `/login?callbackUrl=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+        return;
+      }
+      if (!response.ok) await load(true); // revert to server truth on failure
+    } catch {
+      await load(true); // network error — revert to server truth too
     }
-    if (!response.ok) await load(true); // revert to server truth on failure
   }, []);
 
   return {

@@ -199,6 +199,31 @@ export function StayDetailExperience({ stay, reviewData }: { stay: Listing; revi
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
   }, [roomGallery, roomPhotos.length]);
+  // Shared wishlist + share controls — rendered beside the stars on mobile and beside the title on sm+; only one copy is visible at a time.
+  const wishlistShareControls = (
+    <>
+      {shareMessage && (
+        <span className="sans shrink-0 rounded-full bg-[#173f35] px-2.5 py-1 text-[10px] font-bold text-white">{shareMessage}</span>
+      )}
+      <button
+        aria-label={saved ? 'Remove from wishlist' : 'Save to wishlist'}
+        aria-pressed={saved}
+        onClick={() => toggleWishlist(stay.slug)}
+        title={saved ? 'Remove from wishlist' : 'Save to wishlist'}
+        className={`grid h-10 w-10 place-items-center rounded-full bg-white shadow-sm ring-1 transition hover:bg-[#f5f7fa] ${saved ? 'ring-[#f3c3cf]' : 'ring-[#e4e8e2]'} ${heartPop ? 'heart-pop' : ''}`}
+      >
+        <Heart size={17} fill={saved ? '#e11d48' : 'none'} className={saved ? 'text-rose-600' : 'text-[#536274]'} />
+      </button>
+      <button
+        aria-label="Share property"
+        title="Share this stay"
+        onClick={shareStay}
+        className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-sm ring-1 ring-[#e4e8e2] transition hover:bg-[#f5f7fa]"
+      >
+        <Share2 size={16} className="text-[#536274]" />
+      </button>
+    </>
+  );
 
   return (
     <div className="bg-[#f5f7fa] text-[#1f2937]">
@@ -214,28 +239,35 @@ export function StayDetailExperience({ stay, reviewData }: { stay: Listing; revi
           ]}
         />
 
-        {/* Title, rating, location, and actions — sits flush on the page background; spacing (not a card) separates it from the breadcrumb above and the tab row below. Stacked on mobile (actions wrap below the title block), row from sm up. */}
+        {/* Title, rating, location, and actions — sits flush on the page background; spacing (not a card) separates it from the breadcrumb above and the tab row below. Mobile: wishlist + share mirror the star row (opposite side); sm+: actions sit beside the title. */}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-x-6 md:mb-8">
           <div className="min-w-0 sm:flex-1">
-            <div className="mb-2 flex items-center gap-2">
-              {hasRealRating && (
-                <div className="flex items-center gap-1 text-[#f59e0b]" aria-label={`${headerRating.toFixed(1)} out of 5 stars`}>
-                  {[1, 2, 3, 4, 5].map((item) => (
-                    <Star
-                      key={item}
-                      size={15}
-                      fill={item <= Math.round(headerRating) ? 'currentColor' : 'none'}
-                      className={item <= Math.round(headerRating) ? 'text-[#f59e0b]' : 'text-[#d1d5db]'}
-                    />
-                  ))}
-                </div>
-              )}
-              {hasRealRating && (
-                <span className="rounded-full bg-[#003b95] px-2.5 py-1 text-xs font-bold text-white">{headerRating.toFixed(1)}</span>
-              )}
-              {!hasRealRating && (
-                <span className="rounded-full border border-[#d5e5ef] bg-[#eef7ff] px-2.5 py-1 text-xs font-semibold text-[#24584a]">New</span>
-              )}
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-2 sm:block">
+              <div className="flex items-center gap-2">
+                {hasRealRating && (
+                  <div className="flex items-center gap-1 text-[#f59e0b]" aria-label={`${headerRating.toFixed(1)} out of 5 stars`}>
+                    {[1, 2, 3, 4, 5].map((item) => (
+                      <Star
+                        key={item}
+                        size={15}
+                        fill={item <= Math.round(headerRating) ? 'currentColor' : 'none'}
+                        className={item <= Math.round(headerRating) ? 'text-[#f59e0b]' : 'text-[#d1d5db]'}
+                      />
+                    ))}
+                  </div>
+                )}
+                {hasRealRating && (
+                  <span className="rounded-full bg-[#003b95] px-2.5 py-1 text-xs font-bold text-white">{headerRating.toFixed(1)}</span>
+                )}
+                {!hasRealRating && (
+                  <span className="rounded-full border border-[#d5e5ef] bg-[#eef7ff] px-2.5 py-1 text-xs font-semibold text-[#24584a]">New</span>
+                )}
+              </div>
+
+              {/* Mobile: wishlist + share sit opposite the stars; no Reserve here — the sticky bottom bar owns the booking CTA */}
+              <div className="flex shrink-0 items-center gap-2 sm:hidden">
+                {wishlistShareControls}
+              </div>
             </div>
             <h1 className="mb-2 line-clamp-2 text-2xl font-bold leading-tight sm:text-3xl md:text-4xl">{stay.title}</h1>
             <p className="flex flex-wrap items-center gap-1.5 text-sm leading-relaxed text-[#536274]">
@@ -253,28 +285,9 @@ export function StayDetailExperience({ stay, reviewData }: { stay: Listing; revi
             </p>
           </div>
 
-          {/* Wishlist + share + reserve — sits beside the title so photo cards read clean */}
-          <div className="ml-auto flex shrink-0 flex-wrap items-center gap-2 self-start">
-            {shareMessage && (
-              <span className="sans shrink-0 rounded-full bg-[#173f35] px-2.5 py-1 text-[10px] font-bold text-white">{shareMessage}</span>
-            )}
-            <button
-              aria-label={saved ? 'Remove from wishlist' : 'Save to wishlist'}
-              aria-pressed={saved}
-              onClick={() => toggleWishlist(stay.slug)}
-              title={saved ? 'Remove from wishlist' : 'Save to wishlist'}
-              className={`grid h-10 w-10 place-items-center rounded-full bg-white shadow-sm ring-1 transition hover:bg-[#f5f7fa] ${saved ? 'ring-[#f3c3cf]' : 'ring-[#e4e8e2]'} ${heartPop ? 'heart-pop' : ''}`}
-            >
-              <Heart size={17} fill={saved ? '#e11d48' : 'none'} className={saved ? 'text-rose-600' : 'text-[#536274]'} />
-            </button>
-            <button
-              aria-label="Share property"
-              title="Share this stay"
-              onClick={shareStay}
-              className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-sm ring-1 ring-[#e4e8e2] transition hover:bg-[#f5f7fa]"
-            >
-              <Share2 size={16} className="text-[#536274]" />
-            </button>
+          {/* Wishlist + share + reserve (sm+ only) — sits beside the title so photo cards read clean; on mobile the same controls live opposite the stars and the bottom bar owns Reserve */}
+          <div className="ml-auto hidden shrink-0 flex-wrap items-center gap-2 self-start sm:flex">
+            {wishlistShareControls}
             {stay.fullyBooked ? (
               <span
                 aria-disabled="true"

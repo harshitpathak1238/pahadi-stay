@@ -97,7 +97,7 @@ export async function getPublicListings(category: ListingCategory): Promise<Publ
 
 export async function getPublicListing(slug: string): Promise<PublicResult<Listing | null>> {
   try {
-    const record = await db.listing.findFirst({ where: { slug, status: 'LIVE' }, select: { slug: true, title: true, location: true, sellPrice: true, basePrice: true, category: true, images: true, amenities: true, details: true, accommodations: true, fullyBooked: true, description: true }, });
+    const record = await db.listing.findFirst({ where: { slug, status: 'LIVE' }, select: { slug: true, title: true, location: true, sellPrice: true, basePrice: true, category: true, images: true, amenities: true, details: true, accommodations: true, fullyBooked: true, description: true, faqs: { orderBy: { order: 'asc' }, select: { question: true, answer: true } } }, });
     if (record) return { data: { ...mapRecord(record as { slug: string; title: string; location: string; sellPrice: unknown; basePrice?: unknown; category: ListingCategory; images: unknown; amenities: unknown; details?: unknown; accommodations?: unknown; fullyBooked?: unknown }), description: record.description }, degraded: false };
   } catch (error) {
     console.error(`Public listing (${slug}) unavailable:`, error);
