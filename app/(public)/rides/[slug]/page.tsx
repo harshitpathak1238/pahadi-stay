@@ -47,8 +47,7 @@ export default async function RideDetail({ params }: { params: { slug: string } 
         {/* Media carousel (images + videos) */}
         <div className="mt-4">
           <RideGallery media={ride.images} title={ride.title} />
-          <RideDetailClient ride={ride} degraded={degraded} />
-    </div>
+        </div>
 
         {/* Title block */}
         <div className="mt-6 md:mt-8">
@@ -70,8 +69,7 @@ export default async function RideDetail({ params }: { params: { slug: string } 
               ))}
             </p>
           )}
-          <RideDetailClient ride={ride} degraded={degraded} />
-    </div>
+        </div>
 
         {/* Content + sticky booking */}
         <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_380px]">
@@ -89,8 +87,7 @@ export default async function RideDetail({ params }: { params: { slug: string } 
                     </li>
                   ))}
                 </ol>
-                <RideDetailClient ride={ride} degraded={degraded} />
-    </div>
+              </div>
             )}
 
             {paragraphs.length > 0 && (
@@ -100,19 +97,15 @@ export default async function RideDetail({ params }: { params: { slug: string } 
                   {paragraphs.map((paragraph, i) => (
                     <p key={i} className={`sans leading-7 text-[#3d4a42] ${i === 0 ? 'text-base sm:text-lg sm:leading-8' : 'mt-4 text-sm sm:text-[15px]'} ${i > 0 ? '' : ''}`}>{paragraph}</p>
                   ))}
-                  <RideDetailClient ride={ride} degraded={degraded} />
-    </div>
-                <RideDetailClient ride={ride} degraded={degraded} />
-    </div>
+                </div>
+              </div>
             )}
-            <RideDetailClient ride={ride} degraded={degraded} />
-    </div>
+          </div>
 
-          <aside className="self-start lg:sticky lg:top-24">
+          <aside id="trip-builder" className="self-start scroll-mt-24 lg:sticky lg:top-24">
             <FareBookingSection ride={ride} />
           </aside>
-          <RideDetailClient ride={ride} degraded={degraded} />
-    </div>
+        </div>
       </section>
       <RideDetailClient ride={ride} degraded={degraded} />
     </div>
