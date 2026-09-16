@@ -22,9 +22,12 @@ export function RideBottomBar({ price, slug, onEnquire }: { price: number; slug:
     });
   };
 
-  if (typeof window === 'undefined') return null;
-  if (window.innerWidth >= 768) return null;
-
+  // NOTE: never read `window`/viewport size during render — the server has no
+  // `window`, so branching here produced different server vs client output and
+  // broke hydration (React: "Hydration failed because the initial UI does not
+  // match what was rendered on the server"). Mobile-only mounting is decided by
+  // `useIsMobile()` in the parent, and `md:hidden sm:hidden` below keeps it off
+  // desktop regardless.
   return (
     <div
       aria-hidden={!visible}
