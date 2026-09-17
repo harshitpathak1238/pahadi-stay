@@ -3,6 +3,8 @@
 import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { BedDouble, Check, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import type { PickupRoute, StayPickup } from '@/lib/pickup-pricing';
+import { StayPickupSelector } from '@/components/trip/StayPickupSelector';
 import { FaWhatsapp } from 'react-icons/fa';
 import {
   buildStayEnquiryMessage,
@@ -42,7 +44,7 @@ export function StayEnquireButton({ onClick, className = '', label = 'Enquire on
  * can swipe/cycle each bedroom's photo carousel, open any photo full-size, and
  * finally send a prefilled inquiry message to the KainchiDarshan WhatsApp.
  */
-export function StayWhatsAppEnquiryModal({ stay, open, onClose }: { stay: StayLike; open: boolean; onClose: () => void }) {
+export function StayWhatsAppEnquiryModal({ stay, open, onClose, pickupRoutes = [], pickupUnavailable = false, pickup = null, onPickupChange }: { stay: StayLike; open: boolean; onClose: () => void; pickupRoutes?: PickupRoute[]; pickupUnavailable?: boolean; pickup?: StayPickup | null; onPickupChange?: (value: StayPickup | null) => void }) {
   const bedrooms = useMemo(() => enquiryBedroomsFromStay(stay), [stay]);
   const [selected, setSelected] = useState<number[]>([]);
   const [lightbox, setLightbox] = useState<{ accIndex: number; photoIndex: number } | null>(null);
@@ -96,7 +98,7 @@ export function StayWhatsAppEnquiryModal({ stay, open, onClose }: { stay: StayLi
     if (!selected.length) return;
     const chosen = [...selected].sort((a, b) => a - b).map((index) => bedrooms[index]);
     const url = typeof window !== 'undefined' ? window.location.href : `/stays/${stay.slug}`;
-    const message = buildStayEnquiryMessage({ propertyTitle: stay.title, location: stay.location, url, bedrooms: chosen });
+    const message = buildStayEnquiryMessage({ propertyTitle: stay.title, location: stay.location, url, bedrooms: chosen, pickup });
     window.open(stayEnquiryWhatsappLink(message), '_blank', 'noopener,noreferrer');
     onClose();
   };
@@ -151,6 +153,7 @@ export function StayWhatsAppEnquiryModal({ stay, open, onClose }: { stay: StayLi
             <p className="sans mt-3 text-center text-[11px] leading-4 text-[#8a968e]">
               Tap a bedroom to select it — the bright green ring fills when it&apos;s picked. You can choose more than one.
             </p>
+            {onPickupChange && <div className="mt-4"><StayPickupSelector routes={pickupRoutes} value={pickup} onChange={onPickupChange} unavailable={pickupUnavailable} /></div>}
           </div>
 
           {/* Selection summary + send */}
@@ -174,6 +177,7 @@ export function StayWhatsAppEnquiryModal({ stay, open, onClose }: { stay: StayLi
                 </button>
               )}
             </div>
+            {pickup && <p className="sans mt-2 text-xs font-semibold text-[#24584a]">+ ₹{pickup.price.toLocaleString('en-IN')} one-way pickup · {pickup.vehicleName}</p>}
             <button
               type="button"
               onClick={sendEnquiry}

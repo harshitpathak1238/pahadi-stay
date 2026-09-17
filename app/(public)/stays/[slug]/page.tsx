@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getPublicListing, getPublicListings } from '@/lib/listings';
 import { getStayReviewData } from '@/lib/reviews';
+import { getPublicRides } from '@/lib/rides';
+import { pickupRoutes } from '@/lib/pickup-pricing';
 import { StayDetailExperience } from '@/components/public/StayDetailExperience';
 
 export async function generateStaticParams() {
@@ -18,6 +20,6 @@ export default async function StayDetail({ params }: { params: { slug: string } 
   const slug = decodeURIComponent(params.slug);
   const { data: stay } = await getPublicListing(slug);
   if (!stay) notFound();
-  const reviewData = await getStayReviewData(slug);
-  return <StayDetailExperience stay={stay} reviewData={reviewData} />;
+  const [reviewData, rides] = await Promise.all([getStayReviewData(slug), getPublicRides()]);
+  return <StayDetailExperience stay={stay} reviewData={reviewData} pickupRoutes={pickupRoutes(rides.data)} pickupUnavailable={rides.degraded} />;
 }

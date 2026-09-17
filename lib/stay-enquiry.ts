@@ -1,3 +1,4 @@
+import type { StayPickup } from './pickup-pricing';
 import { WHATSAPP_NUMBER } from './contact';
 
 /**
@@ -82,6 +83,7 @@ export function buildStayEnquiryMessage(input: {
   propertyTitle: string;
   location: string;
   url: string;
+  pickup?: StayPickup | null;
   bedrooms: Pick<EnquiryBedroom, 'title' | 'price' | 'bedrooms' | 'beds'>[];
 }): string {
   const count = input.bedrooms.length;
@@ -102,6 +104,16 @@ export function buildStayEnquiryMessage(input: {
     ...input.bedrooms.map((room, index) => formatRoomEnquiryLine(room, index)),
     '',
     totalLine,
+    ...(input.pickup ? [
+      '',
+      '🚕 *Arrival pickup:*',
+      `📍 *From:* ${input.pickup.fromLocation}`,
+      `📍 *To:* ${input.pickup.toLocation}`,
+      `🗺️ *Transfer:* ${input.pickup.routeTitle}`,
+      `🚗 *Car:* ${input.pickup.vehicleName}`,
+      `💰 *Pickup fare:* ₹${input.pickup.price.toLocaleString('en-IN')} per transfer (separate from the nightly stay price)`,
+      'Please confirm this route serves the property and confirm pickup availability.',
+    ] : []),
     '',
     'Please share availability, current photos and the best price for my dates. Dhanyavaad! 🙏',
   ].join('\n');

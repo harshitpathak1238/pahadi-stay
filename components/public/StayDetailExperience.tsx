@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Ban, BedDouble, ChevronDown, ChevronLeft, ChevronRight, Heart, MapPin, Share2, Star, Wifi, Car, Utensils, ShieldCheck, Users, Plane, X } from 'lucide-react';
 import type { Listing } from '@/lib/mock-data';
+import { resolveStayPickup, type PickupRoute, type StayPickup } from '@/lib/pickup-pricing';
 import type { StayReviewData } from '@/lib/reviews';
 import { defaultStayFacilities, stayFacilityGroups } from '@/lib/stay-facilities';
 import { facilityCategoryOrder, facilityMeta, defaultFacilityIcon, OTHER_FACILITY_CATEGORY } from '@/lib/facilityMeta';
@@ -18,7 +19,12 @@ import { useIsMobile } from '@/hooks/use-is-mobile';
 import { useWishlist } from '@/hooks/use-wishlist';
 import { Breadcrumbs } from '@/components/public/Breadcrumbs';
 
-export function StayDetailExperience({ stay, reviewData }: { stay: Listing; reviewData?: StayReviewData | null }) {
+export function StayDetailExperience({ stay, reviewData, pickupRoutes = [], pickupUnavailable = false }: { stay: Listing; reviewData?: StayReviewData | null; pickupRoutes?: PickupRoute[]; pickupUnavailable?: boolean }) {
+  const [pickupSelection, setPickupSelection] = useState<StayPickup | null>(null);
+  const pickup = !pickupUnavailable && pickupSelection
+    ? resolveStayPickup(pickupRoutes, pickupSelection.routeId, pickupSelection.vehicleTypeId)
+    : null;
+  useEffect(() => { setPickupSelection(null); }, [stay.slug]);
   const { isWishlisted, toggle: toggleWishlist } = useWishlist();
   const saved = isWishlisted(stay.slug);
   const [heartPop, setHeartPop] = useState(false);
@@ -633,7 +639,7 @@ export function StayDetailExperience({ stay, reviewData }: { stay: Listing; revi
                 </p>
               )}
               <p className="mt-2 text-xs text-[#536274]">Includes taxes and fees estimate</p>
-              <StayTripPanel slug={stay.slug} title={stay.title} price={stay.price} fullyBooked={Boolean(stay.fullyBooked)} />
+              <StayTripPanel slug={stay.slug} title={stay.title} price={stay.price} fullyBooked={Boolean(stay.fullyBooked)} pickupRoutes={pickupRoutes} pickupUnavailable={pickupUnavailable} pickup={pickup} onPickupChange={setPickupSelection} />
               <div className="mt-4 rounded-xl border border-[#d6e8dd] bg-[#f2faf5] p-3.5">
                 <StayEnquireButton onClick={() => setEnquiryOpen(true)} className="w-full" />
                 <p className="sans mt-2 text-center text-[11px] leading-4 text-[#4c6a5d]">Pick your bedroom(s) &amp; send a ready-made enquiry on WhatsApp.</p>
@@ -737,7 +743,7 @@ export function StayDetailExperience({ stay, reviewData }: { stay: Listing; revi
       )}
 
       {/* WhatsApp bedroom enquiry popup (bedroom picker + prefilled message) */}
-      <StayWhatsAppEnquiryModal stay={stay} open={enquiryOpen} onClose={() => setEnquiryOpen(false)} />
+      <StayWhatsAppEnquiryModal stay={stay} open={enquiryOpen} onClose={() => setEnquiryOpen(false)} pickupRoutes={pickupRoutes} pickupUnavailable={pickupUnavailable} pickup={pickup} onPickupChange={setPickupSelection} />
 
       {/* Mobile bottom static bar: price + Add-to-trip shortcut, sticky to screen */}
       {isMobile && stay.category === 'stay' && (

@@ -14,7 +14,7 @@ const emptyScores = (): Record<CategoryKey, number> => ({
 
 export function StayReviews({ initial }: { initial: StayReviewData | null }) {
   const [data, setData] = useState<StayReviewData | null>(initial);
-  const [visible, setVisible] = useState(6);
+  const [visible, setVisible] = useState(3);
   const [formOpen, setFormOpen] = useState(false);
   const [done, setDone] = useState(false);
   const stats: ReviewStats | null = useMemo(() => data?.stats ?? null, [data]);
@@ -34,7 +34,7 @@ export function StayReviews({ initial }: { initial: StayReviewData | null }) {
         </div>
       )}
       {data && data.reviews.length > visible && (
-        <button type="button" onClick={() => setVisible((c) => c + 6)} className="mt-4 w-full rounded-xl border border-[#b9c5d1] bg-white px-4 py-2.5 text-sm font-bold text-[#0071c2] shadow-sm">
+        <button type="button" onClick={() => setVisible((c) => c + 3)} className="mt-4 w-full rounded-xl border border-[#b9c5d1] bg-white px-4 py-2.5 text-sm font-bold text-[#0071c2] shadow-sm">
           Show more reviews ({data.reviews.length - visible} remaining)
         </button>
       )}
