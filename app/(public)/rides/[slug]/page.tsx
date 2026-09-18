@@ -6,6 +6,7 @@ import { FareBookingSection } from './FareBookingSection';
 import { RideGallery } from '@/components/public/RideGallery';
 import { Breadcrumbs } from '@/components/public/Breadcrumbs';
 import { RideDetailClient } from './RideDetailClient';
+import { RideEnquiryProvider } from '@/lib/ride-enquiry-context';
 
 export const revalidate = 60;
 
@@ -31,11 +32,12 @@ export default async function RideDetail({ params }: { params: { slug: string } 
   if (ride.durationDays !== null) stats.push({ icon: Clock, label: ride.durationDays === 1 ? '1 day' : `${ride.durationDays} days` });
   const routeLine = [ride.fromLocation, ride.toLocation].filter(Boolean).join(' to ');
   const paragraphs = ride.description.split(/\n+/).map((p) => p.trim()).filter(Boolean);
-  return (
-    <div className="min-h-screen pb-28">
-      {degraded && <div className="border-b px-5 py-3 text-center text-sm font-semibold" role="status">Ride details are temporarily unavailable.</div>}
-      <section className="mx-auto max-w-6xl px-5 pt-5 sm:pt-6 md:pt-8">
-        {/* Breadcrumb: Home › Rides › Ride */}
+    return (
+    <RideEnquiryProvider>
+      <div className="min-h-screen pb-28">
+        {degraded && <div className="border-b px-5 py-3 text-center text-sm font-semibold" role="status">Ride details are temporarily unavailable.</div>}
+        <section className="mx-auto max-w-6xl px-5 pt-5 sm:pt-6 md:pt-8">
+          {/* Breadcrumb: Home › Rides › Ride */}
         <Breadcrumbs
           items={[
             { label: 'Home', href: '/' },
@@ -107,8 +109,9 @@ export default async function RideDetail({ params }: { params: { slug: string } 
           </aside>
         </div>
       </section>
-      <RideDetailClient ride={ride} degraded={degraded} />
-    </div>
+            <RideDetailClient ride={ride} degraded={degraded} />
+      </div>
+    </RideEnquiryProvider>
   );
 }
 

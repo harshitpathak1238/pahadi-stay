@@ -1,0 +1,139 @@
+  ▲ Next.js 14.2.35
+  - Environments: .env.local, .env
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/104) ...
+   Generating static pages (26/104) 
+   Generating static pages (52/104) 
+   Generating static pages (78/104) 
+ ✓ Generating static pages (104/104)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                                                                                            Size     First Load JS
+┌ ƒ /                                                                                                                  3.27 kB         108 kB
+├ ƒ /_not-found                                                                                                        880 B          88.4 kB
+├ ƒ /about                                                                                                             200 B          96.5 kB
+├ ƒ /account                                                                                                           3.6 kB         99.9 kB
+├ ƒ /account/bookings/[id]                                                                                             157 B          87.7 kB
+├ ƒ /account/wishlist                                                                                                  3.74 kB         105 kB
+├ ƒ /activities                                                                                                        197 B          96.5 kB
+├ ƒ /admin                                                                                                             2.57 kB         101 kB
+├ ● /admin/[section]                                                                                                   180 kB          443 kB
+├   ├ /admin/stays
+├   ├ /admin/rentals
+├   ├ /admin/activities
+├   └ [+3 more paths]
+├ ƒ /admin/analytics                                                                                                   125 kB          212 kB
+├ ƒ /admin/customers                                                                                                   143 B          99.7 kB
+├ ƒ /admin/dashboard                                                                                                   157 B          87.7 kB
+├ ƒ /admin/listings                                                                                                    4.69 kB         101 kB
+├ ƒ /admin/orders                                                                                                      2.94 kB        99.2 kB
+├ ƒ /admin/orders/[id]                                                                                                 861 B          97.1 kB
+├ ƒ /admin/partners                                                                                                    144 B          99.7 kB
+├ ƒ /admin/payouts                                                                                                     144 B          99.7 kB
+├ ƒ /admin/pickups                                                                                                     1.23 kB        88.8 kB
+├ ƒ /admin/reviews                                                                                                     5.45 kB          93 kB
+├ ƒ /admin/rides                                                                                                       9.27 kB         114 kB
+├ ƒ /admin/settings                                                                                                    693 B          88.3 kB
+├ ƒ /admin/users                                                                                                       143 B          99.7 kB
+├ ƒ /api/account/bookings                                                                                              0 B                0 B
+├ ƒ /api/account/profile                                                                                               0 B                0 B
+├ ƒ /api/admin/analytics                                                                                               0 B                0 B
+├ ƒ /api/admin/blog-images                                                                                             0 B                0 B
+├ ƒ /api/admin/blogs                                                                                                   0 B                0 B
+├ ƒ /api/admin/blogs/[id]                                                                                              0 B                0 B
+├ ƒ /api/admin/customers                                                                                               0 B                0 B
+├ ƒ /api/admin/listings                                                                                                0 B                0 B
+├ ƒ /api/admin/listings/[id]                                                                                           0 B                0 B
+├ ƒ /api/admin/listings/[id]/faqs                                                                                      0 B                0 B
+├ ƒ /api/admin/listings/[id]/faqs/[faqId]                                                                              0 B                0 B
+├ ƒ /api/admin/listings/revalidate                                                                                     0 B                0 B
+├ ƒ /api/admin/media                                                                                                   0 B                0 B
+├ ƒ /api/admin/orders                                                                                                  0 B                0 B
+├ ƒ /api/admin/orders/[id]                                                                                             0 B                0 B
+├ ƒ /api/admin/overview                                                                                                0 B                0 B
+├ ƒ /api/admin/packages                                                                                                0 B                0 B
+├ ƒ /api/admin/packages/[id]                                                                                           0 B                0 B
+├ ƒ /api/admin/partners                                                                                                0 B                0 B
+├ ƒ /api/admin/payouts                                                                                                 0 B                0 B
+├ ƒ /api/admin/pickup-requests                                                                                         0 B                0 B
+├ ƒ /api/admin/pickup-requests/[id]                                                                                    0 B                0 B
+├ ƒ /api/admin/reviews                                                                                                 0 B                0 B
+├ ƒ /api/admin/reviews/[id]                                                                                            0 B                0 B
+├ ƒ /api/admin/rides                                                                                                   0 B                0 B
+├ ƒ /api/admin/rides/[id]                                                                                              0 B                0 B
+├ ƒ /api/admin/rides/reorder                                                                                           0 B                0 B
+├ ƒ /api/admin/vehicle-types                                                                                           0 B                0 B
+├ ƒ /api/admin/vehicle-types[id]                                                                                       0 B                0 B
+├ ƒ /api/admin/vehicle-types/[id]                                                                                      0 B                0 B
+├ ƒ /api/admin/vehicle-types/reorder                                                                                   0 B                0 B
+├ ƒ /api/admin/vehicles                                                                                                0 B                0 B
+├ ƒ /api/auth/[...nextauth]                                                                                            0 B                0 B
+├ ƒ /api/auth/account-exists                                                                                           0 B                0 B
+├ ƒ /api/auth/forgot-password                                                                                          0 B                0 B
+├ ƒ /api/auth/reset-password                                                                                           0 B                0 B
+├ ƒ /api/auth/signup                                                                                                   0 B                0 B
+├ ○ /api/availability                                                                                                  0 B                0 B
+├ ƒ /api/bookings                                                                                                      0 B                0 B
+├ ƒ /api/cron/blogs                                                                                                    0 B                0 B
+├ ƒ /api/cron/trips                                                                                                    0 B                0 B
+├ ○ /api/listings                                                                                                      0 B                0 B
+├ ƒ /api/payments/webhook                                                                                              0 B                0 B
+├ ƒ /api/reviews                                                                                                       0 B                0 B
+├ ƒ /api/trips                                                                                                         0 B                0 B
+├ ƒ /api/trips/[id]                                                                                                    0 B                0 B
+├ ƒ /api/trips/[id]/bookings/[bookingId]                                                                               0 B                0 B
+├ ƒ /api/wishlist                                                                                                      0 B                0 B
+├ ƒ /blog                                                                                                              995 B           102 kB
+├ ● /blog/[slug]                                                                                                       997 B          97.3 kB
+├   ├ /blog/bhimtal-sattal-kainchi-dham-tour-by-cab-1-day-lakes-and-ashram
+├   ├ /blog/quiet-peaceful-visits-how-to-avoid-the-weekend-rush-at-kainchi-dham-off-peak-hours-off-season-travel-tips
+├   ├ /blog/stay-accommodation-where-to-stay-near-kainchi-dham-bhowali-vs-bhimtal-vs-homestays-on-almora-road
+├   └ [+20 more paths]
+├ ƒ /booking-confirmation/[id]                                                                                         1.03 kB        97.3 kB
+├ ƒ /checkout                                                                                                          5.35 kB         102 kB
+├ ƒ /contact                                                                                                           200 B          96.5 kB
+├ ● /destinations/[slug]                                                                                               200 B          96.5 kB
+├   ├ /destinations/bhimtal
+├   └ /destinations/kainchi-dham
+├ ƒ /login                                                                                                             2.86 kB         101 kB
+├ ƒ /packages                                                                                                          352 B           102 kB
+├ ƒ /packages/[slug]                                                                                                   1.14 kB         102 kB
+├ ƒ /partner/dashboard                                                                                                 157 B          87.7 kB
+├ ƒ /partner/login                                                                                                     157 B          87.7 kB
+├ ƒ /partner/onboarding                                                                                                156 B          87.7 kB
+├ ƒ /privacy                                                                                                           200 B          96.5 kB
+├ ƒ /refund-policy                                                                                                     200 B          96.5 kB
+├ ƒ /rentals                                                                                                           6.74 kB         109 kB
+├ ƒ /reset-password                                                                                                    2.75 kB        90.3 kB
+├ ƒ /rides                                                                                                             3.81 kB         256 kB
+├ ● /rides/[slug]                                                                                                      10.1 kB         112 kB
+├   ├ /rides/bhimtal-sightseeing
+├   ├ /rides/kathgodam-pickup
+├   ├ /rides/Bhimtal-Kainchidham-Sightseeing
+├   └ [+2 more paths]
+├ ○ /robots.txt                                                                                                        0 B                0 B
+├ ƒ /signup                                                                                                            2.86 kB         101 kB
+├ ○ /sitemap.xml                                                                                                       0 B                0 B
+├ ƒ /stays                                                                                                             9.8 kB          258 kB
+├ ● /stays/[slug]                                                                                                      25.5 kB         275 kB
+├   ├ /stays/kainchidarshan-by-lake-darshan
+├   └ /stays/kainchidarshan-by-sanobar
+└ ƒ /terms                                                                                                             200 B          96.5 kB
++ First Load JS shared by all                                                                                          87.6 kB
+  ├ chunks/2117-3437a8a54d03ed71.js                                                                                    31.9 kB
+  ├ chunks/fd9d1056-ab58ce4369491485.js                                                                                53.6 kB
+  └ other shared chunks (total)                                                                                        2.02 kB
+
+
+ƒ Middleware                                                                                                           48.7 kB
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses getStaticProps)
+ƒ  (Dynamic)  server-rendered on demand
+
+DONE  

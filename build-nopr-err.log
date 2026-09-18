@@ -1,0 +1,10 @@
+ ⚠ Linting is disabled.
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename 'D:\TourAndTravel\.next\cache\webpack\client-production\0.pack_' -> 'D:\TourAndTravel\.next\cache\webpack\client-production\0.pack'
+
+> Build error occurred
+[Error: ENOTEMPTY: directory not empty, rmdir 'D:\TourAndTravel\.next\export'] {
+  errno: -4051,
+  code: 'ENOTEMPTY',
+  syscall: 'rmdir',
+  path: 'D:\\TourAndTravel\\.next\\export'
+}

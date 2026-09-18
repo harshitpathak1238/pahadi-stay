@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { WhatsAppButton } from '@/components/ui/WhatsAppButton';
+import { RideEnquireButton } from '@/components/public/RideWhatsAppEnquiry';
+import { useRideEnquiry } from '@/lib/ride-enquiry-context';
 import { PublicRide } from '@/lib/rides';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -10,6 +11,7 @@ import { Users, Car, Check, Minus, Plus } from 'lucide-react';
 const inr = (n: number) => `Rs. ${Number(n).toLocaleString('en-IN')}`;
 
 export function FareBookingSection({ ride }: { ride: PublicRide }) {
+  const { setOpen: openEnquiry } = useRideEnquiry();
   const fares = ride.fares;
   const [passengers, setPassengers] = useState<number>(2);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -21,16 +23,12 @@ export function FareBookingSection({ ride }: { ride: PublicRide }) {
   const activeId = selectedId && availableFares.some((f) => f.vehicleTypeId === selectedId) ? selectedId : availableFares[0]?.vehicleTypeId ?? null;
   const activeFare = availableFares.find((f) => f.vehicleTypeId === activeId) ?? availableFares[0] ?? null;
 
-  const waMessage = activeFare
-    ? `Namaste! I would like to book the ride "${ride.title}" for ${passengers} passenger${passengers > 1 ? 's' : ''} in a ${activeFare.vehicleName} (${inr(activeFare.price)}) - /rides/${ride.slug}. Please share availability.`
-    : `Namaste! I would like to book the ride "${ride.title}" for ${passengers} passenger${passengers > 1 ? 's' : ''} - /rides/${ride.slug}. Please share availability.`;
-
   if (fares.length === 0) {
     return (
       <div className="rounded-3xl bg-white p-6 ring-1 ring-[#e4e3da] sm:p-8">
         <p className="sans text-xs font-bold uppercase tracking-[.2em] text-[#b66b45]">Pricing</p>
         <p className="sans mt-3 text-sm leading-6 text-[#6c7770]">Pricing for this ride is coming soon. WhatsApp us and we will arrange it for you.</p>
-        <div className="mt-5"><WhatsAppButton message={waMessage}>Ask on WhatsApp</WhatsAppButton></div>
+        <div className="mt-5"><RideEnquireButton onClick={() => openEnquiry(true)} className="w-full justify-center" /></div>
       </div>
     );
   }
@@ -106,7 +104,7 @@ export function FareBookingSection({ ride }: { ride: PublicRide }) {
               </div>
               <p className="sans shrink-0 text-2xl font-bold text-white">{inr(activeFare.price)}</p>
             </div>
-            <div className="mt-4"><WhatsAppButton message={waMessage} className="w-full justify-center !border-transparent !bg-[#b66b45] !text-white hover:!bg-[#9f5938]">Book on WhatsApp</WhatsAppButton></div>
+                        <div className="mt-4"><RideEnquireButton onClick={() => openEnquiry(true)} className="w-full justify-center" /></div>
             <Link href="/rides" className="sans mt-3 block text-center text-xs font-semibold text-[#9fb9ac] transition hover:text-white">Browse more rides</Link>
           </div>
         )}

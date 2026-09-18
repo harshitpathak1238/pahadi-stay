@@ -1,0 +1,23 @@
+  ▲ Next.js 14.2.35
+  - Environments: .env.local, .env
+
+   Creating an optimized production build ...
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename 'D:\TourAndTravel\.next\cache\webpack\edge-server-production\0.pack_' -> 'D:\TourAndTravel\.next\cache\webpack\edge-server-production\0.pack'
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename 'D:\TourAndTravel\.next\cache\webpack\client-production\0.pack_' -> 'D:\TourAndTravel\.next\cache\webpack\client-production\0.pack'
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/104) ...
+   Generating static pages (26/104) 
+   Generating static pages (52/104) 
+   Generating static pages (78/104) 
+ ✓ Generating static pages (104/104)
+
+> Build error occurred
+[Error: ENOENT: no such file or directory, rename 'D:\TourAndTravel\.next\export\500.html' -> 'D:\TourAndTravel\.next\server\pages\500.html'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'rename',
+  path: 'D:\\TourAndTravel\\.next\\export\\500.html',
+  dest: 'D:\\TourAndTravel\\.next\\server\\pages\\500.html'
+}

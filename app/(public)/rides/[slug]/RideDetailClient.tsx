@@ -1,13 +1,13 @@
 ﻿'use client'
 
-import { useState } from 'react';
 import type { PublicRide } from '@/lib/rides';
 import { RideBottomBar } from '@/components/public/RideBottomBar';
 import { RideWhatsAppEnquiryModal } from '@/components/public/RideWhatsAppEnquiry';
 import { useIsMobile } from '@/hooks/use-is-mobile';
+import { useRideEnquiry } from '@/lib/ride-enquiry-context';
 
 export function RideDetailClient({ ride, degraded }: { ride: PublicRide; degraded?: boolean }) {
-  const [enquiryOpen, setEnquiryOpen] = useState(false);
+  const { open: enquiryOpen, setOpen: setEnquiryOpen } = useRideEnquiry();
   const isMobile = useIsMobile();
   const minPrice = ride.minFare ?? ride.fares?.[0]?.price ?? 0;
 

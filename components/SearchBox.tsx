@@ -2,7 +2,7 @@
 
 const guestOptions = ['1 guest', '2 guests', '3 guests', '4+ guests'];
 const guestValue = (option: string) => (option === '4+ guests' ? 4 : Number(option.split(' ')[0]));
-const tabTarget: Record<string, string> = { stays: '/stays', rides: '/rides', rentals: '/rentals', activities: '/activities' };
+const tabTarget: Record<string, string> = { stays: '/stays', rides: '/rides', rentals: '/rentals', activities: '/activities', packages: '/packages' };
 
 export function SearchBox() {
   const router = useRouter();
