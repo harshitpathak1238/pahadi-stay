@@ -29,6 +29,18 @@ export function inclusionKind(category: string): InclusionKind {
   return 'other';
 }
 
+/**
+ * Whether a public package card advertises its price.
+ *
+ * Stays are sold enquiry-first: the package page already shows one bundled
+ * total, so repeating a nightly rate per hotel undercuts it and invites guests
+ * to negotiate with the card instead of the team. Transport, rides and
+ * activities keep their price, which is already a whole-trip figure.
+ */
+export function showsInclusionPrice(category: string) {
+  return inclusionKind(category) !== 'stay';
+}
+
 /** Minimum shape the picker needs to group and filter a catalogue. */
 export type PickerListing = { id: string; title: string; location: string; category: string; status?: string };
 

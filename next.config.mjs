@@ -22,16 +22,52 @@ const nextConfig = {
     // path when the loader's output format changes.
     minimumCacheTTL: 60 * 60 * 24 * 30,
   },
-  // Shared chunks change on nearly every deploy, so keep them revalidated
-  // rather than pinned for a year by the default immutable rule.
+  // Static asset + security headers.
+  //
+  // Content-hashed build output can be cached forever; everything else is
+  // revalidated so a deploy is picked up immediately.
   async headers() {
+    const security = [
+      { key: 'X-Content-Type-Options', value: 'nosniff' },
+      { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+      { key: 'X-DNS-Prefetch-Control', value: 'on' },
+      { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+    ];
+
     return [
       {
         source: '/:path*',
+        headers: security,
+      },
+      {
+        // Fingerprinted bundles never change under the same name.
+        source: '/_next/static/:path*',
         headers: [
-          { key: 'X-Content-Type-Options', value: 'nosniff' },
-          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          { key: 'X-DNS-Prefetch-Control', value: 'on' },
+          ...security,
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      {
+        // Optimised images are content-addressed by the loader too.
+        source: '/_next/image',
+        headers: [
+          ...security,
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      {
+        // Uploaded media under /public keeps a long TTL but stays revalidatable.
+        source: '/images/:path*',
+        headers: [
+          ...security,
+          { key: 'Cache-Control', value: 'public, max-age=2592000, stale-while-revalidate=86400' },
+        ],
+      },
+      {
+        source: '/fonts/:path*',
+        headers: [
+          ...security,
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
         ],
       },
     ];

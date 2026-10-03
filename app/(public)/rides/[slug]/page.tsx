@@ -7,13 +7,14 @@ import { RideGallery } from '@/components/public/RideGallery';
 import { Breadcrumbs } from '@/components/public/Breadcrumbs';
 import { RideDetailClient } from './RideDetailClient';
 import { RideEnquiryProvider } from '@/lib/ride-enquiry-context';
+import { isPrerenderableSlug } from '@/lib/slug';
 
 export const revalidate = 60;
 
 export async function generateStaticParams() {
   try {
     const { data } = await getPublicRides();
-    return data.map((ride) => ({ slug: ride.slug }));
+    return data.filter((ride) => isPrerenderableSlug(ride.slug)).map((ride) => ({ slug: ride.slug }));
   } catch {
     return [];
   }

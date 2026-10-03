@@ -5,10 +5,14 @@ import { getStayReviewData } from '@/lib/reviews';
 import { getPublicRides } from '@/lib/rides';
 import { pickupRoutes } from '@/lib/pickup-pricing';
 import { StayDetailExperience } from '@/components/public/StayDetailExperience';
+import { isPrerenderableSlug } from '@/lib/slug';
 
+// Guard against database slugs containing filename-illegal characters, which
+// would otherwise fail the whole prerender with ENOENT. Skipped stays are still
+// reachable — they render on first request.
 export async function generateStaticParams() {
   const { data } = await getPublicListings('STAY');
-  return data.map((stay) => ({ slug: stay.slug }));
+  return data.filter((stay) => isPrerenderableSlug(stay.slug)).map((stay) => ({ slug: stay.slug }));
 }
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {

@@ -61,14 +61,20 @@ export async function getPublicListings(category: ListingCategory): Promise<Publ
 }
 
 export async function getPublicListing(slug: string): Promise<PublicResult<Listing | null>> {
-  try {
-    const record = await db.listing.findFirst({ where: { slug, status: 'LIVE' }, select: { slug: true, title: true, location: true, sellPrice: true, basePrice: true, category: true, images: true, amenities: true, details: true, accommodations: true, fullyBooked: true, description: true, faqs: { orderBy: { order: 'asc' }, select: { question: true, answer: true } } }, });
-    if (record) return { data: { ...mapRecord(record as { slug: string; title: string; location: string; sellPrice: unknown; basePrice?: unknown; category: ListingCategory; images: unknown; amenities: unknown; details?: unknown; accommodations?: unknown; fullyBooked?: unknown }), description: record.description }, degraded: false };
-  } catch (error) {
-    console.error(`Public listing (${slug}) unavailable:`, error);
-  }
-  if (process.env.NODE_ENV === 'production') return { data: null, degraded: true };
-  return { data: stays.find((stay) => stay.slug === slug) || null, degraded: true };
+  // Cached for 120s. This is the per-stay detail query, and without a cache
+  // every stay page hit the database on every request. The key reuses the
+  // `listings:` prefix so the existing admin-side
+  // `cacheDeletePrefix('listings:')` invalidates it with no extra wiring.
+  return cached(`listing:${slug}`, 120, async () => {
+    try {
+      const record = await db.listing.findFirst({ where: { slug, status: 'LIVE' }, select: { slug: true, title: true, location: true, sellPrice: true, basePrice: true, category: true, images: true, amenities: true, details: true, accommodations: true, fullyBooked: true, description: true, faqs: { orderBy: { order: 'asc' }, select: { question: true, answer: true } } }, });
+      if (record) return { data: { ...mapRecord(record as { slug: string; title: string; location: string; sellPrice: unknown; basePrice?: unknown; category: ListingCategory; images: unknown; amenities: unknown; details?: unknown; accommodations?: unknown; fullyBooked?: unknown }), description: record.description }, degraded: false };
+    } catch (error) {
+      console.error(`Public listing (${slug}) unavailable:`, error);
+    }
+    if (process.env.NODE_ENV === 'production') return { data: null, degraded: true };
+    return { data: stays.find((stay) => stay.slug === slug) || null, degraded: true };
+  });
 }
 
 export async function getPublicRentals(): Promise<PublicResult<Rental[]>> {

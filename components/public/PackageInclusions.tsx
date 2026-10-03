@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowUpRight, BedDouble, Car, MapPin, Sparkles } from 'lucide-react';
-import { inclusionKind } from '@/lib/package-inclusions-shared';
+import { inclusionKind, showsInclusionPrice } from '@/lib/package-inclusions-shared';
 import type { PackageInclusion } from '@/lib/packages';
 
 /**
@@ -101,7 +101,7 @@ function InclusionCard({ item, featured = false }: { item: PackageInclusion; fea
             <span className="truncate">{item.location}</span>
           </p>
         )}
-        {item.price > 0 && (
+        {item.price > 0 && showsInclusionPrice(item.category) && (
           <p className="sans mt-3 text-[13px] text-[#526057]">
             <span className="text-[17px] font-bold text-[#173f35]">₹{item.price.toLocaleString('en-IN')}</span>
             <span className="text-[#8b948c]"> / night</span>

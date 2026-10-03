@@ -4,7 +4,18 @@ import { getPublishedBlog, getPublishedBlogs, normalizeBlogImageSources } from '
 import { AutoHeightIframe } from '@/components/public/AutoHeightIframe';
 import { Breadcrumbs } from '@/components/public/Breadcrumbs';
 
-export async function generateStaticParams() { return (await getPublishedBlogs()).map((blog) => ({ slug: blog.slug })); }
+import { isPrerenderableSlug } from '@/lib/slug';
+
+// Slugs are normally kebab-case, but a row edited directly in the database can
+// contain characters that are illegal in a filename (`*`, `?`). Next.js writes
+// one file per prerendered path, so an unsafe slug would fail the entire build
+// with ENOENT. Skipping it here keeps the post reachable — it is then rendered
+// on first request and cached like any other ISR page.
+export async function generateStaticParams() {
+  return (await getPublishedBlogs())
+    .filter((blog) => isPrerenderableSlug(blog.slug))
+    .map((blog) => ({ slug: blog.slug }));
+}
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const blog = await getPublishedBlog(params.slug);

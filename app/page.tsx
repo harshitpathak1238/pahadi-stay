@@ -1,8 +1,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, BookOpenText, Compass, HeartHandshake, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowRight, Compass, HeartHandshake, ShieldCheck, Sparkles } from 'lucide-react';
 import { SearchBox } from '@/components/SearchBox';
 import { FeaturedStaysRail } from '@/components/public/FeaturedStaysRail';
+import { JournalRail } from '@/components/public/JournalRail';
 import { Button } from '@/components/ui/Button';
 import { destinations, stays as mockStays } from '@/lib/mock-data';
 import { getPublishedBlogs } from '@/lib/blog';
@@ -11,8 +12,13 @@ import { getPublicPackages } from '@/lib/packages';
 import { db } from '@/lib/db';
 import { cached } from '@/lib/cache';
 import { relativeTime } from '@/lib/reviews';
+import { MAX_FEATURED_PACKAGES, MAX_FEATURED_STAYS, MAX_FEATURED_STORIES } from '@/lib/home-limits';
 
 const packageExcerpt = (html: string) => html.replace(/<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 140);
+
+// How many items each home-page teaser rail promotes lives in
+// `@/lib/home-limits` so the unit tests can assert it without importing this
+// page (which would drag Prisma into the test process).
 
 const values = [
   { icon: Sparkles, title: 'Thoughtfully chosen', text: 'Stays and experiences we would recommend to friends.' },
@@ -21,7 +27,9 @@ const values = [
 ];
 
 export default async function Home() {
-  const blogs = (await getPublishedBlogs()).slice(0, 3);
+  // The journal is a horizontal rail, so fetch enough posts for it to scroll
+  // rather than stopping at one screenful.
+  const blogs = (await getPublishedBlogs()).slice(0, MAX_FEATURED_STORIES);
   // Live catalogue when the database is reachable; static fallback otherwise.
   const { data: stayResult } = await getPublicListings('STAY');
   const liveStays = stayResult.length ? stayResult : mockStays;
@@ -85,7 +93,7 @@ export default async function Home() {
           </div>
           <Button href="/stays" variant="quiet">See all stays <ArrowRight size={16} /></Button>
         </div>
-        <FeaturedStaysRail stays={liveStays.slice(0, 8)} />
+        <FeaturedStaysRail stays={liveStays.slice(0, MAX_FEATURED_STAYS)} />
       </section>
 
 {/* Explore our most popular packages */}
@@ -99,7 +107,7 @@ export default async function Home() {
             <Button href="/packages" variant="quiet">Browse all packages <ArrowRight size={16} /></Button>
           </div>
           <div className="mt-10 grid gap-6 lg:grid-cols-2">
-            {packageResult.length > 0 ? packageResult.slice(0, 4).map((item) => (
+            {packageResult.length > 0 ? packageResult.slice(0, MAX_FEATURED_PACKAGES).map((item) => (
               <Link key={item.id} href={`/packages/${item.id}`} className="group grid grid-cols-[128px_minmax(0,1fr)] overflow-hidden rounded-2xl bg-[#24584a] text-white ring-1 ring-[#1d4a3e] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_60px_rgba(23,63,53,.24)] sm:grid-cols-[190px_minmax(0,1fr)] md:grid-cols-[230px_minmax(0,1fr)]">
                 <div className="relative min-h-[148px] overflow-hidden bg-[#173f35] sm:min-h-[168px] md:min-h-[188px]">
                   {item.image ? (
@@ -211,31 +219,7 @@ export default async function Home() {
         </div>
 
         {blogs.length > 0 ? (
-          <div className="mt-9 grid gap-6 md:grid-cols-3">
-            {blogs.map((blog) => (
-              <Link key={blog.slug} href={`/blog/${blog.slug}`} className="group overflow-hidden rounded-[1.75rem] border border-[#e3e7df] bg-white shadow-[0_20px_50px_rgba(23,63,53,.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_26px_60px_rgba(23,63,53,.10)]">
-                <div className="relative aspect-[4/3] overflow-hidden">
-                  {blog.featuredImage ? (
-                    <Image src={blog.featuredImage} alt={blog.imageAltText || blog.title} fill sizes="(max-width: 768px) 90vw, 33vw" className="object-cover transition duration-500 group-hover:scale-105" />
-                  ) : (
-                    <div className="flex h-full items-center justify-center bg-[#edf0ea] text-[#173f35]">
-                      <BookOpenText size={36} strokeWidth={1.5} />
-                    </div>
-                  )}
-                </div>
-                <div className="p-5">
-                  <div className="sans flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.18em] text-[#b66b45]">
-                    <span>{blog.category}</span>
-                    <span>•</span>
-                    <span>{new Date(blog.publishedAt ?? new Date()).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                  </div>
-                  <h3 className="mt-3 text-2xl leading-tight text-[#173f35]">{blog.title}</h3>
-                  <p className="sans mt-3 line-clamp-3 text-sm leading-6 text-[#607067]">{blog.excerpt}</p>
-                  <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#24584a]">Read story <ArrowRight size={15} /></span>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <JournalRail posts={blogs} />
         ) : (
           <div className="mt-9 rounded-[1.5rem] border border-dashed border-[#d3d8d1] bg-[#f6f7f3] p-8 text-center text-[#607067] sans">No journal stories are published yet. Check back soon for fresh travel notes from Kumaon.</div>
         )}

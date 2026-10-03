@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -23,7 +24,18 @@ import {
   X,
 } from 'lucide-react';
 import { SITE_EMAIL, SITE_PHONE_DISPLAY, SITE_PHONE_TEL, WHATSAPP_NUMBER } from '@/lib/contact';
+import { adminEmailList } from '@/lib/admin-emails';
 import { WhatsAppMark } from './WhatsAppButton';
+
+/**
+ * Admin emails the header chrome should react to.
+ *
+ * Uses the `NEXT_PUBLIC_` twin of `ADMIN_EMAILS` so client components can read
+ * it. That list only decides whether to *show* an admin link — real access is
+ * still enforced server-side in `middleware.ts` and `lib/admin.ts`, so exposing
+ * it to the browser grants nothing.
+ */
+export { adminEmailList } from '@/lib/admin-emails';
 
 const links = [
   { href: '/', label: 'Home', Icon: Home },
@@ -35,7 +47,16 @@ const links = [
   { href: '/activities', label: 'Experiences', Icon: Sparkles },
 ] as const;
 
-export function MobileMenu({ isAdmin, isSignedIn = false }: { isAdmin: boolean; isSignedIn?: boolean }) {
+/**
+ * Session state is resolved here on the client via `useSession` rather than
+ * being passed down from the root layout. Passing it in meant the layout had to
+ * call `auth()` (which reads cookies), forcing every page to render
+ * dynamically and defeating prerendering.
+ */
+export function MobileMenu() {
+  const { data: session, status } = useSession();
+  const isAdmin = adminEmailList().includes((session?.user?.email ?? '').toLowerCase());
+  const isSignedIn = status === 'authenticated' && Boolean(session?.user);
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);

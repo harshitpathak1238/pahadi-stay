@@ -9,6 +9,7 @@ import {
   parseItinerary,
   removeStopAt,
   serializeItinerary,
+  showsInclusionPrice,
   splitInclusionsByGroup,
   type ItineraryStop,
   type PickerListing,
@@ -33,6 +34,21 @@ describe('inclusionKind', () => {
     expect(inclusionKind('SOMETHING_NEW')).toBe('other');
     expect(inclusionKind('')).toBe('other');
     expect(inclusionKind(undefined as unknown as string)).toBe('other');
+  });
+});
+
+describe('showsInclusionPrice', () => {
+  it('hides the nightly rate on stay cards', () => {
+    // Stay pricing is enquiry-first: the package page shows one bundled total.
+    expect(showsInclusionPrice('STAY')).toBe(false);
+  });
+
+  it('keeps prices on transport, activity and unknown cards', () => {
+    expect(showsInclusionPrice('RIDE')).toBe(true);
+    expect(showsInclusionPrice('RENTAL')).toBe(true);
+    expect(showsInclusionPrice('ACTIVITY')).toBe(true);
+    expect(showsInclusionPrice('SOMETHING_NEW')).toBe(true);
+    expect(showsInclusionPrice('')).toBe(true);
   });
 });
 
