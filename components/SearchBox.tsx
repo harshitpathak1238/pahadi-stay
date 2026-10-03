@@ -1,51 +1,112 @@
-'use client'; import { useState } from 'react'; import { useRouter, usePathname } from 'next/navigation'; import { CalendarDays, ChevronDown, MapPin, Search, Users } from 'lucide-react'; import { CategoryTabs } from '@/components/ui/CategoryTabs';
+'use client';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+import { CalendarDays, ChevronDown, MapPin, Search, Users } from 'lucide-react';
+import { CategoryTabs } from '@/components/ui/CategoryTabs';
+import {
+  DEFAULT_GUESTS,
+  SUGGESTED_PLACES,
+  addDaysISO,
+  guestLabel,
+  guestOptions,
+  isSearchTabKey,
+  searchHrefForTab,
+  tabFromPathname,
+  todayISO,
+  validateDateRange,
+  type SearchTabKey,
+} from '@/lib/search-params';
 
-const guestOptions = ['1 guest', '2 guests', '3 guests', '4+ guests'];
-const guestValue = (option: string) => (option === '4+ guests' ? 4 : Number(option.split(' ')[0]));
-const tabTarget: Record<string, string> = { stays: '/stays', rides: '/rides', rentals: '/rentals', activities: '/activities', packages: '/packages' };
-
+/**
+ * Hero search widget (home page and the desktop rides page).
+ *
+ * The chosen category is what decides the destination: pressing "Search" with
+ * "Rentals" selected goes to `/rentals` with the place carried across. It used
+ * to derive the tab from the current pathname and navigate the instant a tab
+ * was clicked, so on the home page the tab bar was decorative, every field was
+ * thrown away for four of the five categories, and "4+ guests" silently became
+ * exactly 4.
+ */
 export function SearchBox() {
   const router = useRouter();
   const pathname = usePathname();
-  const activeTab = Object.keys(tabTarget).find((key) => pathname.startsWith(`/${key}`)) || 'stays';
+  const [tab, setTab] = useState<SearchTabKey>(tabFromPathname(pathname));
   const [guestMenu, setGuestMenu] = useState(false);
   const [location, setLocation] = useState('');
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
-  const [guests, setGuests] = useState('2 guests');
+  const [guests, setGuests] = useState(DEFAULT_GUESTS);
+  const [error, setError] = useState('');
+  const guestsRef = useRef<HTMLDivElement>(null);
+  const today = useMemo(() => todayISO(), []);
+
+  // Navigating between category pages should move the selection with them.
+  useEffect(() => setTab(tabFromPathname(pathname)), [pathname]);
+
+  // Close the guest popover on Escape or an outside click.
+  useEffect(() => {
+    if (!guestMenu) return;
+    const onPointerDown = (event: MouseEvent) => {
+      if (!guestsRef.current?.contains(event.target as Node)) setGuestMenu(false);
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setGuestMenu(false);
+    };
+    document.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [guestMenu]);
+
+  // Keep check-out ahead of check-in as the guest picks dates.
+  const onCheckInChange = (value: string) => {
+    setCheckIn(value);
+    if (value && (!checkOut || checkOut <= value)) setCheckOut(addDaysISO(value, 1));
+    setError('');
+  };
+  const onCheckOutChange = (value: string) => {
+    setCheckOut(value);
+    setError('');
+  };
+
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
-    const target = tabTarget[activeTab] || '/stays';
-    if (target === '/rides') {
-      const params = new URLSearchParams({ ...(location.trim() && { where: location.trim() }) });
-      const query = params.toString();
-      router.push(query ? `/rides?${query}` : '/rides');
+    const range = validateDateRange(checkIn, checkOut, { today });
+    if (!range.valid) {
+      setError(range.message);
       return;
     }
-    if (target !== '/stays') { router.push(target); return; }
-    const params = new URLSearchParams({ ...(location && { location }), ...(checkIn && { checkIn }), ...(checkOut && { checkOut }), guests: String(guestValue(guests)) });
-    router.push(`/stays?${params.toString()}`);
+    setError('');
+    router.push(searchHrefForTab(tab, { location, checkIn, checkOut, guests }));
   };
-    return (
+
+  return (
     <div className="sans mx-auto w-full max-w-3xl">
-      <div className="mb-4"><CategoryTabs navigate /></div>
+      <div className="mb-4"><CategoryTabs activeKey={tab} onSelectKey={(key) => { if (isSearchTabKey(key)) setTab(key); }} /></div>
       <form
         onSubmit={submit}
+        role="search"
+        aria-label="Search stays, rides and rentals"
         className="grid grid-cols-2 gap-2 overflow-visible rounded-[1.5rem] bg-white p-2 shadow-[0_26px_60px_rgba(2,20,16,.3)] sm:rounded-[1.75rem] md:flex md:items-stretch md:gap-0 md:rounded-full md:px-3 md:py-2"
       >
         <label className="col-span-2 flex min-w-0 items-center gap-2.5 rounded-2xl bg-[#faf9f4] px-3.5 py-2.5 text-sm text-[#23332e] transition focus-within:bg-[#f4f6f1] sm:rounded-full md:flex-1 md:bg-transparent md:px-4 md:py-2 md:hover:bg-[#f7f8f4]">
           <MapPin size={16} className="hidden shrink-0 text-[#b66b45] sm:block" />
           <span className="min-w-0 flex-1">
             <span className="block text-[9px] font-bold uppercase tracking-[.14em] text-[#8b9591]">Where</span>
-            <input value={location} onChange={(event) => setLocation(event.target.value)} className="mt-0.5 w-full min-w-0 bg-transparent text-[13px] font-semibold outline-none placeholder:text-[#9aa39f] sm:text-sm" placeholder="Bhimtal or Kainchi Dham" aria-label="Where to" />
+            <input value={location} onChange={(event) => { setLocation(event.target.value); setError(''); }} list="search-places" autoComplete="off" className="mt-0.5 w-full min-w-0 bg-transparent text-[13px] font-semibold outline-none placeholder:text-[#9aa39f] sm:text-sm" placeholder="Bhimtal or Kainchi Dham" aria-label="Where to" />
           </span>
         </label>
+        <datalist id="search-places">
+          {SUGGESTED_PLACES.map((place) => <option key={place} value={place} />)}
+        </datalist>
 
         <label className="flex min-w-0 items-center gap-2.5 rounded-2xl bg-[#faf9f4] px-3.5 py-2.5 text-sm text-[#23332e] transition focus-within:bg-[#f4f6f1] sm:rounded-full md:flex-1 md:bg-transparent md:px-4 md:py-2 md:border-l md:border-[#ecebe4] md:hover:bg-[#f7f8f4]">
           <CalendarDays size={16} className="hidden shrink-0 text-[#b66b45] sm:block" />
           <span className="min-w-0 flex-1">
             <span className="block text-[9px] font-bold uppercase tracking-[.14em] text-[#8b9591]">Check-in</span>
-            <input type="date" value={checkIn} onChange={(event) => setCheckIn(event.target.value)} className="mt-0.5 w-full bg-transparent text-[13px] font-semibold outline-none sm:text-sm" aria-label="Check-in date" />
+            <input type="date" value={checkIn} min={today} onChange={(event) => onCheckInChange(event.target.value)} className="mt-0.5 w-full bg-transparent text-[13px] font-semibold outline-none sm:text-sm" aria-label="Check-in date" />
           </span>
         </label>
 
@@ -53,23 +114,23 @@ export function SearchBox() {
           <CalendarDays size={16} className="hidden shrink-0 text-[#b66b45] sm:block" />
           <span className="min-w-0 flex-1">
             <span className="block text-[9px] font-bold uppercase tracking-[.14em] text-[#8b9591]">Check-out</span>
-            <input type="date" value={checkOut} onChange={(event) => setCheckOut(event.target.value)} className="mt-0.5 w-full bg-transparent text-[13px] font-semibold outline-none sm:text-sm" aria-label="Check-out date" />
+            <input type="date" value={checkOut} min={checkIn || today} onChange={(event) => onCheckOutChange(event.target.value)} className="mt-0.5 w-full bg-transparent text-[13px] font-semibold outline-none sm:text-sm" aria-label="Check-out date" />
           </span>
         </label>
 
-        <div className="relative flex min-w-0 items-center gap-2.5 rounded-2xl bg-[#faf9f4] px-3.5 py-2.5 text-sm text-[#23332e] transition sm:rounded-full md:flex-1 md:bg-transparent md:px-4 md:py-2 md:border-l md:border-[#ecebe4] md:hover:bg-[#f7f8f4]">
+        <div ref={guestsRef} className="relative col-span-2 flex min-w-0 items-center gap-2.5 rounded-2xl bg-[#faf9f4] px-3.5 py-2.5 text-sm text-[#23332e] transition sm:col-span-1 sm:rounded-full md:flex-1 md:bg-transparent md:px-4 md:py-2 md:border-l md:border-[#ecebe4] md:hover:bg-[#f7f8f4]">
           <Users size={16} className="hidden shrink-0 text-[#b66b45] sm:block" />
           <span className="min-w-0 flex-1">
             <span className="block text-[9px] font-bold uppercase tracking-[.14em] text-[#8b9591]">Guests</span>
             <button type="button" aria-haspopup="listbox" aria-expanded={guestMenu} onClick={() => setGuestMenu(!guestMenu)} className="flex w-full items-center justify-between gap-1 text-left text-[13px] font-semibold outline-none sm:text-sm">
-              <span className="truncate">{guests}</span>
+              <span className="truncate">{guestLabel(guests)}</span>
               <ChevronDown size={14} className={`shrink-0 text-[#6c7770] transition ${guestMenu ? 'rotate-180' : ''}`} />
             </button>
           </span>
           {guestMenu && (
-            <div role="listbox" aria-label="Number of guests" className="absolute inset-x-1 top-[calc(100%+8px)] z-30 rounded-xl border border-[#d6d9d1] bg-white p-1 shadow-[0_20px_44px_rgba(23,63,53,.18)]">
-              {guestOptions.map((option) => (
-                <button type="button" role="option" aria-selected={guests === option} key={option} onClick={() => { setGuests(option); setGuestMenu(false); }} className={`block w-full rounded-lg px-3 py-2 text-left text-sm ${guests === option ? 'bg-[#e7eadf] font-bold text-[#173f35]' : 'text-[#526057] hover:bg-[#f2f4ed]'}`}>{option}</button>
+            <div role="listbox" aria-label="Number of guests" className="absolute inset-x-1 top-[calc(100%+8px)] z-30 max-h-64 overflow-y-auto rounded-xl border border-[#d6d9d1] bg-white p-1 shadow-[0_20px_44px_rgba(23,63,53,.18)]">
+              {guestOptions().map((count) => (
+                <button type="button" role="option" aria-selected={guests === count} key={count} onClick={() => { setGuests(count); setGuestMenu(false); }} className={`block w-full rounded-lg px-3 py-2 text-left text-sm ${guests === count ? 'bg-[#e7eadf] font-bold text-[#173f35]' : 'text-[#526057] hover:bg-[#f2f4ed]'}`}>{guestLabel(count)}</button>
               ))}
             </div>
           )}
@@ -80,6 +141,12 @@ export function SearchBox() {
           <span className="md:hidden">Search</span>
         </button>
       </form>
+      {/* Validation feedback. `aria-live` so screen readers announce it too. */}
+      {error && (
+        <p role="alert" aria-live="polite" className="sans mt-2 rounded-xl bg-[#fdecea] px-3 py-2 text-center text-sm font-semibold text-[#8a2a1f]">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

@@ -4,6 +4,8 @@
 // cache layer: client components (RideManager, RidesExplorer) can depend on it
 // without dragging server-only packages into the browser bundle.
 
+import { tokenise } from '@/lib/search-params';
+
 export type RideType = 'SIGHTSEEING' | 'TRANSFER';
 
 export type PublicRideFare = {
@@ -74,10 +76,12 @@ export function rideSearchText(ride: PublicRide | RideSearchable): string {
   return [ride.title, ride.fromLocation, ride.toLocation, ...stops, ride.description].filter(Boolean).join(' ').toLowerCase();
 }
 
+// Multi-token matching so "bhimtal transfer" narrows results instead of
+// demanding that exact phrase appear in the record.
 export function matchesRideQuery(ride: PublicRide | RideSearchable, query: string): boolean {
-  const needle = query.trim().toLowerCase();
-  if (!needle) return true;
-  return rideSearchText(ride).includes(needle);
+  const tokens = tokenise(query);
+  if (!tokens.length) return true;
+  return tokens.every((token) => rideSearchText(ride).includes(token));
 }
 
 /** Structural type for the Prisma row `mapRideRecord` accepts. */

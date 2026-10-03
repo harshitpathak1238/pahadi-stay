@@ -9,8 +9,9 @@ import { ResultCard } from './ResultCard';
 import { StaysSearchBar } from './StaysSearchBar';
 import { Breadcrumbs } from './Breadcrumbs';
 import { useWishlist } from '@/hooks/use-wishlist';
+import { STAY_FILTERS, filterStays, normaliseGuests } from '@/lib/search-params';
 
-const filters = ['Free WiFi', 'Breakfast included', 'Parking', 'Lake view', 'Pet friendly'];
+const filters = STAY_FILTERS.map((filter) => filter.label);
 
 type StaysSearchPageProps = {
   stays: Listing[];
@@ -20,9 +21,11 @@ type StaysSearchPageProps = {
   initialGuests: number;
   initialMinPrice?: number;
   initialMaxPrice?: number;
+  initialMinRating?: number;
+  initialAmenities?: string[];
 };
 
-export function StaysSearchPage({ stays, initialLocation, initialCheckIn, initialCheckOut, initialGuests, initialMinPrice, initialMaxPrice }: StaysSearchPageProps) {
+export function StaysSearchPage({ stays, initialLocation, initialCheckIn, initialCheckOut, initialGuests, initialMinPrice, initialMaxPrice, initialMinRating, initialAmenities }: StaysSearchPageProps) {
   const router = useRouter();
   const prices = stays.map((stay) => stay.price).filter((price) => Number.isFinite(price));
   const datasetMinPrice = prices.length ? Math.min(...prices) : 0;
@@ -30,10 +33,11 @@ export function StaysSearchPage({ stays, initialLocation, initialCheckIn, initia
   const [destination, setDestination] = useState(initialLocation);
   const [checkIn, setCheckIn] = useState(initialCheckIn);
   const [checkOut, setCheckOut] = useState(initialCheckOut);
-  const [guestCount, setGuestCount] = useState(initialGuests);
+  const [guestCount, setGuestCount] = useState(() => normaliseGuests(initialGuests));
   const [minPrice, setMinPrice] = useState(initialMinPrice);
   const [sort, setSort] = useState('Recommended');
-  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [activeFilters, setActiveFilters] = useState<string[]>(initialAmenities ?? []);
+  const [minRating, setMinRating] = useState<number | undefined>(initialMinRating);
   const { slugs: wishlist, toggle: toggleWishlist } = useWishlist();
   const [filterOpen, setFilterOpen] = useState(false);
   const [view, setView] = useState<'list' | 'grid'>('list');
@@ -43,7 +47,7 @@ export function StaysSearchPage({ stays, initialLocation, initialCheckIn, initia
     setDestination(initialLocation);
     setCheckIn(initialCheckIn);
     setCheckOut(initialCheckOut);
-    setGuestCount(initialGuests);
+    setGuestCount(normaliseGuests(initialGuests));
     setMinPrice(initialMinPrice);
     setMaxPrice(initialMaxPrice ?? datasetMaxPrice);
   }, [datasetMaxPrice, initialCheckIn, initialCheckOut, initialGuests, initialLocation, initialMaxPrice, initialMinPrice]);
@@ -59,11 +63,13 @@ export function StaysSearchPage({ stays, initialLocation, initialCheckIn, initia
       params.set('guests', String(guestCount));
       if (minPrice !== undefined) params.set('minPrice', String(minPrice));
       if (maxPrice !== undefined && maxPrice !== datasetMaxPrice) params.set('maxPrice', String(maxPrice));
+      if (minRating !== undefined) params.set('minRating', String(minRating));
+      if (activeFilters.length) params.set('amenities', activeFilters.join(','));
       const query = params.toString();
       router.replace(query ? `/stays?${query}` : '/stays', { scroll: false });
     }, 400);
     return () => window.clearTimeout(timer);
-  }, [checkIn, checkOut, destination, guestCount, maxPrice, minPrice, datasetMaxPrice, router]);
+  }, [activeFilters, checkIn, checkOut, destination, guestCount, maxPrice, minPrice, minRating, datasetMaxPrice, router]);
 
   const handleLocationChange = useCallback((value: string) => setDestination(value), []);
   const handlePriceChange = useCallback((nextMinPrice?: number, nextMaxPrice?: number) => {
@@ -77,22 +83,24 @@ export function StaysSearchPage({ stays, initialLocation, initialCheckIn, initia
     setGuestCount(values.guests);
   }, []);
 
+  // Dates and guests now genuinely narrow the list. They used to be carried in
+  // the URL and echoed in the header while the filter ignored them entirely, so
+  // choosing a party size or a date range changed nothing on screen.
+  const hasDates = Boolean(checkIn || checkOut);
+
   const results = useMemo(() => {
-    const filtered = stays.filter(
-      (stay) =>
-        (!destination || `${stay.title} ${stay.location}`.toLowerCase().includes(destination.toLowerCase())) &&
-        (minPrice === undefined || stay.price >= minPrice) &&
-        stay.price <= maxPrice &&
-        activeFilters.every((filter) =>
-          stay.amenities.some((amenity) =>
-            amenity.toLowerCase().includes(filter.toLowerCase().replace(' included', '').replace(' view', ''))
-          )
-        )
-    );
+    const filtered = filterStays(stays, {
+      location: destination,
+      minPrice,
+      maxPrice,
+      guests: guestCount,
+      amenities: activeFilters,
+      excludeFullyBooked: hasDates,
+    }).filter((stay) => minRating === undefined || stay.rating >= minRating);
     return [...filtered].sort((a, b) =>
       sort === 'Price: low to high' ? a.price - b.price : sort === 'Guest rating' ? b.rating - a.rating : 0
     );
-  }, [activeFilters, destination, maxPrice, minPrice, sort, stays]);
+  }, [activeFilters, destination, guestCount, hasDates, maxPrice, minPrice, minRating, sort, stays]);
 
   const toggleFilter = (filter: string) =>
     setActiveFilters((current) => (current.includes(filter) ? current.filter((item) => item !== filter) : [...current, filter]));
@@ -149,6 +157,8 @@ export function StaysSearchPage({ stays, initialLocation, initialCheckIn, initia
             toggleFilter={toggleFilter}
             maxPrice={maxPrice}
             setMaxPrice={setMaxPrice}
+            minRating={minRating}
+            setMinRating={setMinRating}
             results={results}
             allStays={stays}
             filters={filters}
@@ -221,16 +231,25 @@ export function StaysSearchPage({ stays, initialLocation, initialCheckIn, initia
             {/* Empty state */}
             {results.length === 0 && (
               <div className="rounded-lg border border-[#d9e0e8] bg-white p-8 text-center">
-                <p className="text-[#536274]">No properties found matching your filters.</p>
+                <p className="text-[#536274]">No properties found matching your search.</p>
+                <p className="mt-1 text-sm text-[#718096]">
+                  Try a different place, a smaller party, or clear the filters below.
+                </p>
                 <button
                   onClick={() => {
+                    // The destination and the guest count are the two inputs most
+                    // likely to have over-narrowed the list, so "Clear filters"
+                    // now resets those too - it used to leave them in place and
+                    // appear to do nothing.
                     setActiveFilters([]);
+                    setDestination('');
                     setMinPrice(undefined);
                     setMaxPrice(datasetMaxPrice);
+                    setGuestCount(normaliseGuests(1));
                   }}
                   className="mt-3 text-sm font-bold text-[#1a3a2a] hover:underline"
                 >
-                  Clear filters
+                  Clear all filters
                 </button>
               </div>
             )}

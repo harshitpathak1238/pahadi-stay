@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { CalendarDays, ChevronDown, IndianRupee, MapPin, Search, Users } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import type { Listing } from '@/lib/mock-data';
+import { addDaysISO, guestLabel, guestOptions, normaliseGuests, todayISO, validateDateRange } from '@/lib/search-params';
 
 type StaysSearchBarProps = {
   stays: Listing[];
@@ -71,6 +72,8 @@ export function StaysSearchBar({
   const [guests, setGuests] = useState(initialGuests);
   const [guestMenu, setGuestMenu] = useState(false);
   const [priceKey, setPriceKey] = useState('');
+  const [error, setError] = useState('');
+  const today = todayISO();
 
   const prices = useMemo(() => stays.map((stay) => stay.price).filter((price) => Number.isFinite(price)), [stays]);
   const priceBuckets = useMemo(() => getPriceBuckets(prices), [prices]);
@@ -101,6 +104,12 @@ export function StaysSearchBar({
 
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
+    const range = validateDateRange(checkIn, checkOut, { today });
+    if (!range.valid) {
+      setError(range.message);
+      return;
+    }
+    setError('');
     const params = new URLSearchParams();
     if (location.trim()) params.set('location', location.trim());
     if (checkIn) params.set('checkIn', checkIn);
@@ -128,7 +137,7 @@ export function StaysSearchBar({
           <CalendarDays size={15} className="hidden shrink-0 text-[#b66b45] sm:block" />
           <span className="min-w-0 flex-1">
             <span className="block text-[9px] font-bold uppercase tracking-[.14em] text-[#8b9591]">Check-in</span>
-            <input type="date" value={checkIn} onChange={(event) => setCheckIn(event.target.value)} className="w-full min-w-0 bg-transparent text-[12px] outline-none sm:text-[13px] md:text-sm" aria-label="Check-in date" />
+            <input type="date" value={checkIn} min={today} onChange={(event) => { const value = event.target.value; setCheckIn(value); if (value && (!checkOut || checkOut <= value)) setCheckOut(addDaysISO(value, 1)); setError(''); }} className="w-full min-w-0 bg-transparent text-[12px] outline-none sm:text-[13px] md:text-sm" aria-label="Check-in date" />
           </span>
         </label>
 
@@ -136,7 +145,7 @@ export function StaysSearchBar({
           <CalendarDays size={15} className="hidden shrink-0 text-[#b66b45] sm:block" />
           <span className="min-w-0 flex-1">
             <span className="block text-[9px] font-bold uppercase tracking-[.14em] text-[#8b9591]">Check-out</span>
-            <input type="date" value={checkOut} onChange={(event) => setCheckOut(event.target.value)} className="w-full min-w-0 bg-transparent text-[12px] outline-none sm:text-[13px] md:text-sm" aria-label="Check-out date" />
+            <input type="date" value={checkOut} min={checkIn || today} onChange={(event) => { setCheckOut(event.target.value); setError(''); }} className="w-full min-w-0 bg-transparent text-[12px] outline-none sm:text-[13px] md:text-sm" aria-label="Check-out date" />
           </span>
         </label>
 
@@ -145,11 +154,11 @@ export function StaysSearchBar({
           <span className="min-w-0 flex-1">
             <span className="block text-[9px] font-bold uppercase tracking-[.14em] text-[#8b9591]">Guests</span>
             <button type="button" aria-haspopup="listbox" aria-expanded={guestMenu} onClick={() => setGuestMenu((open) => !open)} className="flex w-full items-center justify-between gap-1 text-left text-[12px] font-semibold outline-none sm:text-[13px] md:text-sm">
-              <span className="truncate">{guests} {guests === 1 ? 'guest' : 'guests'}</span>
+              <span className="truncate">{guestLabel(guests)}</span>
               <ChevronDown size={13} className={`shrink-0 text-[#6c7770] transition ${guestMenu ? 'rotate-180' : ''}`} />
             </button>
           </span>
-          {guestMenu && <div role="listbox" aria-label="Number of guests" className="absolute inset-x-2 top-[calc(100%+8px)] z-30 max-h-64 overflow-y-auto rounded-xl border border-[#e4e8e2] bg-white p-1 shadow-[0_16px_36px_rgba(23,63,53,.16)]">{Array.from({ length: 20 }, (_, index) => index + 1).map((count) => <button type="button" role="option" aria-selected={guests === count} key={count} onClick={() => { setGuests(count); setGuestMenu(false); }} className={`block w-full rounded-lg px-3 py-2 text-left text-sm ${guests === count ? 'bg-[#e7eadf] font-bold text-[#173f35]' : 'text-[#526057] hover:bg-[#f2f4ed]'}`}>{count} {count === 1 ? 'guest' : 'guests'}</button>)}</div>}
+          {guestMenu && <div role="listbox" aria-label="Number of guests" className="absolute inset-x-2 top-[calc(100%+8px)] z-30 max-h-64 overflow-y-auto rounded-xl border border-[#e4e8e2] bg-white p-1 shadow-[0_16px_36px_rgba(23,63,53,.16)]">{guestOptions().map((count) => <button type="button" role="option" aria-selected={guests === count} key={count} onClick={() => { setGuests(count); setGuestMenu(false); }} className={`block w-full rounded-lg px-3 py-2 text-left text-sm ${guests === count ? 'bg-[#e7eadf] font-bold text-[#173f35]' : 'text-[#526057] hover:bg-[#f2f4ed]'}`}>{guestLabel(count)}</button>)}</div>}
         </div>
 
         <label className="col-span-2 flex min-w-0 items-center gap-2 rounded-xl bg-[#faf9f4] px-2.5 py-2 text-sm text-[#23332e] transition focus-within:bg-[#f4f6f1] md:col-span-1 md:rounded-none md:bg-transparent md:px-4 md:py-2 md:focus-within:bg-[#f6f8f5] md:hover:bg-[#f6f8f5] md:border-l md:border-[#eceae1]">
@@ -168,6 +177,7 @@ export function StaysSearchBar({
           <span className="md:hidden">Search</span>
         </button>
       </div>
+      {error && <p role="alert" aria-live="polite" className="mt-2 rounded-lg bg-[#fdecea] px-3 py-1.5 text-xs font-semibold text-[#8a2a1f]">{error}</p>}
     </form>
   );
 }

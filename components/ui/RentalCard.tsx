@@ -65,7 +65,7 @@ export function RentalCard({ rental }: { rental: Rental }) {
             {rental.pickup}
           </p>
           <div className="grid gap-2 sm:flex sm:items-end">
-            <WhatsAppButton message={whatsappMessage} className="px-4 py-2.5" />
+            <WhatsAppButton message={whatsappMessage} />
             <label className="grid gap-1 sans text-xs font-bold text-[#173f35]">{isScooty ? 'Scooty quantity' : 'Bike quantity'}<select value={currentQuantity} onChange={(event) => setQuantity(Number(event.target.value))} className="rounded-xl border border-[#d6d9d1] bg-white p-2.5 text-sm" disabled={!available}>{Array.from({ length: Math.max(available, 1) }, (_, index) => index + 1).map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
             <AddToTrip item={{ slug: rental.slug, title: rental.title, category: 'RENTAL', price: rental.price * currentQuantity, startDate: new Date().toISOString().slice(0, 10), rentalType: isScooty ? 'SCOOTY' : 'BIKE', quantity: currentQuantity, addonBreakdown: [{ id: 'RENTAL', label: `${isScooty ? 'Scooty' : 'Bike'} rental`, amount: rental.price * currentQuantity }] }} />
           </div>

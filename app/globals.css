@@ -46,15 +46,15 @@ button, input, select { font:inherit; }
 .google-mark { display:grid; height:1.5rem; width:1.5rem; place-items:center; border-radius:50%; background:#4285f4; color:#fff; font-size:.85rem; font-weight:800; }
 .auth-divider { display:flex; align-items:center; gap:.75rem; margin:1.25rem 0; color:#8a968e; font-size:.65rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; white-space:nowrap; }
 .auth-divider span { height:1px; flex:1; background:var(--line); }
-.whatsapp-drag { cursor:grab; touch-action:none; animation:whatsapp-float 3.5s ease-in-out infinite; box-shadow:0 14px 30px rgba(18,120,64,.25), 0 4px 8px rgba(18,120,64,.16); }
-.whatsapp-drag:active { cursor:grabbing; }
-@keyframes whatsapp-float { 0%, 100% { transform:translateY(0); } 50% { transform:translateY(-6px); } }
+/* Inline WhatsApp CTA. Solid brand green (#25D366) with a green-tinted shadow
+   so it reads as a WhatsApp action without needing a floating bubble. */
+.whatsapp-cta { -webkit-tap-highlight-color:transparent; }
+@media (prefers-reduced-motion:reduce) { .whatsapp-cta { transition:none; } }
 
 /* Wishlist heart: playful fill pop + one soft radiating ring. */
 @keyframes heart-pop { 0% { transform:scale(1); } 28% { transform:scale(1.4); } 46% { transform:scale(.9); } 66% { transform:scale(1.15); } 100% { transform:scale(1); } }
 @keyframes heart-ring { 0% { box-shadow:0 0 0 0 rgba(225,29,72,.32); } 100% { box-shadow:0 0 0 16px rgba(225,29,72,0); } }
 .heart-pop { animation:heart-pop .5s cubic-bezier(.22,1.2,.36,1), heart-ring .65s ease-out; }
-@media (prefers-reduced-motion:reduce) { .whatsapp-drag { animation:none; } }
 @media (min-width:768px) { .auth-panel { padding:2.25rem; } }
 @media (min-width:900px) { .login-shell { grid-template-columns:minmax(28rem, .92fr) minmax(28rem, 1.08fr); padding-top:0; } .login-form-side { padding:7rem 4rem 4rem; } .login-visual { display:block; } }
 .site-header { position:fixed; top:0; left:0; right:0; z-index:40; color:var(--ink); border-bottom:1px solid transparent; background:transparent; transition:background-color .35s ease, border-color .35s ease, box-shadow .35s ease, backdrop-filter .35s ease, top .35s ease; }

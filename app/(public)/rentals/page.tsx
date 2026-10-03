@@ -1,13 +1,28 @@
 import { RentalCard } from "@/components/ui/RentalCard";
+import { RentalSearch } from "@/components/public/RentalSearch";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { Breadcrumbs } from "@/components/public/Breadcrumbs";
 import { getPublicRentals } from "@/lib/listings";
+import { matchesTextQuery } from "@/lib/search-params";
 export const metadata = {
   title: "Scooty and bike rentals",
   description: "Book a scooty or bike for your Bhimtal and Kainchi Dham trip.",
 };
-export default async function Rentals() {
+export default async function Rentals({
+  searchParams,
+}: {
+  searchParams: { where?: string };
+}) {
   const { data: rentals, degraded } = await getPublicRentals();
+  const query = (searchParams.where ?? "").trim();
+  // Search on the rentals page too: the hero box sends "Rentals" searches here,
+  // and they used to land on a full list with the place ignored.
+  const filtered = rentals.filter((rental) =>
+    matchesTextQuery(
+      [rental.title, rental.type, rental.pickup, rental.description, ...rental.features].join(" "),
+      query,
+    ),
+  );
   return (
     <div className="mx-auto max-w-6xl px-5 pb-28 pt-10 md:py-20">
       {degraded && (
@@ -33,11 +48,24 @@ export default async function Rentals() {
           Simple daily rentals for lake mornings, temple visits, and roads that
           invite you to slow down.
         </p>
+        <RentalSearch query={query} />
+        {query && (
+          <p className="sans mt-6 text-sm text-[#526057]">
+            Showing {filtered.length} of {rentals.length} rentals matching{" "}
+            <strong>{query}</strong>.
+          </p>
+        )}
         <div className="mt-8 grid gap-7 md:grid-cols-2">
-          {rentals.map((rental) => (
+          {filtered.map((rental) => (
             <RentalCard key={rental.slug} rental={rental} />
           ))}
         </div>
+        {filtered.length === 0 && (
+          <p className="sans mt-10 rounded-2xl border border-dashed border-[#dfe3d8] p-10 text-center text-[#526057]">
+            No rentals match that search. Try &quot;Bhimtal&quot;, &quot;scooty&quot; or
+            clear the search.
+          </p>
+        )}
       </section>
       <div className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-3 border-t border-[#dfe3d8] bg-[#f7f4ec]/95 px-4 py-3 shadow-[0_-8px_24px_rgba(23,63,53,.12)] backdrop-blur md:hidden">
         <div>
@@ -48,7 +76,7 @@ export default async function Rentals() {
         </div>
         <WhatsAppButton
           message="Hello KainchiDarshan, I want to know more about your scooter and bike rentals in Kumaon."
-          className="shrink-0 px-3 py-2.5"
+          className="shrink-0"
         />
       </div>
       <section className="border-t border-[#e4e3da] py-10">

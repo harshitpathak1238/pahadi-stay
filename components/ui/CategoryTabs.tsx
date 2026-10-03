@@ -10,12 +10,23 @@ const categories = [
   ['packages', 'Packages', Package],
 ] as const;
 
-type CategoryTabsProps = { navigate?: boolean; variant?: 'glass' | 'solid' };
+type CategoryTabsProps = {
+  /** Standalone tabs navigate to their route when clicked. */
+  navigate?: boolean;
+  variant?: 'glass' | 'solid';
+  /**
+   * Controlled mode. `SearchBox` owns the selection so that choosing a
+   * category no longer navigates away and discards what the guest has typed -
+   * the tab only decides where "Search" will go.
+   */
+  activeKey?: string;
+  onSelectKey?: (key: string) => void;
+};
 
-export function CategoryTabs({ navigate = false, variant = 'glass' }: CategoryTabsProps) {
+export function CategoryTabs({ navigate = false, variant = 'glass', activeKey, onSelectKey }: CategoryTabsProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const active = categories.find(([key]) => pathname.startsWith(`/${key}`))?.[0] || 'stays';
+  const active = activeKey ?? (categories.find(([key]) => pathname.startsWith(`/${key}`))?.[0] || 'stays');
   const shellClass =
     variant === 'glass'
       ? 'category-tabs category-tabs--glass inline-flex max-w-full items-center gap-1 overflow-x-auto rounded-2xl border border-white/55 bg-white/15 p-1.5 shadow-[0_12px_32px_rgba(7,31,25,.22)] backdrop-blur-xl'
@@ -30,7 +41,7 @@ export function CategoryTabs({ navigate = false, variant = 'glass' }: CategoryTa
             type="button"
             role="tab"
             aria-selected={isActive}
-            onClick={() => { if (navigate) router.push(`/${key}`); }}
+            onClick={() => { if (onSelectKey) { onSelectKey(key); return; } if (navigate) router.push(`/${key}`); }}
             className={`sans inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#e5b785] sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm ${
               isActive
                 ? 'category-tab-active bg-gradient-to-b from-[#1e5044] to-[#173f35] text-white shadow-[0_8px_18px_rgba(23,63,53,.35)] ring-1 ring-white/20'

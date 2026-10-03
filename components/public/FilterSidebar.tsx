@@ -2,6 +2,7 @@
 
 import { SlidersHorizontal, X } from 'lucide-react';
 import type { Listing } from '@/lib/mock-data';
+import { matchesStayFilter } from '@/lib/search-params';
 
 interface FilterSidebarProps {
   filterOpen: boolean;
@@ -13,7 +14,15 @@ interface FilterSidebarProps {
   results: Listing[];
   allStays: Listing[];
   filters: string[];
+  minRating?: number;
+  setMinRating: (rating: number | undefined) => void;
 }
+
+const RATING_TIERS = [
+  { label: '5 stars', value: 4.5 },
+  { label: '4+ stars', value: 4 },
+  { label: '3+ stars', value: 3 },
+] as const;
 
 export function FilterSidebar({
   filterOpen,
@@ -25,15 +34,15 @@ export function FilterSidebar({
   results,
   allStays,
   filters,
+  minRating,
+  setMinRating,
 }: FilterSidebarProps) {
-  // Compute filter counts from current filtered results
+  // Amenity counts use the shared matcher. The previous inline comparison
+  // ("Free WiFi" against the stored "Wi-Fi") reported 0 for every stay, so the
+  // most popular filter looked like nothing matched it.
   const filterCounts: Record<string, number> = {};
   filters.forEach((filter) => {
-    filterCounts[filter] = results.filter((stay) =>
-      stay.amenities.some((amenity) =>
-        amenity.toLowerCase().includes(filter.toLowerCase().replace(' included', '').replace(' view', ''))
-      )
-    ).length;
+    filterCounts[filter] = results.filter((stay) => matchesStayFilter(stay, filter)).length;
   });
 
   // Star rating counts
@@ -82,13 +91,27 @@ export function FilterSidebar({
           {/* Star rating filter */}
           <div className="mt-5 border-t border-[#e5e7eb] pt-4">
             <h3 className="text-sm font-bold">Star rating</h3>
-            {Object.entries(ratingCounts).map(([rating, count]) => (
-              <label key={rating} className="mt-3 flex items-center gap-2 text-sm">
-                <input type="checkbox" />
-                {rating}
-                <span className="ml-auto text-xs text-[#718096]">{count}</span>
+            {RATING_TIERS.map(({ label, value }) => (
+              <label key={label} className="mt-3 flex cursor-pointer items-center gap-2 text-sm">
+                <input
+                  type="radio"
+                  name="stay-rating"
+                  checked={minRating === value}
+                  onChange={() => setMinRating(value)}
+                />
+                {label}
+                <span className="ml-auto text-xs text-[#718096]">{ratingCounts[label] || 0}</span>
               </label>
             ))}
+            {minRating !== undefined && (
+              <button
+                type="button"
+                onClick={() => setMinRating(undefined)}
+                className="mt-2 text-xs font-bold text-[#1a3a2a] hover:underline"
+              >
+                Any rating
+              </button>
+            )}
           </div>
 
           {/* Amenities filter */}

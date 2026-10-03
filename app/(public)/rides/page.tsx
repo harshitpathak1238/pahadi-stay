@@ -1,9 +1,8 @@
 import Link from 'next/link';
 import { getPublicRides, matchesRideQuery } from '@/lib/rides';
-import { SearchBox } from '@/components/SearchBox';
-import { RideQuickSearch } from '@/components/RideQuickSearch';
 import { RideCardList, RideCategoryToggle } from '@/components/public/RidesExplorer';
 import { Breadcrumbs } from '@/components/public/Breadcrumbs';
+import { RideSearch } from '@/components/public/RideSearch';
 export const metadata = { title: 'Rides around Bhimtal' };
 export const revalidate = 60;
 export default async function Rides({ searchParams }: { searchParams: { where?: string } }) {
@@ -21,8 +20,7 @@ export default async function Rides({ searchParams }: { searchParams: { where?: 
         <p className="sans mt-4 text-xs font-bold uppercase tracking-[.2em] text-[#b66b45]">Go further</p>
         <h1 className="mt-2.5 max-w-xl text-3xl sm:mt-3 sm:text-4xl md:text-5xl">Your ride through the hills.</h1>
         <p className="sans mt-3 max-w-lg text-sm leading-6 text-[#6c7770] sm:mt-5 sm:text-base sm:leading-7">Airport transfers, temple visits, and local drivers who know the road beyond the map.</p>
-        <div className="mt-6 md:hidden"><RideQuickSearch /></div>
-        <div className="mt-10 hidden rounded-2xl bg-[#173f35] p-5 md:block"><SearchBox /></div>
+        <div className="mt-6"><RideSearch query={query} /></div>
         {query.trim() && <p className="sans mt-6 text-sm">Showing {filtered.length} rides matching {query.trim()}. <Link href="/rides" className="font-bold underline">Clear search</Link></p>}
       </section>
       <section className="mx-auto mt-10 max-w-6xl px-5">
