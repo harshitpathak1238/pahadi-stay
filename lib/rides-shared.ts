@@ -5,6 +5,9 @@
 // without dragging server-only packages into the browser bundle.
 
 import { tokenise } from '@/lib/search-params';
+// Pure helpers only — `@/lib/pricing-shared` has no Prisma/cache imports, so
+// this stays safe for the client components that also use these types.
+import { resolveDisplayPrice, type PricingMode } from '@/lib/pricing-shared';
 
 export type RideType = 'SIGHTSEEING' | 'TRANSFER';
 
@@ -97,21 +100,33 @@ export type RideRecordLike = {
   durationDays: unknown;
   images: unknown;
   stops?: { label: string; note: string | null }[] | null;
-  fares?: ({ price: number; vehicleType: { id: string; name: string; capacity: number; image: string | null } | null })[] | null;
+  fares?: ({ price: number; seasonPrice?: number | null; offSeasonPrice?: number | null; vehicleType: { id: string; name: string; capacity: number; image: string | null } | null })[] | null;
 };
 
-export function mapRideRecord(record: RideRecordLike): PublicRide {
+/** Rides are priced per vehicle, so they follow the same switch as listings. */
+export const RIDE_PRICING_CATEGORY = 'RIDE';
+
+/**
+ * `pricing` is optional so the mapper keeps working on the degraded/mock paths,
+ * where there is no switch to consult and fares pass through untouched.
+ */
+export function mapRideRecord(record: RideRecordLike, pricing?: PricingMode): PublicRide {
   const images = strings(record.images);
   const stops = (record.stops ?? []).map((stop) => ({ label: stop.label, note: stop.note ?? null }));
   const fares = (record.fares ?? [])
-    .filter((fare) => fare.vehicleType !== null && Number.isFinite(fare.price) && fare.price > 0)
+    .filter((fare) => fare.vehicleType !== null)
     .map((fare) => ({
       vehicleTypeId: fare.vehicleType!.id,
       vehicleName: fare.vehicleType!.name,
       vehicleCapacity: fare.vehicleType!.capacity,
       vehicleImage: fare.vehicleType!.image ?? null,
-      price: Number(fare.price),
-    }));
+      // Resolve before the "is it offered" filter so a fare that is only
+      // priced in one season still appears when that season is live.
+      price: pricing
+        ? resolveDisplayPrice({ price: fare.price, seasonPrice: fare.seasonPrice, offSeasonPrice: fare.offSeasonPrice }, pricing, RIDE_PRICING_CATEGORY)
+        : Number(fare.price) || 0,
+    }))
+    .filter((fare) => Number.isFinite(fare.price) && fare.price > 0);
   return {
     id: record.id,
     slug: record.slug,

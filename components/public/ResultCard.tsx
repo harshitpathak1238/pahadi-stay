@@ -70,15 +70,25 @@ export function discountPercent(basePrice?: number | null, sellPrice?: number | 
   return Math.round(((base - sell) / base) * 100);
 }
 
-export function StayPrice({ price, basePrice, size = 'md' }: { price: number; basePrice?: number | null; size?: 'md' | 'lg' }) {
-  const off = discountPercent(basePrice, price);
+/**
+ * The struck-through figure beside a price.
+ *
+ * Normally that is the editorial MRP. During peak season it becomes the peak
+ * rate itself, with the cheap off-season rate shown beneath it — so guests can
+ * see a lower rate exists and ask for it, rather than assuming the peak rate is
+ * permanent. Whichever is higher wins, so the badge never shows a "discount"
+ * that is actually an increase.
+ */
+export function StayPrice({ price, basePrice, peakCompareAtPrice, size = 'md' }: { price: number; basePrice?: number | null; peakCompareAtPrice?: number | null; size?: 'md' | 'lg' }) {
+  const compareAt = Math.max(Number(basePrice) || 0, Number(peakCompareAtPrice) || 0) || null;
+  const off = discountPercent(compareAt, price);
   const priceClass = size === 'lg' ? 'text-2xl' : 'font-bold text-[#173f35]';
   return (
     <span className="inline-flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
       <span className={priceClass}>₹{Number(price).toLocaleString('en-IN')}</span>
       {off > 0 && (
         <>
-          <s className="text-xs font-semibold text-[#8a948c] sm:text-sm">₹{Number(basePrice).toLocaleString('en-IN')}</s>
+          <s className="text-xs font-semibold text-[#8a948c] sm:text-sm">₹{Number(compareAt).toLocaleString('en-IN')}</s>
           <span className="rounded-full bg-[#e7f2ec] px-2 py-0.5 text-[11px] font-bold text-[#1d7a4f]">{off}% off</span>
         </>
       )}
@@ -123,7 +133,7 @@ export function ResultCard({ stay, isWishlisted, onToggleWishlist, view, fullyBo
           <div className="mt-3 flex items-end justify-between gap-2 border-t border-[#eef1ec] pt-3">
             <div>
               <p className="text-[11px] uppercase tracking-wide text-[#536274]">From</p>
-              <StayPrice price={stay.price} basePrice={stay.basePrice} />
+              <StayPrice price={stay.price} basePrice={stay.basePrice} peakCompareAtPrice={stay.peakCompareAtPrice} />
               <p className="text-xs font-semibold text-[#536274]"> / night</p>
             </div>
             {fullyBooked ? (
@@ -172,7 +182,7 @@ export function ResultCard({ stay, isWishlisted, onToggleWishlist, view, fullyBo
       <div className="flex flex-row items-end justify-between gap-3 border-t border-[#eef1ec] p-4 sm:items-center md:flex-col md:items-stretch md:justify-between md:border-l md:border-t-0">
         <div className="md:text-right">
           <p className="text-[11px] uppercase tracking-wide text-[#536274]">From</p>
-          <StayPrice price={stay.price} basePrice={stay.basePrice} />
+          <StayPrice price={stay.price} basePrice={stay.basePrice} peakCompareAtPrice={stay.peakCompareAtPrice} />
           <p className="text-xs font-semibold text-[#536274]"> / night</p>
         </div>
         {fullyBooked ? (

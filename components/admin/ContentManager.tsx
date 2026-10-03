@@ -23,7 +23,7 @@ import { ItineraryEditor } from './ItineraryEditor';
 
 type Category = 'STAY' | 'RIDE' | 'RENTAL' | 'ACTIVITY';
 type Section = Category | 'PACKAGE';
-type Listing = { id: string; title: string; slug: string; category: Category; location: string; sellPrice: string | number; basePrice: string | number; status: string; fullyBooked?: boolean; description: string; images?: string[]; amenities?: string[]; details?: Record<string, unknown>; mealPlan?: string | null; breakfastIncluded?: boolean; cuisineNotes?: string | null; landmarks?: AdminLandmarkRow[]; services?: AdminServiceRow[]; experiences?: AdminExperienceRow[]; accommodations?: AccommodationRow[] };
+type Listing = { id: string; title: string; slug: string; category: Category; location: string; sellPrice: string | number; basePrice: string | number; seasonPrice?: string | number | null; offSeasonPrice?: string | number | null; status: string; fullyBooked?: boolean; description: string; images?: string[]; amenities?: string[]; details?: Record<string, unknown>; mealPlan?: string | null; breakfastIncluded?: boolean; cuisineNotes?: string | null; landmarks?: AdminLandmarkRow[]; services?: AdminServiceRow[]; experiences?: AdminExperienceRow[]; accommodations?: AccommodationRow[] };
 type TravelPackage = { id: string; title: string; description: string; price: string | number; listingIds?: string[]; status?: string; details?: Record<string, unknown> };
 export type HouseRuleRow = { id?: string; title: string; text: string };
 export type AdminLandmarkRow = { id?: string; label: string; distanceKm: string };
@@ -31,7 +31,7 @@ export type AdminServiceRow = { id?: string; label: string; note: string };
 export type AdminExperienceRow = { id?: string; title: string; note: string };
 export type AccommodationRow = { id?: string; title: string; description: string; image: string; images: string[]; price: string; bedrooms: string; beds: string };
 
-export type ListingForm = { slug: string; title: string; description: string; location: string; basePrice: string; sellPrice: string; images: string[]; amenities: string; status: string; fullyBooked: boolean; price: string; listingIds: string[]; details: Record<string, string>; itinerary: ItineraryStop[]; mealPlan: string; breakfastIncluded: boolean; cuisineNotes: string; stayFacilities: Record<string, boolean>; faqs: AdminFaqRow[]; houseRules: HouseRuleRow[]; landmarks: AdminLandmarkRow[]; services: AdminServiceRow[]; experiences: AdminExperienceRow[]; accommodations: AccommodationRow[] };
+export type ListingForm = { slug: string; title: string; description: string; location: string; basePrice: string; sellPrice: string; seasonPrice: string; offSeasonPrice: string; images: string[]; amenities: string; status: string; fullyBooked: boolean; price: string; listingIds: string[]; details: Record<string, string>; itinerary: ItineraryStop[]; mealPlan: string; breakfastIncluded: boolean; cuisineNotes: string; stayFacilities: Record<string, boolean>; faqs: AdminFaqRow[]; houseRules: HouseRuleRow[]; landmarks: AdminLandmarkRow[]; services: AdminServiceRow[]; experiences: AdminExperienceRow[]; accommodations: AccommodationRow[] };
 
 export type AdminFaqRow = { id?: string; question: string; answer: string };
 
@@ -50,6 +50,8 @@ const freshForm = (): ListingForm => ({
   location: '',
   basePrice: '',
   sellPrice: '',
+  seasonPrice: '',
+  offSeasonPrice: '',
   images: [],
   amenities: '',
   status: 'DRAFT',
@@ -152,6 +154,8 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
         location: listing.location,
         basePrice: String(listing.basePrice),
         sellPrice: String(listing.sellPrice),
+        seasonPrice: listing.seasonPrice == null ? '' : String(listing.seasonPrice),
+        offSeasonPrice: listing.offSeasonPrice == null ? '' : String(listing.offSeasonPrice),
         images: listing.images || [],
         amenities: (listing.amenities || []).join(', '),
         status: listing.status,
@@ -256,6 +260,9 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
       location: form.location,
       basePrice: Number(form.basePrice),
       sellPrice: Number(form.sellPrice),
+      // Blank means "no seasonal rate" — the site then falls back to sellPrice.
+      seasonPrice: form.seasonPrice === '' ? null : Number(form.seasonPrice),
+      offSeasonPrice: form.offSeasonPrice === '' ? null : Number(form.offSeasonPrice),
       images: form.images,
       amenities: asList(form.amenities),
       details: section === 'STAY' ? { ...form.details, facilities: form.stayFacilities } : form.details,

@@ -4,20 +4,52 @@ import { cached, cacheDeletePrefix } from '@/lib/cache';
 import { rentals, stays, type Listing, type Rental } from '@/lib/mock-data';
 import { defaultStayFacilities } from '@/lib/stay-facilities';
 import { strings, faqs, parseHouseRules, type PublicResult } from '@/lib/listings-shared';
+import { getPricingMode, resolveCompareAtPrice, resolveDisplayPrice, type PricingMode } from '@/lib/pricing';
 
 // Pure types/constants/parsers live in '@/lib/listings-shared' so client
 // components can use them without pulling Prisma or the cache into the browser.
 export * from '@/lib/listings-shared';
 
-function mapRecord(record: { slug: string; title: string; location: string; sellPrice: unknown; basePrice?: unknown; category: ListingCategory; images: unknown; amenities: unknown; details?: unknown; faqs?: unknown; houseRules?: unknown; accommodations?: unknown; fullyBooked?: unknown }): Listing {
+/**
+ * Structural view of a `Listing` row, so the mapper accepts both a Prisma
+ * `findMany` result and a narrower `select` without a cast at every call site.
+ */
+type ListingRecordLike = {
+  slug: string;
+  title: string;
+  location: string;
+  sellPrice: unknown;
+  basePrice?: unknown;
+  seasonPrice?: unknown;
+  offSeasonPrice?: unknown;
+  category: ListingCategory;
+  images: unknown;
+  amenities: unknown;
+  details?: unknown;
+  faqs?: unknown;
+  houseRules?: unknown;
+  accommodations?: unknown;
+  fullyBooked?: unknown;
+};
+
+function mapRecord(record: ListingRecordLike, pricing?: PricingMode): Listing {
   const details = record.details && typeof record.details === 'object' ? record.details as Record<string, unknown> : {};
   const facilities = details.facilities && typeof details.facilities === 'object' ? Object.fromEntries(Object.entries(details.facilities).filter(([, value]) => typeof value === 'boolean')) as Record<string, boolean> : { ...defaultStayFacilities };
-  const recordFaqs = (record as { faqs?: unknown }).faqs;
-  const recordHouseRules = (record as { houseRules?: unknown }).houseRules;
-  const recordAccommodations = (record as { accommodations?: unknown }).accommodations;
-  const price = Number(record.sellPrice);
+  const recordFaqs = record.faqs;
+  const recordHouseRules = record.houseRules;
+  const recordAccommodations = record.accommodations;
+  // Seasonal switch: `price` is what the guest is quoted right now, resolved
+  // from the peak/low pair whenever the admin has set them.
+  const seasonal = { price: record.sellPrice, seasonPrice: record.seasonPrice, offSeasonPrice: record.offSeasonPrice };
+  // `pricing` is omitted on the degraded/mock paths, where there is no switch.
+  const price = pricing ? resolveDisplayPrice(seasonal, pricing, record.category) : Number(record.sellPrice) || 0;
+  // The struck-through MRP stays `basePrice`: it is an editorial figure and must
+  // not be swapped for a seasonal rate, or existing discount badges would change
+  // number. In peak mode the peak rate becomes the compare-at value instead,
+  // and only when it genuinely sits above the quoted rate.
   const base = Number(record.basePrice);
-  return { slug: record.slug, title: record.title, location: record.location, price, ...((Number.isFinite(base) && base > 0 && base > price) ? { basePrice: base } : {}), ...(Number(details.maxGuests) > 0 ? { maxGuests: Math.trunc(Number(details.maxGuests)) } : {}), fullyBooked: Boolean(record.fullyBooked), rating: 5, category: record.category === 'RENTAL' ? 'rental' : record.category === 'ACTIVITY' ? 'activity' : 'stay', image: strings(record.images)[0] || '/images/Logo.png', images: strings(record.images), description: '', amenities: strings(record.amenities), facilities, faqs: faqs(recordFaqs), houseRules: parseHouseRules(recordHouseRules), mapPin: typeof details.mapPin === 'string' ? details.mapPin : '', accommodations: parseAccommodations(recordAccommodations) };
+  const compareAt = pricing ? resolveCompareAtPrice(seasonal, pricing, record.category) : null;
+  return { slug: record.slug, title: record.title, location: record.location, price, ...((Number.isFinite(base) && base > 0 && base > price) ? { basePrice: base } : {}), ...(compareAt !== null && compareAt > price ? { peakCompareAtPrice: compareAt } : {}), ...(Number(details.maxGuests) > 0 ? { maxGuests: Math.trunc(Number(details.maxGuests)) } : {}), fullyBooked: Boolean(record.fullyBooked), rating: 5, category: record.category === 'RENTAL' ? 'rental' : record.category === 'ACTIVITY' ? 'activity' : 'stay', image: strings(record.images)[0] || '/images/Logo.png', images: strings(record.images), description: '', amenities: strings(record.amenities), facilities, faqs: faqs(recordFaqs), houseRules: parseHouseRules(recordHouseRules), mapPin: typeof details.mapPin === 'string' ? details.mapPin : '', accommodations: parseAccommodations(recordAccommodations) };
 }
 
 function parseAccommodations(value: unknown): Accommodation[] {
@@ -50,8 +82,12 @@ const fallbackListings = (category: ListingCategory): PublicResult<Listing[]> =>
 export async function getPublicListings(category: ListingCategory): Promise<PublicResult<Listing[]>> {
   return cached(`listings:${category}`, 60, async () => {
     try {
-      const records = await db.listing.findMany({ where: { category, status: 'LIVE' }, select: { slug: true, title: true, location: true, sellPrice: true, basePrice: true, category: true, images: true, amenities: true, details: true, accommodations: true, fullyBooked: true, description: true }, orderBy: { createdAt: 'desc' } });
-      if (records.length) return { data: records.map((record) => ({ ...mapRecord(record as { slug: string; title: string; location: string; sellPrice: unknown; basePrice?: unknown; category: ListingCategory; images: unknown; amenities: unknown; details?: unknown; accommodations?: unknown; fullyBooked?: unknown }), description: record.description })), degraded: false };
+      const records = await db.listing.findMany({ where: { category, status: 'LIVE' }, select: { slug: true, title: true, location: true, sellPrice: true, basePrice: true, seasonPrice: true, offSeasonPrice: true, category: true, images: true, amenities: true, details: true, accommodations: true, fullyBooked: true, description: true }, orderBy: { createdAt: 'desc' } });
+      if (records.length) {
+        // One switch read for the whole page, not one per listing.
+        const pricing = await getPricingMode();
+        return { data: records.map((record) => ({ ...mapRecord(record, pricing), description: record.description })), degraded: false };
+      }
       return fallbackListings(category);
     } catch (error) {
       console.error(`Public listings (${category}) unavailable:`, error);
@@ -67,8 +103,8 @@ export async function getPublicListing(slug: string): Promise<PublicResult<Listi
   // `cacheDeletePrefix('listings:')` invalidates it with no extra wiring.
   return cached(`listing:${slug}`, 120, async () => {
     try {
-      const record = await db.listing.findFirst({ where: { slug, status: 'LIVE' }, select: { slug: true, title: true, location: true, sellPrice: true, basePrice: true, category: true, images: true, amenities: true, details: true, accommodations: true, fullyBooked: true, description: true, faqs: { orderBy: { order: 'asc' }, select: { question: true, answer: true } } }, });
-      if (record) return { data: { ...mapRecord(record as { slug: string; title: string; location: string; sellPrice: unknown; basePrice?: unknown; category: ListingCategory; images: unknown; amenities: unknown; details?: unknown; accommodations?: unknown; fullyBooked?: unknown }), description: record.description }, degraded: false };
+      const record = await db.listing.findFirst({ where: { slug, status: 'LIVE' }, select: { slug: true, title: true, location: true, sellPrice: true, basePrice: true, seasonPrice: true, offSeasonPrice: true, category: true, images: true, amenities: true, details: true, accommodations: true, fullyBooked: true, description: true, faqs: { orderBy: { order: 'asc' }, select: { question: true, answer: true } } }, });
+      if (record) return { data: { ...mapRecord(record, await getPricingMode()), description: record.description }, degraded: false };
     } catch (error) {
       console.error(`Public listing (${slug}) unavailable:`, error);
     }
@@ -80,8 +116,15 @@ export async function getPublicListing(slug: string): Promise<PublicResult<Listi
 export async function getPublicRentals(): Promise<PublicResult<Rental[]>> {
   return cached('listings:RENTAL', 60, async () => {
     try {
-      const records = await db.listing.findMany({ where: { category: 'RENTAL', status: 'LIVE' }, orderBy: { createdAt: 'desc' } });
-      if (records.length) return { data: records.map((record) => ({ slug: record.slug, title: record.title, type: record.scootyQuantity > 0 ? 'Scooty rent' : 'Bike rent', price: Number(record.sellPrice), image: strings(record.images)[0] || '/images/Logo.png', description: record.description, features: strings(record.amenities), pickup: record.location, bikeQuantity: record.bikeQuantity, scootyQuantity: record.scootyQuantity })), degraded: false };
+      // Explicit select: the mapper needs the seasonal pair, and `description`
+      // is read straight from the row below.
+      const records = await db.listing.findMany({ where: { category: 'RENTAL', status: 'LIVE' }, select: { slug: true, title: true, description: true, images: true, amenities: true, location: true, category: true, sellPrice: true, seasonPrice: true, offSeasonPrice: true, bikeQuantity: true, scootyQuantity: true }, orderBy: { createdAt: 'desc' } });
+      if (records.length) {
+        // Rentals are quoted per day, so they follow the same seasonal switch as
+        // stays — otherwise a peak-season site would still advertise cheap bikes.
+        const pricing = await getPricingMode();
+        return { data: records.map((record) => ({ slug: record.slug, title: record.title, type: record.scootyQuantity > 0 ? 'Scooty rent' : 'Bike rent', price: resolveDisplayPrice({ price: record.sellPrice, seasonPrice: record.seasonPrice, offSeasonPrice: record.offSeasonPrice }, pricing, 'RENTAL'), image: strings(record.images)[0] || '/images/Logo.png', description: record.description, features: strings(record.amenities), pickup: record.location, bikeQuantity: record.bikeQuantity, scootyQuantity: record.scootyQuantity })), degraded: false };
+      }
     } catch { /* fall through to the degraded fallback below */ }
     if (process.env.NODE_ENV === 'production') return { data: [], degraded: true };
     return { data: rentals, degraded: true };
@@ -97,5 +140,8 @@ export async function invalidateCatalogueCache(category?: ListingCategory) {
   await cacheDeletePrefix('listings:');
   // Bundled items are rendered inside package pages.
   await cacheDeletePrefix('packages:');
+  // Ride routes carry their own fare matrix with the same seasonal pair, so a
+  // listing write can still change a price a guest sees on /rides.
+  await cacheDeletePrefix('rides:');
   void category;
 }

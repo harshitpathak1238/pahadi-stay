@@ -4,17 +4,24 @@ import { db } from '@/lib/db';
 import { razorpay } from '@/lib/payments';
 import { sendTripNotification } from '@/lib/notifications';
 import { getPickupPrice } from '@/lib/pickup-pricing';
+import { getPricingMode, resolveDisplayPrice } from '@/lib/pricing';
 
 const itemSchema = z.object({ slug: z.string().min(1), category: z.enum(['STAY', 'RIDE', 'RENTAL', 'ACTIVITY']), startDate: z.coerce.date(), endDate: z.coerce.date().optional(), addons: z.array(z.enum(['PICKUP', 'ACTIVITY'])).default([]), rentalType: z.enum(['BIKE', 'SCOOTY']).optional(), quantity: z.coerce.number().int().min(1).max(100).default(1), pickup: z.object({ location: z.string().min(2), detail: z.string().trim().min(2).max(300), requestedTime: z.coerce.date(), lat: z.coerce.number().min(-90).max(90).nullable().optional(), lng: z.coerce.number().min(-180).max(180).nullable().optional() }).optional() }).superRefine((item, context) => { if (item.addons.includes('PICKUP') && !item.pickup) context.addIssue({ code: z.ZodIssueCode.custom, message: 'Add pickup details before continuing.', path: ['pickup'] }); if (item.category === 'RENTAL' && !item.rentalType) context.addIssue({ code: z.ZodIssueCode.custom, message: 'Choose bike or scooty.', path: ['rentalType'] }); });
 const tripSchema = z.object({ guestName: z.string().trim().min(2), guestEmail: z.string().email(), guestPhone: z.string().trim().min(10), guests: z.coerce.number().int().min(1).max(20), items: z.array(itemSchema).min(1) });
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   const parsed = tripSchema.safeParse(await request.json());
   if (!parsed.success) return NextResponse.json({ error: 'Please check your guest details and trip items.', details: parsed.error.flatten() }, { status: 400 });
   const data = parsed.data;
   try {
+    // Resolved once, outside the transaction: the guest must be charged exactly
+    // the rate they were shown. Reading the switch inside the transaction would
+    // also mean an admin toggling mid-checkout could change the total.
+    const pricing = await getPricingMode();
     const result = await db.$transaction(async (transaction) => {
-      const listings = await transaction.listing.findMany({ where: { slug: { in: data.items.map((item) => item.slug) }, status: 'LIVE' }, select: { id: true, slug: true, title: true, category: true, sellPrice: true, fullyBooked: true, bikeQuantity: true, scootyQuantity: true } });
+      const listings = await transaction.listing.findMany({ where: { slug: { in: data.items.map((item) => item.slug) }, status: 'LIVE' }, select: { id: true, slug: true, title: true, category: true, sellPrice: true, seasonPrice: true, offSeasonPrice: true, fullyBooked: true, bikeQuantity: true, scootyQuantity: true } });
       const unavailable = data.items.filter((item) => !listings.some((listing) => listing.slug === item.slug));
       if (unavailable.length) throw new Error(`Unavailable: ${unavailable.map((item) => item.slug).join(', ')}`);
       const soldOut = listings.filter((listing) => listing.fullyBooked).map((listing) => listing.title);
@@ -43,7 +50,10 @@ export async function POST(request: Request) {
         const listing = listings.find((record) => record.slug === item.slug)!;
         const pickupFee = item.addons.includes('PICKUP') && item.pickup ? getPickupPrice(item.pickup.location) : 0;
         const addonPrice = item.addons.reduce((sum, addon) => sum + ({ PICKUP: pickupFee, ACTIVITY: 750 }[addon] || 0), 0);
-        const price = (Number(listing.sellPrice) + addonPrice) * item.quantity;
+        // Charge the resolved seasonal rate, not the raw sellPrice, so the amount
+        // on the payment matches the price the guest was quoted on the page.
+        const unitPrice = resolveDisplayPrice({ price: listing.sellPrice, seasonPrice: listing.seasonPrice, offSeasonPrice: listing.offSeasonPrice }, pricing, listing.category);
+        const price = (unitPrice + addonPrice) * item.quantity;
         total += price;
         const booking = await transaction.booking.create({ data: { tripId: trip.id, listingId: listing.id, category: listing.category, startDate: item.startDate, endDate: item.endDate || (listing.category === 'RENTAL' ? new Date(item.startDate.getTime() + 24 * 60 * 60 * 1000) : null), checkIn: item.startDate, checkOut: item.endDate || null, guests: data.guests, quantity: item.quantity, rentalType: item.rentalType, status: 'PENDING', priceAtBooking: price, totalPrice: price, commissionAmount: 0, guestName: data.guestName, guestEmail: data.guestEmail, guestPhone: data.guestPhone, metadata: { addons: item.addons } } });
         if (item.pickup) await transaction.pickupRequest.create({ data: { bookingId: booking.id, pickupLocationText: item.pickup.location, pickupLat: item.pickup.lat ?? null, pickupLng: item.pickup.lng ?? null, dropoffLocationText: item.pickup.detail, requestedTime: item.pickup.requestedTime, status: 'UNASSIGNED' } });

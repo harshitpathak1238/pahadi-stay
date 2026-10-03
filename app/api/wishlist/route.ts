@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
+import { getPricingMode, resolveDisplayPrice } from '@/lib/pricing';
 
 const slugSchema = z.object({ slug: z.string().trim().min(1).max(160) });
 
@@ -22,21 +23,28 @@ export async function GET(request: Request) {
   const slugs = items.map((item) => item.slug);
   if (!new URL(request.url).searchParams.has('full')) return NextResponse.json({ slugs });
   const listings = slugs.length
-    ? await db.listing.findMany({ where: { slug: { in: slugs }, status: 'LIVE' }, select: { slug: true, title: true, location: true, sellPrice: true, basePrice: true, images: true, category: true } })
+    ? await db.listing.findMany({ where: { slug: { in: slugs }, status: 'LIVE' }, select: { slug: true, title: true, location: true, sellPrice: true, basePrice: true, seasonPrice: true, offSeasonPrice: true, images: true, category: true } })
     : [];
+  const pricing = await getPricingMode();
   const bySlug = new Map(listings.map((listing) => [listing.slug, listing]));
   const cards = slugs
     .map((slug) => bySlug.get(slug))
     .filter((listing): listing is NonNullable<typeof listing> => Boolean(listing))
-    .map((listing) => ({
-      slug: listing.slug,
-      title: listing.title,
-      location: listing.location,
-      category: listing.category,
-      price: Number(listing.sellPrice || listing.basePrice),
-      basePrice: Number(listing.basePrice) > Number(listing.sellPrice) ? Number(listing.basePrice) : null,
-      image: Array.isArray(listing.images) && typeof listing.images[0] === 'string' ? listing.images[0] : '/images/Logo.png',
-    }));
+    .map((listing) => {
+      // Same seasonal resolution as the catalogue pages, so a saved card never
+      // quotes a different rate than the listing it links to.
+      const price = resolveDisplayPrice({ price: listing.sellPrice ?? listing.basePrice, seasonPrice: listing.seasonPrice, offSeasonPrice: listing.offSeasonPrice }, pricing, listing.category);
+      const base = Number(listing.basePrice);
+      return {
+        slug: listing.slug,
+        title: listing.title,
+        location: listing.location,
+        category: listing.category,
+        price,
+        basePrice: base > price ? base : null,
+        image: Array.isArray(listing.images) && typeof listing.images[0] === 'string' ? listing.images[0] : '/images/Logo.png',
+      };
+    });
   return NextResponse.json({ cards });
 }
 

@@ -59,11 +59,14 @@ export function StayDetailExperience({ stay, reviewData, pickupRoutes = [], pick
   const headerRating = hasRealRating ? reviewData!.stats!.overall5 : stay.rating;
   // Discount presentation: base price is the struck-through MRP, selling
   // price (stay.price) is the deal. Only shows when base is genuinely higher.
+  // In peak season `peakCompareAtPrice` is the peak rate, shown struck through
+  // against the off-season rate so guests can see a cheaper window exists.
   const basePrice = typeof stay.basePrice === 'number' ? stay.basePrice : null;
-  const discountOff = basePrice != null && basePrice > 0 && basePrice > stay.price
-    ? Math.round(((basePrice - stay.price) / basePrice) * 100)
+  const compareAt = Math.max(basePrice ?? 0, typeof stay.peakCompareAtPrice === 'number' ? stay.peakCompareAtPrice : 0) || null;
+  const discountOff = compareAt != null && compareAt > 0 && compareAt > stay.price
+    ? Math.round(((compareAt - stay.price) / compareAt) * 100)
     : 0;
-  const discountSavings = discountOff > 0 && basePrice != null ? basePrice - stay.price : 0;
+  const discountSavings = discountOff > 0 && compareAt != null ? compareAt - stay.price : 0;
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [showAllFacilities, setShowAllFacilities] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState<number | null>(null);
@@ -629,11 +632,11 @@ export function StayDetailExperience({ stay, reviewData, pickupRoutes = [], pick
               </div>
               <p className="mt-1 text-3xl font-bold">
                 ₹{stay.price.toLocaleString('en-IN')} <span className="text-sm font-normal text-[#536274]">/ night</span>
-                {discountOff > 0 && basePrice != null && (
-                  <span className="ml-2 align-middle text-base font-semibold text-[#8a948c] line-through">₹{basePrice.toLocaleString('en-IN')}</span>
+                {discountOff > 0 && compareAt != null && (
+                  <span className="ml-2 align-middle text-base font-semibold text-[#8a948c] line-through">₹{compareAt.toLocaleString('en-IN')}</span>
                 )}
               </p>
-              {discountOff > 0 && basePrice != null && (
+              {discountOff > 0 && compareAt != null && (
                 <p className="mt-1.5 text-sm font-semibold text-[#1d7a4f]">
                   You save ₹{discountSavings.toLocaleString('en-IN')} ({discountOff}%)
                 </p>
@@ -747,7 +750,7 @@ export function StayDetailExperience({ stay, reviewData, pickupRoutes = [], pick
 
       {/* Mobile bottom static bar: price + Add-to-trip shortcut, sticky to screen */}
       {isMobile && stay.category === 'stay' && (
-        <StayBottomBar slug={stay.slug} price={stay.price} basePrice={basePrice} fullyBooked={Boolean(stay.fullyBooked)} onEnquire={() => setEnquiryOpen(true)} />
+        <StayBottomBar slug={stay.slug} price={stay.price} basePrice={compareAt} fullyBooked={Boolean(stay.fullyBooked)} onEnquire={() => setEnquiryOpen(true)} />
       )}
     </div>
   );

@@ -53,6 +53,25 @@ enum RideType {
 	TRANSFER
 }
 
+// Global seasonal-pricing switch. Exactly one row is ever used (id = 1), so the
+// admin has a single place that decides whether the whole catalogue shows peak
+// or low rates. `activeCategories` is the JSON list of ListingCategory values
+// the switch applies to — a category left out keeps showing its low rate even
+// while the switch is on.
+//
+// `id` is Int (not String) to match the INTEGER column the migration creates.
+// A String here makes Prisma fail with P2032 when it reads the row back,
+// because MySQL hands it back a number.
+model PricingMode {
+	id               Int      @id @default(1)
+	peakModeEnabled  Boolean  @default(false)
+	activeCategories Json     @default("[\"STAY\",\"RIDE\",\"RENTAL\",\"ACTIVITY\"]")
+	label            String   @default("Peak season")
+	note             String?  @db.Text
+	updatedBy        String?
+	updatedAt        DateTime @updatedAt
+}
+
 enum RideStatus {
 	DRAFT
 	LIVE
@@ -144,6 +163,11 @@ model Listing {
 	location     String
 	basePrice    Decimal          @db.Decimal(10, 2)
 	sellPrice    Decimal          @db.Decimal(10, 2)
+	// Seasonal pricing: the peak ("season") rate and the low ("off-season") rate.
+	// Both are optional — a null value falls back to sellPrice, so existing
+	// listings keep rendering exactly as before until an admin sets them.
+	seasonPrice    Decimal?         @db.Decimal(10, 2)
+	offSeasonPrice Decimal?         @db.Decimal(10, 2)
 	bikeQuantity Int              @default(0)
 	scootyQuantity Int            @default(0)
 	images       Json
@@ -466,6 +490,10 @@ model RideFare {
 	vehicleTypeId String
 	vehicleType   VehicleType @relation(fields: [vehicleTypeId], references: [id], onDelete: Cascade)
 	price         Float
+	// Seasonal pricing, same optional/fallback contract as Listing. Rides use
+	// their own fare matrix rather than the generic Listing price pair.
+	seasonPrice    Float?
+	offSeasonPrice Float?
 
 	@@unique([rideRouteId, vehicleTypeId])
 	@@index([vehicleTypeId])

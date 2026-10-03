@@ -16,6 +16,7 @@ import Youtube from '@tiptap/extension-youtube';
 import { GenericArticle, GenericDiv, GenericSpan } from './BlogEditorExtensions';
 import { ResizableImage } from './ResizableImage';
 import { StayReviewsModal } from './StayReviewsModal';
+import { SeasonPriceFields } from './PricingRateInputs';
 import { isFullBlogDocument, normalizeBlogHtml, splitFullBlogDocument, type FullBlogDocumentParts } from '@/lib/sanitize-html';
 
 const categoryNames = { STAY: 'Stay', RIDE: 'Ride', RENTAL: 'Rental', ACTIVITY: 'Activity' } as const;
@@ -401,6 +402,7 @@ export function CategoryListingEditor({ category, form, setForm, busy, message, 
           <>
             <DetailInput label="Base price" type="number" value={form.basePrice} onChange={(value) => setForm((current) => ({ ...current, basePrice: value }))} />
             <DetailInput label="Selling price" type="number" value={form.sellPrice} onChange={(value) => setForm((current) => ({ ...current, sellPrice: value }))} />
+            <SeasonPriceFields form={form} setForm={setForm} className="md:col-span-2" />
           </>
         )}
 
@@ -454,6 +456,7 @@ export function CategoryListingEditor({ category, form, setForm, busy, message, 
           <>
             <DetailInput label="Base price" type="number" value={form.basePrice} onChange={(value) => setForm((current) => ({ ...current, basePrice: value }))} />
             <DetailInput label="Selling price" type="number" value={form.sellPrice} onChange={(value) => setForm((current) => ({ ...current, sellPrice: value }))} />
+            <SeasonPriceFields form={form} setForm={setForm} className="md:col-span-2" />
             <DetailInput label="Check-in time" type="time" value={valueOf(form.details, 'checkIn')} onChange={(value) => setDetail('checkIn', value)} />
             <DetailInput label="Check-out time" type="time" value={valueOf(form.details, 'checkOut')} onChange={(value) => setDetail('checkOut', value)} />
             <DetailInput label="Cancellation policy" value={valueOf(form.details, 'cancellationPolicy')} onChange={(value) => setDetail('cancellationPolicy', value)} placeholder="Flexible, moderate, or strict" className="md:col-span-2" />

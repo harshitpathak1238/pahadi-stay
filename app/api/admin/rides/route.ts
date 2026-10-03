@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin';
 import { slugifyRideTitle } from '@/lib/rides';
+import { invalidatePricingCache } from '@/lib/pricing';
 
 const stopSchema = z.object({ label: z.string().trim().max(120).default(''), note: z.string().trim().max(300).optional().default('') });
 const fareSchema = z.object({ vehicleTypeId: z.string().trim().min(1), price: z.coerce.number().nonnegative() });
@@ -77,6 +78,8 @@ export async function POST(request: Request) {
       },
     });
     revalidatePath('/rides');
+    // Seasonal rates may be attached to the fares just written.
+    await invalidatePricingCache();
     return NextResponse.json(route, { status: 201 });
   } catch (error) {
     const message = error instanceof Error && error.message.includes('P2002') ? 'That slug is already in use.' : error instanceof Error ? error.message : 'Could not create this ride route.';

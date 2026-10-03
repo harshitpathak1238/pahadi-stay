@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin';
+import { invalidatePricingCache } from '@/lib/pricing';
 
 const stopSchema = z.object({ label: z.string().trim().max(120).default(''), note: z.string().trim().max(300).optional().default('') });
 const fareSchema = z.object({ vehicleTypeId: z.string().trim().min(1), price: z.coerce.number().nonnegative() });
@@ -83,6 +84,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
         },
       });
     }, { timeout: 10000, isolationLevel: 'ReadCommitted' }); // Increased timeout to 10s
+    // Fares can carry seasonal rates, so the cached switch and catalogue views
+    // must be dropped alongside the usual revalidation.
+    await invalidatePricingCache();
     try {
       revalidatePath('/rides');
       if (route?.slug && route.slug !== existing.slug) revalidatePath(`/rides/${existing.slug}`);
