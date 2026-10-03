@@ -4,15 +4,30 @@ import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { compare } from 'bcryptjs';
 import { db } from './db';
+import { AUTH_LIMITS, clientIp, limited } from './review-rate-limit';
 
 const adminEmails = () => (process.env.ADMIN_EMAILS ?? '').split(',').map((email) => email.trim().toLowerCase()).filter(Boolean);
 
 const credentialsProvider = CredentialsProvider({
   name: 'Email',
   credentials: { email: { label: 'Email', type: 'email' }, password: { label: 'Password', type: 'password' } },
-  async authorize(credentials) {
+  async authorize(credentials, request) {
     if (!credentials?.email || !credentials.password) return null;
-    const user = await db.user.findUnique({ where: { email: credentials.email.toLowerCase() } });
+
+    // Brute-force guard. Without it the credentials callback was unlimited, and
+    // each attempt runs a bcrypt compare (cost 12) — so it was both a password
+    // guessing oracle and a way to burn CPU.
+    //
+    // Two independent buckets are charged on every attempt: per-IP stops one
+    // source spraying many accounts, per-account stops one account being sprayed
+    // from many sources. Both are always recorded so neither can be skipped.
+    const email = credentials.email.toLowerCase();
+    const ip = clientIp({ headers: request.headers });
+    const byIp = limited(`login-ip:${ip}`, AUTH_LIMITS.login);
+    const byUser = limited(`login-user:${email}`, AUTH_LIMITS.login);
+    if (!byIp.allowed || !byUser.allowed) return null;
+
+    const user = await db.user.findUnique({ where: { email } });
     if (!user?.passwordHash || !(await compare(credentials.password, user.passwordHash))) return null;
     return { id: user.id, email: user.email, name: user.name, role: user.role };
   },

@@ -3,9 +3,18 @@ import { NextResponse } from 'next/server';
 import { hash } from 'bcryptjs';
 import { z } from 'zod';
 import { db } from '@/lib/db';
+import { AUTH_LIMITS, clientIp, limited } from '@/lib/review-rate-limit';
 
 const schema = z.object({ token: z.string().min(20), password: z.string().min(8).max(72) });
 export async function POST(request: Request) {
+  // Bounds offline token guessing against the 30-minute window.
+  const limit = limited(`reset:${clientIp(request)}`, AUTH_LIMITS.resetPassword);
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: 'Too many attempts. Please request a new reset link and try again later.' },
+      { status: 429, headers: limit.retryAfterSec ? { 'Retry-After': String(limit.retryAfterSec) } : undefined },
+    );
+  }
   const parsed = schema.safeParse(await request.json());
   if (!parsed.success) return NextResponse.json({ error: 'Enter a valid reset token and a password of at least 8 characters.' }, { status: 400 });
   const tokenHash = createHash('sha256').update(parsed.data.token).digest('hex');

@@ -288,6 +288,10 @@ model Trip {
 	id          String    @id @default(cuid())
 	userId      String?
 	reference   String    @unique
+	// Random per-trip secret returned once at checkout. Guest checkout has no
+	// session, so this is what proves a caller owns the trip when cancelling.
+	// Compared in constant time; never rendered in any listing or admin view.
+	cancelToken String?
 	status      BookingStatus @default(PENDING)
 	expiresAt   DateTime?
 	confirmedAt DateTime?

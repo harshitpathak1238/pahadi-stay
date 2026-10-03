@@ -1,14 +1,21 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { db } from '@/lib/db';
+import { requireAdmin } from '@/lib/admin';
+
+export const dynamic = 'force-dynamic';
 
 const vehicleSchema = z.object({
-  name: z.string().min(1),
-  capacity: z.number().int().min(1),
-  image: z.string().nullable().optional(),
+  name: z.string().trim().min(1).max(120),
+  capacity: z.coerce.number().int().min(1).max(60),
+  image: z.string().trim().max(500).nullable().optional(),
 });
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+  // Authorisation is per-handler, not middleware: the middleware matcher
+  // deliberately excludes `/api`, so an unguarded handler here would be
+  // reachable by anyone on the internet.
+  if (!await requireAdmin()) return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
   try {
     const body = await req.json();
     const parse = vehicleSchema.safeParse(body);
@@ -28,6 +35,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 }
 
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+  if (!await requireAdmin()) return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
   try {
     await db.vehicleType.delete({ where: { id: params.id } });
     return NextResponse.json({ message: 'Vehicle type deleted' });

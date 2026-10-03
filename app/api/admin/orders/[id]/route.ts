@@ -8,7 +8,9 @@ const actionSchema = z.object({ action: z.enum(['STATUS', 'CANCEL_ITEM']), statu
 
 export async function GET(_request: Request, { params }: { params: { id: string } }) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
-  const trip = await db.trip.findUnique({ where: { id: params.id }, include: { bookings: { include: { listing: true, pickupRequest: { include: { assignedVehicle: true } } } }, payments: { orderBy: { createdAt: 'desc' } } } });
+  // `omit` keeps the per-trip cancel secret out of the JSON sent to the browser —
+// it is only ever needed by the guest holding it at checkout.
+  const trip = await db.trip.findUnique({ where: { id: params.id }, omit: { cancelToken: true }, include: { bookings: { include: { listing: true, pickupRequest: { include: { assignedVehicle: true } } } }, payments: { orderBy: { createdAt: 'desc' } } } });
   if (!trip) return NextResponse.json({ error: 'Order not found.' }, { status: 404 });
   return NextResponse.json(trip);
 }

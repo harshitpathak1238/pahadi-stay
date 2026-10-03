@@ -2,9 +2,19 @@ import { createHash, randomBytes } from 'crypto';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { db } from '@/lib/db';
+import { AUTH_LIMITS, clientIp, limited } from '@/lib/review-rate-limit';
 
 const schema = z.object({ email: z.string().email() });
 export async function POST(request: Request) {
+  // Every accepted request sends a real email, so without this the endpoint is
+  // an email-bombing relay pointed at the Resend account.
+  const limit = limited(`forgot:${clientIp(request)}`, AUTH_LIMITS.forgotPassword);
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: 'Too many reset requests from this network. Please try again later.' },
+      { status: 429, headers: limit.retryAfterSec ? { 'Retry-After': String(limit.retryAfterSec) } : undefined },
+    );
+  }
   const parsed = schema.safeParse(await request.json());
   if (!parsed.success) return NextResponse.json({ message: 'If an account exists, reset instructions will be sent.' });
   const user = await db.user.findUnique({ where: { email: parsed.data.email.toLowerCase() } });

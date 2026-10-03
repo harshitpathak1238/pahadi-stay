@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { randomBytes } from 'crypto';
 import { z } from 'zod';
 import { db } from '@/lib/db';
 import { razorpay } from '@/lib/payments';
@@ -44,7 +45,10 @@ export async function POST(request: Request) {
       }
       const user = await transaction.user.findUnique({ where: { email: data.guestEmail.toLowerCase() }, select: { id: true } });
       const reference = `KD-${Date.now().toString(36).toUpperCase()}`;
-      const trip = await transaction.trip.create({ data: { reference, userId: user?.id, status: 'PENDING', expiresAt: new Date(Date.now() + 25 * 60 * 1000) } });
+      // Per-trip capability token. Guest checkout has no session, so this is the
+      // only thing that lets the real guest cancel their own trip later.
+      const cancelToken = randomBytes(32).toString('hex');
+      const trip = await transaction.trip.create({ data: { reference, userId: user?.id, cancelToken, status: 'PENDING', expiresAt: new Date(Date.now() + 25 * 60 * 1000) } });
       let total = 0;
       for (const item of data.items) {
         const listing = listings.find((record) => record.slug === item.slug)!;
@@ -59,7 +63,7 @@ export async function POST(request: Request) {
         if (item.pickup) await transaction.pickupRequest.create({ data: { bookingId: booking.id, pickupLocationText: item.pickup.location, pickupLat: item.pickup.lat ?? null, pickupLng: item.pickup.lng ?? null, dropoffLocationText: item.pickup.detail, requestedTime: item.pickup.requestedTime, status: 'UNASSIGNED' } });
       }
       const payment = await transaction.payment.create({ data: { tripId: trip.id, amount: total, status: 'CREATED' } });
-      return { tripId: trip.id, reference, paymentId: payment.id, amount: total };
+      return { tripId: trip.id, reference, cancelToken, paymentId: payment.id, amount: total };
     }, { isolationLevel: 'Serializable' });
     let orderId: string | null = null;
     try { const order = await razorpay().orders.create({ amount: Math.round(result.amount * 100), currency: 'INR', receipt: result.reference }); orderId = order.id; await db.payment.update({ where: { id: result.paymentId }, data: { razorpayOrderId: order.id } }); } catch { /* Payment can be configured after trip creation; the webhook remains authoritative. */ }

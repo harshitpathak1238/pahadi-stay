@@ -19,7 +19,7 @@ export async function GET() {
       db.pickupRequest.count({ where: { status: 'UNASSIGNED' } }),
       db.partner.count({ where: { verificationStatus: 'PENDING' } }),
       db.payment.count({ where: { status: 'FAILED', createdAt: { gte: since } } }),
-      db.trip.findMany({ take: 8, orderBy: { createdAt: 'desc' }, include: { bookings: { include: { listing: { select: { title: true, category: true } } } }, payments: { orderBy: { createdAt: 'desc' }, take: 1 } } }),
+      db.trip.findMany({ take: 8, orderBy: { createdAt: 'desc' }, omit: { cancelToken: true }, include: { bookings: { include: { listing: { select: { title: true, category: true } } } }, payments: { orderBy: { createdAt: 'desc' }, take: 1 } } }),
       db.booking.groupBy({ by: ['category'], _count: { _all: true }, where: { createdAt: { gte: since } } }),
       db.payment.findMany({ where: { status: 'CAPTURED', createdAt: { gte: since } }, select: { amount: true, createdAt: true }, orderBy: { createdAt: 'asc' } }),
     ]);
