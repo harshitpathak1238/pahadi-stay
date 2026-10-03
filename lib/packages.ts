@@ -2,7 +2,7 @@ import { db } from '@/lib/db';
 import { cached } from '@/lib/cache';
 import { bhimtalPackage } from '@/app/(public)/packages/package-data';
 import { strings } from '@/lib/listings-shared';
-import { inclusionKind as listingInclusionKind } from '@/lib/package-inclusions-shared';
+import { inclusionKind as listingInclusionKind, parseItinerary, type ItineraryStop } from '@/lib/package-inclusions-shared';
 import type { PublicResult } from '@/lib/listings';
 
 /** A single bundled item shown on a package page. */
@@ -28,6 +28,8 @@ export type PublicPackage = {
   image: string;
   location: string;
   inclusions: PackageInclusion[];
+  /** Day-by-day stops an admin added in the package editor. */
+  itinerary: ItineraryStop[];
 };
 
 /**
@@ -46,7 +48,7 @@ export const inclusionKind = listingInclusionKind;
 // production must never render fake, bookable packages — pages show a degraded banner.
 function fallbackPackages(): PublicResult<PublicPackage[]> {
   if (process.env.NODE_ENV === 'production') return { data: [], degraded: true };
-  return { data: [{ id: bhimtalPackage.slug, title: bhimtalPackage.title, description: bhimtalPackage.description, price: 24000, listingIds: [], image: bhimtalPackage.image, location: bhimtalPackage.eyebrow, inclusions: [] }], degraded: true };
+  return { data: [{ id: bhimtalPackage.slug, title: bhimtalPackage.title, description: bhimtalPackage.description, price: 24000, listingIds: [], image: bhimtalPackage.image, location: bhimtalPackage.eyebrow, inclusions: [], itinerary: [] }], degraded: true };
 }
 
 export async function getPublicPackages(): Promise<PublicResult<PublicPackage[]>> {
@@ -82,6 +84,7 @@ export async function getPublicPackages(): Promise<PublicResult<PublicPackage[]>
               image: strings(firstListing?.images)[0] || bhimtalPackage.image,
               location: firstListing?.location || 'Kumaon, Uttarakhand',
               inclusions,
+              itinerary: parseItinerary((record.details as Record<string, unknown> | null)?.itinerary),
             };
           }),
           degraded: false,

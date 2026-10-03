@@ -5,6 +5,9 @@ import { db } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin';
 import { cacheDeletePrefix } from '@/lib/cache';
 import { packageLiveRequirements } from '@/lib/listing-requirements';
+import { MAX_ITINERARY_STOPS, serializeItinerary } from '@/lib/package-inclusions-shared';
+
+const itineraryStopSchema = z.object({ label: z.string().trim().max(120).default(''), note: z.string().trim().max(300).optional().default('') });
 
 const packageSchema = z.object({
   title: z.string().trim().max(120).optional(),
@@ -12,8 +15,18 @@ const packageSchema = z.object({
   listingIds: z.array(z.string()).default([]),
   price: z.coerce.number().nonnegative().optional().default(0),
   details: z.record(z.string(), z.unknown()).default({}),
+  itinerary: z.array(itineraryStopSchema).max(MAX_ITINERARY_STOPS).optional(),
   status: z.enum(['DRAFT', 'LIVE', 'PAUSED']).default('DRAFT'),
 });
+
+/**
+ * Itinerary lives inside the `details` JSON column, so it is merged rather
+ * than replacing the whole object (which would drop duration, meal plan, etc).
+ */
+function withItinerary(details: Record<string, unknown>, itinerary: z.infer<typeof itineraryStopSchema>[] | undefined) {
+  if (!itinerary) return details;
+  return { ...details, itinerary: serializeItinerary(itinerary) };
+}
 
 export async function GET() {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
@@ -29,7 +42,7 @@ export async function POST(request: Request) {
     description: parsed.data.description?.trim() || '',
     listingIds: parsed.data.listingIds || [],
     price: Number(parsed.data.price ?? 0),
-    details: parsed.data.details as Prisma.InputJsonValue,
+    details: withItinerary(parsed.data.details, parsed.data.itinerary) as Prisma.InputJsonValue,
     status: parsed.data.status,
   };
   const missing = parsed.data.status === 'LIVE' ? packageLiveRequirements(data) : [];

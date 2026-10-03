@@ -59,3 +59,62 @@ export function splitInclusionsByGroup(listings: PickerListing[], query = ''): I
 
   return { stays, transport };
 }
+/* ------------------------------------------------------------------ */
+/* Itinerary                                                           */
+/* ------------------------------------------------------------------ */
+
+export type ItineraryStop = { label: string; note: string };
+
+/** Hard cap so a package can't balloon into an unusable wall of text. */
+export const MAX_ITINERARY_STOPS = 30;
+
+const MAX_LABEL = 120;
+const MAX_NOTE = 300;
+
+const clip = (value: unknown, max: number) => (typeof value === 'string' ? value.trim().slice(0, max) : '');
+
+/**
+ * Normalises `details.itinerary` from the database.
+ *
+ * Packages store this as free-form JSON, so the shape is untrusted: it may be
+ * missing, an older array shape, or contain junk. Anything without a label is
+ * dropped, mirroring how rides discard empty stops before saving.
+ */
+export function parseItinerary(value: unknown): ItineraryStop[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((entry) => {
+      if (typeof entry === 'string') return { label: clip(entry, MAX_LABEL), note: '' };
+      if (!entry || typeof entry !== 'object') return null;
+      const record = entry as Record<string, unknown>;
+      return { label: clip(record.label ?? record.title ?? record.name, MAX_LABEL), note: clip(record.note ?? record.description, MAX_NOTE) };
+    })
+    .filter((stop): stop is ItineraryStop => Boolean(stop?.label))
+    .slice(0, MAX_ITINERARY_STOPS);
+}
+
+/** Serialises stops for `details.itinerary`, dropping blank rows first. */
+export function serializeItinerary(stops: ItineraryStop[]): ItineraryStop[] {
+  return stops
+    .map((stop) => ({ label: clip(stop?.label, MAX_LABEL), note: clip(stop?.note, MAX_NOTE) }))
+    .filter((stop) => stop.label)
+    .slice(0, MAX_ITINERARY_STOPS);
+}
+
+export function emptyStop(): ItineraryStop {
+  return { label: '', note: '' };
+}
+
+/** Moves a stop and returns a new array; out-of-range indices are a no-op. */
+export function moveStop(stops: ItineraryStop[], from: number, to: number): ItineraryStop[] {
+  if (from === to || from < 0 || to < 0 || from >= stops.length || to >= stops.length) return stops;
+  const next = [...stops];
+  const [moved] = next.splice(from, 1);
+  next.splice(to, 0, moved);
+  return next;
+}
+
+export function removeStopAt(stops: ItineraryStop[], index: number): ItineraryStop[] {
+  if (index < 0 || index >= stops.length) return stops;
+  return stops.filter((_, position) => position !== index);
+}

@@ -1,5 +1,18 @@
 import { describe, expect, it } from 'vitest';
-import { inclusionKind, isTransportCategory, matchesQuery, splitInclusionsByGroup, type PickerListing } from '@/lib/package-inclusions-shared';
+import {
+  emptyStop,
+  inclusionKind,
+  isTransportCategory,
+  matchesQuery,
+  MAX_ITINERARY_STOPS,
+  moveStop,
+  parseItinerary,
+  removeStopAt,
+  serializeItinerary,
+  splitInclusionsByGroup,
+  type ItineraryStop,
+  type PickerListing,
+} from '@/lib/package-inclusions-shared';
 
 const catalogue: PickerListing[] = [
   { id: '1', title: 'Sanobar (Kainchidarshan)', location: 'Bhimtal', category: 'STAY' },
@@ -81,5 +94,142 @@ describe('matchesQuery', () => {
     const listing = { id: '1', title: 'Oak House', category: 'STAY' } as PickerListing;
     expect(matchesQuery(listing, 'oak')).toBe(true);
     expect(matchesQuery(listing, 'zzz')).toBe(false);
+  });
+});
+
+describe('parseItinerary', () => {
+  it('returns an empty list when details has no itinerary', () => {
+    expect(parseItinerary(undefined)).toEqual([]);
+    expect(parseItinerary(null)).toEqual([]);
+    expect(parseItinerary({ duration: '3 nights' })).toEqual([]);
+    expect(parseItinerary('not an array')).toEqual([]);
+  });
+
+  it('keeps ordered stops with labels and notes', () => {
+    const stops = parseItinerary([
+      { label: 'Nainital lake shore', note: 'Sunset walk' },
+      { label: 'Kainchi Dham', note: '' },
+    ]);
+    expect(stops).toEqual([
+      { label: 'Nainital lake shore', note: 'Sunset walk' },
+      { label: 'Kainchi Dham', note: '' },
+    ]);
+  });
+
+  it('drops stops with no label, matching how rides discard blank rows', () => {
+    expect(parseItinerary([{ label: '', note: 'orphan note' }, { label: 'Bhimbtal', note: '' }])).toEqual([
+      { label: 'Bhimbtal', note: '' },
+    ]);
+  });
+
+  it('tolerates legacy string entries and alternative key names', () => {
+    expect(parseItinerary(['Nainital', { title: 'Sattal', description: 'boating' }, { name: 'Mukteshwar' }])).toEqual([
+      { label: 'Nainital', note: '' },
+      { label: 'Sattal', note: 'boating' },
+      { label: 'Mukteshwar', note: '' },
+    ]);
+  });
+
+  it('ignores junk entries instead of throwing', () => {
+    expect(parseItinerary([null, undefined, 5, { label: 'Kainchi Dham' }, 'x'])).toEqual([
+      { label: 'Kainchi Dham', note: '' },
+      { label: 'x', note: '' },
+    ]);
+  });
+
+  it('trims and caps overlong text', () => {
+    const [stop] = parseItinerary([{ label: `  ${'a'.repeat(200)}  `, note: 'b'.repeat(500) }]);
+    expect(stop.label).toHaveLength(120);
+    expect(stop.note).toHaveLength(300);
+  });
+
+  it('caps the number of stops at the maximum', () => {
+    const many = Array.from({ length: MAX_ITINERARY_STOPS + 10 }, (_, i) => ({ label: `Stop ${i}` }));
+    expect(parseItinerary(many)).toHaveLength(MAX_ITINERARY_STOPS);
+  });
+
+  it('survives non-string label types', () => {
+    expect(parseItinerary([{ label: 42 }, { label: null }])).toEqual([]);
+  });
+});
+
+describe('serializeItinerary', () => {
+  it('drops blank rows so stray empty inputs are never persisted', () => {
+    expect(serializeItinerary([{ label: 'Nainital', note: '' }, { label: '   ', note: 'note only' }])).toEqual([
+      { label: 'Nainital', note: '' },
+    ]);
+  });
+
+  it('trims labels and notes', () => {
+    expect(serializeItinerary([{ label: '  Sattal  ', note: '  boating  ' }])).toEqual([{ label: 'Sattal', note: 'boating' }]);
+  });
+
+  it('round-trips through parseItinerary', () => {
+    const stops: ItineraryStop[] = [
+      { label: 'Bhimbtal', note: 'Lake view' },
+      { label: 'Naukuchiatal', note: '' },
+    ];
+    expect(parseItinerary(serializeItinerary(stops))).toEqual(stops);
+  });
+});
+
+describe('emptyStop', () => {
+  it('creates a blank row', () => {
+    expect(emptyStop()).toEqual({ label: '', note: '' });
+  });
+});
+
+describe('moveStop', () => {
+  const stops: ItineraryStop[] = [
+    { label: 'One', note: '' },
+    { label: 'Two', note: '' },
+    { label: 'Three', note: '' },
+  ];
+
+  it('moves a stop up and down while preserving the rest', () => {
+    expect(moveStop(stops, 2, 0).map((s) => s.label)).toEqual(['Three', 'One', 'Two']);
+    expect(moveStop(stops, 0, 2).map((s) => s.label)).toEqual(['Two', 'Three', 'One']);
+  });
+
+  it('reorders one step at a time', () => {
+    expect(moveStop(stops, 0, 1).map((s) => s.label)).toEqual(['Two', 'One', 'Three']);
+  });
+
+  it('is a no-op for out-of-range or same-index moves', () => {
+    expect(moveStop(stops, -1, 0)).toBe(stops);
+    expect(moveStop(stops, 0, 99)).toBe(stops);
+    expect(moveStop(stops, 1, 1)).toBe(stops);
+  });
+
+  it('does not mutate the original array', () => {
+    const before = stops.map((s) => s.label);
+    moveStop(stops, 0, 2);
+    expect(stops.map((s) => s.label)).toEqual(before);
+  });
+
+  it('handles an empty list', () => {
+    expect(moveStop([], 0, 1)).toEqual([]);
+  });
+});
+
+describe('removeStopAt', () => {
+  const stops: ItineraryStop[] = [
+    { label: 'One', note: '' },
+    { label: 'Two', note: '' },
+  ];
+
+  it('removes only the targeted row', () => {
+    expect(removeStopAt(stops, 0).map((s) => s.label)).toEqual(['Two']);
+    expect(removeStopAt(stops, 1).map((s) => s.label)).toEqual(['One']);
+  });
+
+  it('is a no-op for out-of-range indices', () => {
+    expect(removeStopAt(stops, 5)).toBe(stops);
+    expect(removeStopAt(stops, -1)).toBe(stops);
+  });
+
+  it('does not mutate the original array', () => {
+    removeStopAt(stops, 0);
+    expect(stops).toHaveLength(2);
   });
 });

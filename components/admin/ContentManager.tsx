@@ -18,7 +18,8 @@ import { ResizableImage } from './ResizableImage';
 import { isFullBlogDocument, normalizeBlogHtml, splitFullBlogDocument, type FullBlogDocumentParts } from '@/lib/sanitize-html';
 import { defaultStayFacilities } from '@/lib/stay-facilities';
 import { DefaultHouseRules, type HouseRule } from '@/lib/listings-shared';
-import { isTransportCategory, splitInclusionsByGroup } from '@/lib/package-inclusions-shared';
+import { isTransportCategory, parseItinerary, splitInclusionsByGroup, type ItineraryStop } from '@/lib/package-inclusions-shared';
+import { ItineraryEditor } from './ItineraryEditor';
 
 type Category = 'STAY' | 'RIDE' | 'RENTAL' | 'ACTIVITY';
 type Section = Category | 'PACKAGE';
@@ -30,7 +31,7 @@ export type AdminServiceRow = { id?: string; label: string; note: string };
 export type AdminExperienceRow = { id?: string; title: string; note: string };
 export type AccommodationRow = { id?: string; title: string; description: string; image: string; images: string[]; price: string; bedrooms: string; beds: string };
 
-export type ListingForm = { slug: string; title: string; description: string; location: string; basePrice: string; sellPrice: string; images: string[]; amenities: string; status: string; fullyBooked: boolean; price: string; listingIds: string[]; details: Record<string, string>; mealPlan: string; breakfastIncluded: boolean; cuisineNotes: string; stayFacilities: Record<string, boolean>; faqs: AdminFaqRow[]; houseRules: HouseRuleRow[]; landmarks: AdminLandmarkRow[]; services: AdminServiceRow[]; experiences: AdminExperienceRow[]; accommodations: AccommodationRow[] };
+export type ListingForm = { slug: string; title: string; description: string; location: string; basePrice: string; sellPrice: string; images: string[]; amenities: string; status: string; fullyBooked: boolean; price: string; listingIds: string[]; details: Record<string, string>; itinerary: ItineraryStop[]; mealPlan: string; breakfastIncluded: boolean; cuisineNotes: string; stayFacilities: Record<string, boolean>; faqs: AdminFaqRow[]; houseRules: HouseRuleRow[]; landmarks: AdminLandmarkRow[]; services: AdminServiceRow[]; experiences: AdminExperienceRow[]; accommodations: AccommodationRow[] };
 
 export type AdminFaqRow = { id?: string; question: string; answer: string };
 
@@ -55,6 +56,7 @@ const freshForm = (): ListingForm => ({
   fullyBooked: false,
   price: '',
   listingIds: [],
+  itinerary: [],
   details: {},
   mealPlan: '',
   breakfastIncluded: false,
@@ -131,8 +133,9 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
         description: packageItem.description,
         price: String(packageItem.price),
         listingIds: packageItem.listingIds || [],
+        itinerary: parseItinerary(packageItem.details?.itinerary),
         status: packageItem.status || 'DRAFT',
-        details: Object.fromEntries(Object.entries(packageItem.details || {}).map(([key, value]) => [key, String(value ?? '')])),
+        details: Object.fromEntries(Object.entries(packageItem.details || {}).filter(([key]) => key !== 'itinerary').map(([key, value]) => [key, String(value ?? '')])),
         mealPlan: '',
         breakfastIncluded: false,
         cuisineNotes: '',
@@ -186,12 +189,17 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
     event.preventDefault();
     setBusy(true);
     setMessage('');
+    // `itinerary` is sent apart from `details` so the API can merge it into the
+    // JSON column without clobbering duration and the other detail keys.
+    const itineraryDetails = { ...form.details };
+    delete itineraryDetails.itinerary;
     const payload = {
       title: form.title.trim() || 'Untitled package',
       description: form.description || '',
       price: Number(form.price || 0),
       listingIds: form.listingIds,
-      details: section === 'STAY' ? { ...form.details, facilities: form.stayFacilities } : form.details,
+      details: section === 'STAY' ? { ...itineraryDetails, facilities: form.stayFacilities } : itineraryDetails,
+      itinerary: form.itinerary,
       status: String(form.status || 'DRAFT').trim().toUpperCase(),
     };
 
@@ -569,6 +577,13 @@ function PackageEditor({ form, setForm, allListings, toggle, editing, busy, mess
               </div>
             )}
           </div>
+        </div>
+
+        <div className="lg:col-span-2">
+          <ItineraryEditor
+            stops={form.itinerary}
+            onChange={(itinerary) => setForm((current) => ({ ...current, itinerary }))}
+          />
         </div>
 
         <aside className="grid content-start gap-4">
