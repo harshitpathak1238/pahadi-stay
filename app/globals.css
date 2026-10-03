@@ -177,6 +177,11 @@ button, input, select { font:inherit; }
 @keyframes hero-drift { from { transform:translate3d(0,0,0) scale(1.01); } to { transform:translate3d(0,-10px,0) scale(1.03); } }
 .site-header-padding { padding-top:76px; }
 @media (min-width:768px) { .site-header-padding { padding-top:92px; } }
+/* Real rendered header height is published by SiteHeader (it wraps taller on
+   mid-width viewports), so sticky rows can clear the fixed bar without
+   hardcoding per-breakpoint pixels. */
+:root { --site-header-h:69px; }
+.site-header-sticky { position:sticky; top:var(--site-header-h); z-index:30; }
 @media (prefers-reduced-motion:reduce) { .image-card, .hero-depth, .rise, .nav-indicator { animation:none; transition:none; } .site-header { transition:none; } }
 @supports (animation-timeline:scroll()) { .gallery-depth img, div[class*="min-h-[360px]"] img, div[class*="min-h-[520px]"] img { animation:gallery-parallax linear both; animation-timeline:scroll(root block); animation-range:25vh 90vh; } @keyframes gallery-parallax { from { transform:translateZ(-20px) scale(1.05) translateY(18px); } to { transform:translateZ(-20px) scale(1.05) translateY(-18px); } } }
 .admin-blog-list > div:first-child button,

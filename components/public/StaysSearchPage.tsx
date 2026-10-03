@@ -101,18 +101,25 @@ export function StaysSearchPage({ stays, initialLocation, initialCheckIn, initia
   return (
     <div className="bg-[#f5f7fa] text-[#1f2937]">
       <main className="mx-auto w-full max-w-[1280px] px-3 py-4 sm:px-4 sm:py-5 md:px-6">
-        <StaysSearchBar
-          stays={stays}
-          initialLocation={initialLocation}
-          initialCheckIn={initialCheckIn}
-          initialCheckOut={initialCheckOut}
-          initialGuests={initialGuests}
-          initialMinPrice={initialMinPrice}
-          initialMaxPrice={initialMaxPrice}
-          onLocationChange={handleLocationChange}
-          onPriceChange={handlePriceChange}
-          onSearch={handleSearch}
-        />
+        {/* The site header is `position: fixed`, so the search controls would slide
+            behind it while scrolling. `site-header-sticky` pins them just under the
+            bar, using the header's real measured height. The full-bleed padding
+            cancels `main`'s side padding so result cards can't peek through the
+            pill's rounded corners while it is stuck. */}
+        <div className="site-header-sticky -mx-3 bg-[#f5f7fa] px-3 py-2 sm:-mx-4 sm:px-4 md:-mx-6 md:px-6">
+          <StaysSearchBar
+            stays={stays}
+            initialLocation={initialLocation}
+            initialCheckIn={initialCheckIn}
+            initialCheckOut={initialCheckOut}
+            initialGuests={initialGuests}
+            initialMinPrice={initialMinPrice}
+            initialMaxPrice={initialMaxPrice}
+            onLocationChange={handleLocationChange}
+            onPriceChange={handlePriceChange}
+            onSearch={handleSearch}
+          />
+        </div>
 
         {/* Breadcrumb: Home › Stays › City / Search results */}
         <Breadcrumbs

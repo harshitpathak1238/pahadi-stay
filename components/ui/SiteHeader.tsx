@@ -1,12 +1,33 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export function SiteHeader({ children, initialHero = false }: { children: React.ReactNode; initialHero?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   // Start in hero (light-text) mode on the home page so the hamburger is
   // white-on-dark from the very first paint — before the scroll listener runs.
   const [overHero, setOverHero] = useState(initialHero);
+  const headerRef = useRef<HTMLElement>(null);
+
+  // The bar is fixed, so anything that sticks below it needs the real height.
+  // It changes with wrapping (taller on mid-width viewports), so publish it as
+  // a CSS variable instead of hardcoding per-breakpoint offsets.
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const publish = () => {
+      const height = Math.ceil(el.getBoundingClientRect().height);
+      if (height > 0) document.documentElement.style.setProperty('--site-header-h', `${height}px`);
+    };
+    publish();
+    const observer = new ResizeObserver(publish);
+    observer.observe(el);
+    window.addEventListener('resize', publish);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', publish);
+    };
+  }, []);
 
   useEffect(() => {
     let frame = 0;
@@ -39,7 +60,7 @@ export function SiteHeader({ children, initialHero = false }: { children: React.
   const className = `site-header${scrolled ? ' is-scrolled' : ''}${hero ? ' is-hero' : ''}`;
 
   return (
-    <header className={className} data-scrolled={scrolled} data-hero={hero}>
+    <header ref={headerRef} className={className} data-scrolled={scrolled} data-hero={hero}>
       <div className="mx-auto max-w-7xl px-3 sm:px-4 md:px-6">
         <div className="site-header-bar mx-auto flex min-h-[56px] items-center justify-between gap-2 px-1 py-2 sm:px-2 md:min-h-[68px] md:gap-5 md:px-3">
           {children}
