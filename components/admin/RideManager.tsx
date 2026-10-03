@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { Plus, ImagePlus, X, Upload, Check, GripVertical, Star, Video, Link2 } from 'lucide-react';
-import { slugifyRideTitle } from '@/lib/rides';
+import { slugifyRideTitle } from '@/lib/rides-shared';
 import { isVideoUrl as isVideoMedia } from '@/lib/media';
 
 export type RideMgrVehicle = { id: string; name: string; capacity: number; image: string | null; order: number };

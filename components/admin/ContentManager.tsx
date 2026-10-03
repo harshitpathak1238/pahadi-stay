@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
-import { ArrowLeft, Ban, Bold, CheckCircle2, Code2, Edit3, ImagePlus, Italic, Link as LinkIcon, List, ListOrdered, Pencil, Plus, Quote, Save, Trash2, Upload, X, type LucideIcon } from 'lucide-react';
+import { ArrowLeft, Ban, Bold, Check, CheckCircle2, Code2, Edit3, ImagePlus, Italic, Link as LinkIcon, List, ListOrdered, Pencil, Plus, Quote, Save, Search, Trash2, Upload, X, type LucideIcon } from 'lucide-react';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import ImageExtension from '@tiptap/extension-image';
@@ -17,7 +17,8 @@ import { GenericArticle, GenericDiv, GenericSpan } from './BlogEditorExtensions'
 import { ResizableImage } from './ResizableImage';
 import { isFullBlogDocument, normalizeBlogHtml, splitFullBlogDocument, type FullBlogDocumentParts } from '@/lib/sanitize-html';
 import { defaultStayFacilities } from '@/lib/stay-facilities';
-import { DefaultHouseRules, type HouseRule } from '@/lib/listings';
+import { DefaultHouseRules, type HouseRule } from '@/lib/listings-shared';
+import { isTransportCategory, splitInclusionsByGroup } from '@/lib/package-inclusions-shared';
 
 type Category = 'STAY' | 'RIDE' | 'RENTAL' | 'ACTIVITY';
 type Section = Category | 'PACKAGE';
@@ -570,20 +571,105 @@ function PackageEditor({ form, setForm, allListings, toggle, editing, busy, mess
           </div>
         </div>
 
-        <aside className="grid gap-4">
-          <div className="rounded-2xl border border-[#d9d9dc] bg-[#fafaf8] p-4">
-            <p className="text-[11px] font-bold uppercase tracking-[.12em] text-[#7d847c]">Included stays</p>
-            <div className="mt-3 space-y-2">
-              {allListings.length ? allListings.map((listing) => (
-                <label key={listing.id} className="flex items-center gap-2 rounded-xl border border-[#e5e5e4] bg-white p-2 text-[12px] text-[#2d4037]">
-                  <input type="checkbox" checked={form.listingIds.includes(listing.id)} onChange={() => toggle(listing.id)} className="h-4 w-4" />
-                  <span>{listing.title}</span>
-                </label>
-              )) : <p className="text-[12px] text-[#6c7770]">No listings available yet.</p>}
-            </div>
-          </div>
+        <aside className="grid content-start gap-4">
+          <PackageInclusionPicker
+            allListings={allListings}
+            selected={form.listingIds}
+            onToggle={toggle}
+          />
         </aside>
       </div>
     </form>
+  );
+}
+
+/**
+ * Grouped picker for what a package bundles. Stays and cars are listed
+ * separately because they answer different guest questions ("where do I sleep?"
+ * vs "how do I get around?") and mixing them in one flat list made a long
+ * catalogue unusable.
+ */
+function PackageInclusionPicker({ allListings, selected, onToggle }: { allListings: Listing[]; selected: string[]; onToggle: (id: string) => void }) {
+  const [query, setQuery] = useState('');
+
+  const groups = [
+    { key: 'STAY', label: 'Hotels & homestays', hint: 'Where guests will stay', empty: 'No stays published yet.', listings: splitInclusionsByGroup(allListings, query).stays },
+    { key: 'CAR', label: 'Cars & rides', hint: 'Transport included in the trip', empty: 'No rides or rentals published yet.', listings: splitInclusionsByGroup(allListings, query).transport },
+  ] as const;
+
+  return (
+    <div className="rounded-2xl border border-[#d9d9dc] bg-[#fafaf8] p-4">
+      <div className="flex items-center justify-between gap-2">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[.12em] text-[#7d847c]">Included in package</p>
+          <p className="mt-1 text-[13px] text-[#526057]">{selected.length} selected</p>
+        </div>
+        {selected.length > 0 && (
+          <span className="rounded-full bg-[#e8f3ec] px-2.5 py-1 text-[11px] font-bold text-[#24584a] ring-1 ring-[#cbe4d5]">{selected.length}</span>
+        )}
+      </div>
+
+      <div className="relative mt-3">
+        <Search size={14} aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#9aa39b]" />
+        <input
+          type="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Search stays and cars…"
+          aria-label="Search stays and cars"
+          className="w-full rounded-xl border border-[#e2e3e0] bg-white py-2 pl-9 pr-3 text-[12px] text-[#2d4037] placeholder:text-[#a3aca4] focus:border-[#8db9a0] focus:outline-none focus:ring-2 focus:ring-[#dcefe2]"
+        />
+      </div>
+
+      <div className="mt-4 grid gap-4">
+        {groups.map((group) => {
+          // The badge always shows the full group size, even while searching,
+          // so admins can tell a filtered list apart from an empty category.
+          const total = allListings.filter((listing) => (group.key === 'STAY' ? listing.category === 'STAY' : isTransportCategory(listing.category))).length;
+          return (
+            <section key={group.key}>
+              <header className="flex items-center justify-between gap-2">
+                <div>
+                  <h3 className="text-[12px] font-bold uppercase tracking-[.08em] text-[#173f35]">{group.label}</h3>
+                  <p className="text-[11px] text-[#7d847c]">{group.hint}</p>
+                </div>
+                <span className="shrink-0 rounded-full bg-[#eef1ee] px-2 py-0.5 text-[11px] font-bold text-[#526057]">{total}</span>
+              </header>
+
+              {group.listings.length ? (
+                <ul className="mt-2.5 grid gap-1.5">
+                  {group.listings.map((listing) => {
+                    const isSelected = selected.includes(listing.id);
+                    return (
+                      <li key={listing.id}>
+                        <button
+                          type="button"
+                          onClick={() => onToggle(listing.id)}
+                          aria-pressed={isSelected}
+                          className={`flex w-full items-center gap-2.5 rounded-xl border p-2 text-left transition ${isSelected ? 'border-[#8db9a0] bg-[#eef7f1] shadow-[0_1px_0_rgba(23,63,53,.06)]' : 'border-[#e5e5e4] bg-white hover:border-[#cbd5cf] hover:bg-[#f7f9f7]'}`}
+                        >
+                          <span className={`grid h-4 w-4 shrink-0 place-items-center rounded-[5px] border transition ${isSelected ? 'border-[#24584a] bg-[#24584a] text-white' : 'border-[#c3cac2] bg-white'}`}>
+                            {isSelected && <Check size={11} strokeWidth={3} aria-hidden="true" />}
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate text-[12px] font-semibold text-[#2d4037]">{listing.title}</span>
+                            <span className="block truncate text-[11px] text-[#7d847c]">
+                              {listing.location || '—'}
+                              {listing.status !== 'LIVE' && <span className="ml-1 rounded bg-[#f0f0ee] px-1 py-px text-[10px] font-bold uppercase tracking-wide text-[#8a8f88]">{listing.status}</span>}
+                            </span>
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : (
+                <p className="mt-2.5 rounded-xl border border-dashed border-[#e0e2de] bg-white/60 px-3 py-4 text-center text-[11px] text-[#8a8f88]">{allListings.some((listing) => (group.key === 'STAY' ? listing.category === 'STAY' : isTransportCategory(listing.category))) ? 'No matches for this search.' : group.empty}</p>
+              )}
+            </section>
+          );
+        })}
+      </div>
+    </div>
   );
 }

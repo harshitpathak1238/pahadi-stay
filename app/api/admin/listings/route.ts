@@ -3,6 +3,7 @@ import { z } from 'zod';
 import type { Prisma } from '@prisma/client';
 import { db } from '@/lib/db';
 import { getAdminPartner, requireAdmin } from '@/lib/admin';
+import { invalidateCatalogueCache } from '@/lib/listings';
 import { isFullBlogDocument, sanitizeBlogHtml } from '@/lib/sanitize-html';
 import { slugifyTitle } from '@/lib/slug';
 
@@ -43,6 +44,8 @@ export async function POST(request: Request) {
     const { details, houseRules, accommodations, landmarks, services, experiences, ...fields } = parsed.data;
     fields.description = isFullBlogDocument(fields.description) ? fields.description : sanitizeBlogHtml(fields.description);
     const listing = await db.listing.create({ data: { ...fields, details: details as Prisma.InputJsonObject, ...(houseRules ? { houseRules: houseRules as Prisma.InputJsonValue } : {}), ...(accommodations?.length ? { accommodations: accommodations as Prisma.InputJsonValue } : {}), landmarks: { create:ordered(landmarks).map((item) => ({ label: item.label, distanceKm: item.distanceKm ?? 0, order: item.order })) }, services: { create: ordered(services).map((item) => ({ label: item.label, note: item.note || null, order: item.order })) }, experiences: { create: ordered(experiences).map((item) => ({ title: item.title, note: item.note || null, order: item.order })) }, slug, title, partnerId: partner.id, basePrice: parsed.data.basePrice, sellPrice: parsed.data.sellPrice, category: (parsed.data.category || 'STAY') as 'STAY' | 'RIDE' | 'RENTAL' | 'ACTIVITY' } });
+    // Drop cached catalogue reads so the new listing appears right away.
+    await invalidateCatalogueCache();
     return NextResponse.json(listing, { status: 201 });
   } catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : 'Could not create listing.' }, { status: 500 }); }
 }

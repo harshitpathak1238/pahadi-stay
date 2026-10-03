@@ -3,6 +3,7 @@ import { z } from 'zod';
 import type { Prisma } from '@prisma/client';
 import { db } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin';
+import { cacheDeletePrefix } from '@/lib/cache';
 import { packageLiveRequirements } from '@/lib/listing-requirements';
 
 const packageSchema = z.object({
@@ -32,11 +33,14 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     const missing = packageLiveRequirements({ ...existing, ...data });
     if (missing.length) return NextResponse.json({ error: 'This package is not ready to publish.', missing, details: `Complete the pre-flight checklist: ${missing.join(', ')}.` }, { status: 422 });
   }
-  return NextResponse.json(await db.package.update({ where: { id: params.id }, data }));
+  const packageItem = await db.package.update({ where: { id: params.id }, data });
+  await cacheDeletePrefix('packages:');
+  return NextResponse.json(packageItem);
 }
 
 export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
   await db.package.delete({ where: { id: params.id } });
+  await cacheDeletePrefix('packages:');
   return NextResponse.json({ deleted: true });
 }

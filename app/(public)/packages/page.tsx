@@ -41,7 +41,7 @@ export default async function Packages() {
 			<section className="mx-auto max-w-7xl px-5" aria-labelledby="package-heading">
 				<div className="overflow-hidden rounded-[2rem] bg-[#24584a] text-white shadow-[0_24px_60px_rgba(23,63,53,.16)] md:grid md:grid-cols-[1.05fr_.95fr]">
 					<div className="relative min-h-[360px] overflow-hidden md:min-h-[570px]">
-						<img src={bhimtalPackage.image} alt="Mountain lake landscape near Bhimtal" className="absolute inset-0 h-full w-full object-cover" />
+						<img src={bhimtalPackage.image} alt="Mountain lake landscape near Bhimtal" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
 						<div className="absolute inset-0 bg-gradient-to-t from-[#102f27]/85 via-[#173f35]/10 to-transparent" />
 						<div className="sans absolute bottom-6 left-6 rounded-full border border-white/35 bg-[#173f35]/40 px-4 py-2 text-xs font-semibold uppercase tracking-[.16em] backdrop-blur-sm">Ex-Haldwani · 6 guests</div>
 					</div>

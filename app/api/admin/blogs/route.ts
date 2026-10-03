@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin';
 import { blogSchema } from '@/lib/validations/blog';
 import { isFullBlogDocument, sanitizeBlogHtml } from '@/lib/sanitize-html';
+import { cacheDeletePrefix } from '@/lib/cache';
 
 function imageUrls(body: string, featuredImage?: string | null) { return [...new Set([featuredImage, ...[...body.matchAll(/<img[^>]+src=["']([^"']+)["']/gi)].map((match) => match[1])].filter((url): url is string => Boolean(url)))]; }
 function hasNonRemoteImage(body: string, featuredImage?: string | null) {
@@ -36,6 +37,7 @@ export async function POST(request: Request) {
     const body = isFullBlogDocument(parsed.data.body) ? parsed.data.body : sanitizeBlogHtml(parsed.data.body);
     const blog = await db.blogPost.create({ data: { ...parsed.data, body, imageUrls: imageUrls(body, parsed.data.featuredImage), publishedAt: parsed.data.status === 'PUBLISHED' ? new Date() : null, scheduledAt: parsed.data.status === 'SCHEDULED' ? parsed.data.scheduledAt : null } });
     revalidatePath('/blog'); revalidatePath(`/blog/${blog.slug}`);
+    await cacheDeletePrefix('blogs:');
     return NextResponse.json(blog, { status: 201 });
   } catch (error) {
     console.error('Blog create failed:', error);

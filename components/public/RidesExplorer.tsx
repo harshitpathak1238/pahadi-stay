@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, MapPin } from 'lucide-react';
-import type { PublicRide } from '@/lib/rides';
+import type { PublicRide } from '@/lib/rides-shared';
 import { cardDescriptionSnippet } from '@/lib/sanitize-html';
 
 const inr = (n: number) => `Rs.${Number(n).toLocaleString('en-IN')}`;

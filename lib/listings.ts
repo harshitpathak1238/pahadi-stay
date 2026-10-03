@@ -1,42 +1,14 @@
 import type { ListingCategory } from '@prisma/client';
 import { db } from '@/lib/db';
+import { cached, cacheDeletePrefix } from '@/lib/cache';
 import { rentals, stays, type Listing, type Rental } from '@/lib/mock-data';
 import { defaultStayFacilities } from '@/lib/stay-facilities';
+import { strings, faqs, parseHouseRules, type PublicResult } from '@/lib/listings-shared';
 
-export type PublicResult<T> = { data: T; degraded: boolean };
+// Pure types/constants/parsers live in '@/lib/listings-shared' so client
+// components can use them without pulling Prisma or the cache into the browser.
+export * from '@/lib/listings-shared';
 
-export type ListingFaqItem = { question: string; answer: string };
-
-export type HouseRule = { title: string; text: string };
-
-export const DefaultHouseRules: HouseRule[] = [
-  { title: 'Check-in & check-out', text: 'Check-in from 14:00. Check-out by 11:00.' },
-  { title: 'Pets', text: 'No pets allowed.' },
-  { title: 'Parties & events', text: 'No parties or events.' },
-  { title: 'Smoking', text: 'No smoking indoors.' },
-  { title: 'Quiet hours', text: 'Quiet hours between 22:00 and 07:00.' },
-  { title: 'Extra guests', text: 'Guests may not bring extra people without prior approval.' },
-];
-
-export function parseHouseRules(value: unknown): HouseRule[] {
-  if (!Array.isArray(value)) return [];
-  return value
-    .filter((item): item is Record<string, unknown> => typeof item === 'object' && item !== null)
-    .map((item) => ({ title: String(item.title ?? ''), text: String(item.text ?? '') }))
-    .filter((item) => item.title.trim() && item.text.trim());
-}
-
-function strings(value: unknown): string[] {
-  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
-}
-
-function faqs(value: unknown): ListingFaqItem[] {
-  if (!Array.isArray(value)) return [];
-  return value
-    .filter((item): item is Record<string, unknown> => typeof item === 'object' && item !== null)
-    .map((item) => ({ question: String(item.question ?? ''), answer: String(item.answer ?? '') }))
-    .filter((item) => item.question.trim() && item.answer.trim());
-}
 function mapRecord(record: { slug: string; title: string; location: string; sellPrice: unknown; basePrice?: unknown; category: ListingCategory; images: unknown; amenities: unknown; details?: unknown; faqs?: unknown; houseRules?: unknown; accommodations?: unknown; fullyBooked?: unknown }): Listing {
   const details = record.details && typeof record.details === 'object' ? record.details as Record<string, unknown> : {};
   const facilities = details.facilities && typeof details.facilities === 'object' ? Object.fromEntries(Object.entries(details.facilities).filter(([, value]) => typeof value === 'boolean')) as Record<string, boolean> : { ...defaultStayFacilities };
@@ -46,15 +18,6 @@ function mapRecord(record: { slug: string; title: string; location: string; sell
   const price = Number(record.sellPrice);
   const base = Number(record.basePrice);
   return { slug: record.slug, title: record.title, location: record.location, price, ...((Number.isFinite(base) && base > 0 && base > price) ? { basePrice: base } : {}), fullyBooked: Boolean(record.fullyBooked), rating: 5, category: record.category === 'RENTAL' ? 'rental' : record.category === 'ACTIVITY' ? 'activity' : 'stay', image: strings(record.images)[0] || '/images/Logo.png', images: strings(record.images), description: '', amenities: strings(record.amenities), facilities, faqs: faqs(recordFaqs), houseRules: parseHouseRules(recordHouseRules), mapPin: typeof details.mapPin === 'string' ? details.mapPin : '', accommodations: parseAccommodations(recordAccommodations) };
-}
-
-export function discountPercent(price: unknown, basePrice: unknown): number | null {
-  const sell = Number(price);
-  const base = Number(basePrice);
-  if (!Number.isFinite(sell) || !Number.isFinite(base)) return null;
-  if (sell <= 0 || base <= 0 || base <= sell) return null;
-  const percent = Math.round((1 - sell / base) * 100);
-  return percent > 0 && percent < 100 ? percent : null;
 }
 
 function parseAccommodations(value: unknown): Accommodation[] {
@@ -85,14 +48,16 @@ const localRentals = (): Listing[] => rentals.map((rental) => ({ slug: rental.sl
 const fallbackListings = (category: ListingCategory): PublicResult<Listing[]> => ({ data: process.env.NODE_ENV === 'production' ? [] : category === 'RENTAL' ? localRentals() : stays, degraded: true });
 
 export async function getPublicListings(category: ListingCategory): Promise<PublicResult<Listing[]>> {
-  try {
-    const records = await db.listing.findMany({ where: { category, status: 'LIVE' }, select: { slug: true, title: true, location: true, sellPrice: true, basePrice: true, category: true, images: true, amenities: true, details: true, accommodations: true, fullyBooked: true, description: true }, orderBy: { createdAt: 'desc' } });
-    if (records.length) return { data: records.map((record) => ({ ...mapRecord(record as { slug: string; title: string; location: string; sellPrice: unknown; basePrice?: unknown; category: ListingCategory; images: unknown; amenities: unknown; details?: unknown; accommodations?: unknown; fullyBooked?: unknown }), description: record.description })), degraded: false };
-    return fallbackListings(category);
-  } catch (error) {
-    console.error(`Public listings (${category}) unavailable:`, error);
-    return fallbackListings(category);
-  }
+  return cached(`listings:${category}`, 60, async () => {
+    try {
+      const records = await db.listing.findMany({ where: { category, status: 'LIVE' }, select: { slug: true, title: true, location: true, sellPrice: true, basePrice: true, category: true, images: true, amenities: true, details: true, accommodations: true, fullyBooked: true, description: true }, orderBy: { createdAt: 'desc' } });
+      if (records.length) return { data: records.map((record) => ({ ...mapRecord(record as { slug: string; title: string; location: string; sellPrice: unknown; basePrice?: unknown; category: ListingCategory; images: unknown; amenities: unknown; details?: unknown; accommodations?: unknown; fullyBooked?: unknown }), description: record.description })), degraded: false };
+      return fallbackListings(category);
+    } catch (error) {
+      console.error(`Public listings (${category}) unavailable:`, error);
+      return fallbackListings(category);
+    }
+  });
 }
 
 export async function getPublicListing(slug: string): Promise<PublicResult<Listing | null>> {
@@ -107,10 +72,24 @@ export async function getPublicListing(slug: string): Promise<PublicResult<Listi
 }
 
 export async function getPublicRentals(): Promise<PublicResult<Rental[]>> {
-  try {
-    const records = await db.listing.findMany({ where: { category: 'RENTAL', status: 'LIVE' }, orderBy: { createdAt: 'desc' } });
-    if (records.length) return { data: records.map((record) => ({ slug: record.slug, title: record.title, type: record.scootyQuantity > 0 ? 'Scooty rent' : 'Bike rent', price: Number(record.sellPrice), image: strings(record.images)[0] || '/images/Logo.png', description: record.description, features: strings(record.amenities), pickup: record.location, bikeQuantity: record.bikeQuantity, scootyQuantity: record.scootyQuantity })), degraded: false };
-  } catch { /* fall through to the degraded fallback below */ }
-  if (process.env.NODE_ENV === 'production') return { data: [], degraded: true };
-  return { data: rentals, degraded: true };
+  return cached('listings:RENTAL', 60, async () => {
+    try {
+      const records = await db.listing.findMany({ where: { category: 'RENTAL', status: 'LIVE' }, orderBy: { createdAt: 'desc' } });
+      if (records.length) return { data: records.map((record) => ({ slug: record.slug, title: record.title, type: record.scootyQuantity > 0 ? 'Scooty rent' : 'Bike rent', price: Number(record.sellPrice), image: strings(record.images)[0] || '/images/Logo.png', description: record.description, features: strings(record.amenities), pickup: record.location, bikeQuantity: record.bikeQuantity, scootyQuantity: record.scootyQuantity })), degraded: false };
+    } catch { /* fall through to the degraded fallback below */ }
+    if (process.env.NODE_ENV === 'production') return { data: [], degraded: true };
+    return { data: rentals, degraded: true };
+  });
+}
+
+/**
+ * Purge cached catalogue reads after an admin write so editors see their
+ * changes immediately instead of waiting out the TTL. Package pages embed
+ * listing images, titles and prices, so those are refreshed too.
+ */
+export async function invalidateCatalogueCache(category?: ListingCategory) {
+  await cacheDeletePrefix('listings:');
+  // Bundled items are rendered inside package pages.
+  await cacheDeletePrefix('packages:');
+  void category;
 }

@@ -2,6 +2,36 @@ node_modules
 .next
 .vercel
 .env*
-hostinger-media-api/media-config.php
 !.env.example
 prisma/*.db
+tsconfig.tsbuildinfo
+# Local credentials for the Hostinger media API — never commit
+hostinger-media-api/media-config.php
+
+# Build / dev / debug output — never commit these
+*.log
+# Scoped to known debug artifacts so legitimate .txt docs/config stay visible
+# (e.g. contributing.txt, CODE_OF_CONDUCT.txt, robots.txt, notes.txt).
+*devlog.txt
+devlog.txt
+build-*.txt
+*-err.txt
+*-diagnostics.txt
+build-*
+dev-*.log
+.next-dev.log
+
+# Scratch and verification artifacts
+tmp-*
+*.tmp
+*_check.html
+dbg.*
+coverage/
+test-results/
+playwright-report/
+
+# One-off local patch scripts (kept out of the repo)
+fix_*.js
+fix_*.py
+fix_*.ps1
+.start-devserver.cmd

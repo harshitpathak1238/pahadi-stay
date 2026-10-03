@@ -3,6 +3,7 @@ import { z } from 'zod';
 import type { Prisma } from '@prisma/client';
 import { db } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin';
+import { cacheDeletePrefix } from '@/lib/cache';
 import { packageLiveRequirements } from '@/lib/listing-requirements';
 
 const packageSchema = z.object({
@@ -33,5 +34,8 @@ export async function POST(request: Request) {
   };
   const missing = parsed.data.status === 'LIVE' ? packageLiveRequirements(data) : [];
   if (missing.length) return NextResponse.json({ error: 'This package is not ready to publish.', missing, details: `Complete the pre-flight checklist: ${missing.join(', ')}.` }, { status: 422 });
-  return NextResponse.json(await db.package.create({ data }), { status: 201 });
+  const created = await db.package.create({ data });
+  // Bundled stays/cars resolve into the package page, so drop the cache.
+  await cacheDeletePrefix('packages:');
+  return NextResponse.json(created, { status: 201 });
 }

@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin';
 import { blogUpdateSchema } from '@/lib/validations/blog';
 import { isFullBlogDocument, sanitizeBlogHtml } from '@/lib/sanitize-html';
+import { cacheDeletePrefix } from '@/lib/cache';
 
 function imageUrls(body: string, featuredImage?: string | null) { return [...new Set([featuredImage, ...[...body.matchAll(/<img[^>]+src=["']([^"']+)["']/gi)].map((match) => match[1])].filter((url): url is string => Boolean(url)))]; }
 function hasNonRemoteImage(body: string, featuredImage?: string | null) {
@@ -24,6 +25,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     const data = { ...parsed.data, body, imageUrls: imageUrls(body, parsed.data.featuredImage === undefined ? existing.featuredImage : parsed.data.featuredImage), publishedAt: parsed.data.status === 'PUBLISHED' ? existing.publishedAt ?? new Date() : null, scheduledAt: parsed.data.status === 'SCHEDULED' ? parsed.data.scheduledAt : null };
     const blog = await db.blogPost.update({ where: { id: params.id }, data });
     revalidatePath('/blog'); revalidatePath(`/blog/${existing.slug}`); if (blog.slug !== existing.slug) revalidatePath(`/blog/${blog.slug}`);
+    await cacheDeletePrefix('blogs:');
     return NextResponse.json(blog);
   } catch (error) { return NextResponse.json({ error: error instanceof Error && 'code' in error && error.code === 'P2002' ? 'That slug is already in use.' : 'Could not update blog.' }, { status: 400 }); }
 }

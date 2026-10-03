@@ -4,6 +4,7 @@ import type { Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin';
+import { invalidateCatalogueCache } from '@/lib/listings';
 import { isFullBlogDocument, sanitizeBlogHtml } from '@/lib/sanitize-html';
 import { slugifyTitle } from '@/lib/slug';
 
@@ -54,6 +55,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   } catch {
     /* revalidation is best-effort outside a request lifecycle */
   }
+  // The category may have changed, so drop every cached catalogue view.
+  await invalidateCatalogueCache();
   return NextResponse.json(listing);
 }
 
@@ -62,5 +65,6 @@ export async function DELETE(_request: Request, { params }: { params: { id: stri
   const bookings = await db.booking.count({ where: { listingId: params.id, status: { not: 'CANCELLED' } } });
   if (bookings) return NextResponse.json({ error: 'Listings with active bookings cannot be deleted. Pause them instead.' }, { status: 409 });
   await db.listing.delete({ where: { id: params.id } });
+  await invalidateCatalogueCache();
   return NextResponse.json({ deleted: true });
 }

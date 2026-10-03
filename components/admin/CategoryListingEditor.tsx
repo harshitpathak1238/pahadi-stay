@@ -3,7 +3,7 @@
 import { useEffect, useState, type ChangeEvent, type Dispatch, type FormEvent, type ReactNode, type SetStateAction } from 'react';
 import { ArrowDown, ArrowLeft, ArrowUp, Bath, BedDouble, BedSingle, Bold, CircleParking, Code2, ConciergeBell, Flower2, GripVertical, ImagePlus, Info, Italic, Languages, Link as LinkIcon, List, ListOrdered, Monitor, Plus, Quote, Save, Star, Table2, Trash2, Upload, UserRound, Video, Wifi, type LucideIcon } from 'lucide-react';
 import type { AccommodationRow, AdminFaqRow, HouseRuleRow, ListingForm } from './ContentManager';
-import { DefaultHouseRules } from '@/lib/listings';
+import { DefaultHouseRules } from '@/lib/listings-shared';
 import { stayFacilityGroups } from '@/lib/stay-facilities';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';

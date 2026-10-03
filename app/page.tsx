@@ -9,6 +9,7 @@ import { getPublishedBlogs } from '@/lib/blog';
 import { getPublicListings } from '@/lib/listings';
 import { getPublicPackages } from '@/lib/packages';
 import { db } from '@/lib/db';
+import { cached } from '@/lib/cache';
 import { relativeTime } from '@/lib/reviews';
 
 const packageExcerpt = (html: string) => html.replace(/<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 140);
@@ -25,20 +26,32 @@ export default async function Home() {
   const { data: stayResult } = await getPublicListings('STAY');
   const liveStays = stayResult.length ? stayResult : mockStays;
   const { data: packageResult } = await getPublicPackages();
-  let recentReviews: { id: string; guest: string; comment: string; rating: number; stay: string; ago: string }[] = [];
+  type HomeReview = { id: string; guest: string; comment: string; rating: number; stay: string; ago: string };
+  let recentReviews: HomeReview[] = [];
   let reviewCount = 0;
   let reviewAverage: number | null = null;
-  try {
-    const rows = await db.review.findMany({ where: { status: 'APPROVED' }, include: { listing: { select: { title: true } } }, orderBy: { createdAt: 'desc' }, take: 3 });
-    recentReviews = rows.map((row) => ({ id: row.id, guest: row.guestName || 'Guest', comment: row.comment, rating: row.overallRating, stay: row.listing.title, ago: relativeTime(row.createdAt.toISOString()) }));
-    if (rows.length) {
-      const aggregate = await db.review.aggregate({ where: { status: 'APPROVED' }, _count: true, _avg: { overallRating: true } });
-      reviewCount = aggregate._count;
-      reviewAverage = Math.round((aggregate._avg.overallRating ?? 0) * 10) / 10;
+  // Cached: the home page renders on every visit but this aggregate is slow
+  // (join + aggregate) and changes only when a review is approved.
+  const reviews = await cached('home:reviews', 300, async () => {
+    try {
+      const rows = await db.review.findMany({ where: { status: 'APPROVED' }, include: { listing: { select: { title: true } } }, orderBy: { createdAt: 'desc' }, take: 3 });
+      const recent: HomeReview[] = rows.map((row) => ({ id: row.id, guest: row.guestName || 'Guest', comment: row.comment, rating: row.overallRating, stay: row.listing.title, ago: relativeTime(row.createdAt.toISOString()) }));
+      let count = 0;
+      let average: number | null = null;
+      if (rows.length) {
+        const aggregate = await db.review.aggregate({ where: { status: 'APPROVED' }, _count: true, _avg: { overallRating: true } });
+        count = aggregate._count;
+        average = Math.round((aggregate._avg.overallRating ?? 0) * 10) / 10;
+      }
+      return { recent, count, average };
+    } catch {
+      /* reviews are best-effort on the home page */
+      return { recent: [] as HomeReview[], count: 0, average: null as number | null };
     }
-  } catch {
-    /* reviews are best-effort on the home page */
-  }
+  });
+  recentReviews = reviews.recent;
+  reviewCount = reviews.count;
+  reviewAverage = reviews.average;
 
   return (
     <>
