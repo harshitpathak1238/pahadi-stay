@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, ChevronDown, ShoppingBag, Trash2 } from 'lucide-react';
+import { sanitiseTripCart } from '@/lib/trip-logic';
 
 export type TripCartItem = {
   key: string;
@@ -34,7 +35,10 @@ export function TripCartProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     try {
-      setItems(JSON.parse(localStorage.getItem(CART_KEY) || '[]'));
+      // Carts are persisted in localStorage, so a guest who ticked the old
+      // "Scooty rental request" box on a stay page still carries that charge.
+      // Sanitising on load removes it and refunds the amount.
+      setItems(sanitiseTripCart(JSON.parse(localStorage.getItem(CART_KEY) || '[]')));
     } catch {
       setItems([]);
     }
