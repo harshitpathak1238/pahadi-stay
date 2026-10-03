@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { headers } from 'next/headers';
 import './globals.css';
 import Link from 'next/link';
@@ -19,6 +19,10 @@ const sans = { variable: '' };
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = { title: { default: 'KainchiDarshan | See Kumaon differently', template: '%s | KainchiDarshan' }, description: 'Thoughtfully chosen stays, rides and experiences around Bhimtal and Kainchi Dham.', metadataBase: new URL('http://localhost:3000'), icons: { icon: [{ url: '/images/Logo.png', type: 'image/png' }], shortcut: [{ url: '/images/Logo.png', type: 'image/png' }], apple: [{ url: '/images/Logo.png', type: 'image/png' }] } };
+
+// Keeps the browser's own chrome (scrollbars, form controls, autofill) light
+// even on a device configured for dark, matching the site's light default.
+export const viewport: Viewport = { colorScheme: 'light' };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const pathname = headers().get('x-pathname') || '';
