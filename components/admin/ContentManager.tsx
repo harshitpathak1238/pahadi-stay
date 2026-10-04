@@ -548,7 +548,7 @@ function PackageEditor({ form, setForm, allListings, toggle, editing, busy, mess
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="grid gap-4">
           <Field label="Package title" value={form.title} onChange={(value) => setForm((current) => ({ ...current, title: value }))} placeholder="Bhimtal weekend escape" />
-          <Field label="Package price" type="number" value={form.price} onChange={(value) => setForm((current) => ({ ...current, price: value }))} placeholder="0" />
+          <Field label="Price per person" type="number" value={form.price} onChange={(value) => setForm((current) => ({ ...current, price: value }))} placeholder="0" />
             <Field label="Duration" value={form.details.duration || ''} onChange={(value) => setForm((current) => ({ ...current, details: { ...current.details, duration: value } }))} placeholder="3 nights / 4 days" />
             <label className="grid gap-2 text-[12px] font-semibold text-[#173f35]">Status
               <select value={form.status} onChange={(event) => setForm((current) => ({ ...current, status: event.target.value }))} className="h-10 rounded-xl border border-[#d6d9d1] bg-white px-3 font-normal">
