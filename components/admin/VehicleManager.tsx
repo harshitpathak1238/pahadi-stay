@@ -11,6 +11,7 @@ export type VehicleTypeRow = {
   order: number;
 };
 
+
 const blankVehicleForm = () => ({ name: '', capacity: '4', image: '' });
 
 export function VehicleManager() {
