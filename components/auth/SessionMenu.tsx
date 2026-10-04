@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { AccountMenu } from '@/components/auth/AccountMenu';
-import { adminEmailList } from '@/lib/admin-emails';
+import { isAdminUser } from '@/lib/admin-emails';
 
 /**
  * Session-aware header controls.
@@ -17,7 +17,7 @@ import { adminEmailList } from '@/lib/admin-emails';
 
 export function SessionMenu() {
   const { data: session, status } = useSession();
-  const isAdmin = adminEmailList().includes((session?.user?.email ?? '').toLowerCase());
+  const isAdmin = isAdminUser(session?.user);
 
   // While the session is still resolving, render a same-sized placeholder so
   // the header never jumps when the real control mounts.

@@ -1,5 +1,8 @@
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
+// The admin role list lives in the dependency-free `admin-emails` module, so
+// the server gate here and the client-side admin links share one definition.
+import { isAdminRole } from '@/lib/admin-emails';
 
 export const adminEmails = () => (process.env.ADMIN_EMAILS ?? '').split(',').map((email) => email.trim().toLowerCase()).filter(Boolean);
 
@@ -9,7 +12,7 @@ export function isAllowedAdminEmail(email?: string | null) {
 }
 
 export function isAllowedAdminRole(role?: string | null) {
-  return ['OWNER', 'STAFF', 'ADMIN'].includes(role ?? '');
+  return isAdminRole(role);
 }
 
 export async function requireAdmin() {

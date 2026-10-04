@@ -24,18 +24,14 @@ import {
   X,
 } from 'lucide-react';
 import { SITE_EMAIL, SITE_PHONE_DISPLAY, SITE_PHONE_TEL, WHATSAPP_NUMBER } from '@/lib/contact';
-import { adminEmailList } from '@/lib/admin-emails';
+import { isAdminUser } from '@/lib/admin-emails';
 import { WhatsAppMark } from './WhatsAppButton';
 
 /**
- * Admin emails the header chrome should react to.
- *
- * Uses the `NEXT_PUBLIC_` twin of `ADMIN_EMAILS` so client components can read
- * it. That list only decides whether to *show* an admin link — real access is
- * still enforced server-side in `middleware.ts` and `lib/admin.ts`, so exposing
- * it to the browser grants nothing.
+ * Admin visibility is decided from the session role (see `lib/admin-emails`).
+ * That list only decides whether to *show* an admin link — real access is still
+ * enforced server-side in `middleware.ts` and `lib/admin.ts`.
  */
-export { adminEmailList } from '@/lib/admin-emails';
 
 const links = [
   { href: '/', label: 'Home', Icon: Home },
@@ -55,7 +51,7 @@ const links = [
  */
 export function MobileMenu() {
   const { data: session, status } = useSession();
-  const isAdmin = adminEmailList().includes((session?.user?.email ?? '').toLowerCase());
+  const isAdmin = isAdminUser(session?.user);
   const isSignedIn = status === 'authenticated' && Boolean(session?.user);
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
