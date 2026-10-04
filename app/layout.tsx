@@ -13,6 +13,7 @@ import { TripCartProvider, TripSummary } from '@/components/trip/TripCart';
 import { ThemeProvider } from '@/components/ui/ThemeProvider';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { RouteProgressLoader } from '@/components/ui/RouteProgressLoader';
+import { WishlistCelebrationHost } from '@/components/ui/WishlistCelebration';
 
 const display = { variable: '' };
 const sans = { variable: '' };
@@ -54,6 +55,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <MainRegion>{children}</MainRegion>
         <TripSummary />
         <SiteFooter />
+        {/* One overlay for the whole page: wishlist hearts appear in every
+            result card, so the celebration is triggered from the shared hook. */}
+        <WishlistCelebrationHost />
       </TripCartProvider></AuthProvider></ThemeProvider></body>
     </html>
   );

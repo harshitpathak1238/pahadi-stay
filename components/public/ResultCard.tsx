@@ -10,7 +10,7 @@ import { cardDescriptionSnippet } from '@/lib/sanitize-html';
 interface ResultCardProps {
   stay: Listing;
   isWishlisted: boolean;
-  onToggleWishlist: (slug: string) => void;
+  onToggleWishlist: (slug: string, title?: string) => void;
   view: 'list' | 'grid';
   fullyBooked?: boolean;
 }
@@ -34,7 +34,7 @@ function SaveButton({ stay, isWishlisted, onToggleWishlist }: Pick<ResultCardPro
     <button
       aria-label={isWishlisted ? `Remove ${stay.title} from wishlist` : `Save ${stay.title} to wishlist`}
       aria-pressed={isWishlisted}
-      onClick={() => onToggleWishlist(stay.slug)}
+      onClick={() => onToggleWishlist(stay.slug, stay.title)}
       className={`absolute right-2 top-2 rounded-full bg-white/95 p-2 shadow-[0_2px_8px_rgba(23,63,53,.18)] transition hover:bg-white ${pop ? 'heart-pop' : ''}`}
     >
       <Heart
