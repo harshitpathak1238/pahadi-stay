@@ -64,15 +64,6 @@ body:has(.admin-scope) .main-region { padding-top:0; padding-bottom:0; }
 @keyframes heart-pop { 0% { transform:scale(1); } 28% { transform:scale(1.4); } 46% { transform:scale(.9); } 66% { transform:scale(1.15); } 100% { transform:scale(1); } }
 @keyframes heart-ring { 0% { box-shadow:0 0 0 0 rgba(225,29,72,.32); } 100% { box-shadow:0 0 0 16px rgba(225,29,72,0); } }
 .heart-pop { animation:heart-pop .5s cubic-bezier(.22,1.2,.36,1), heart-ring .65s ease-out; }
-/* Wishlist confirmation overlay. The confetti keyframes read their per-piece
-   variation from --confetti-drift / --confetti-spin, so one rule animates all
-   of them and each piece still falls and tumbles on its own schedule. */
-.wishlist-confetti { position:absolute; top:-6vh; display:block; border-radius:1px; opacity:0; will-change:transform,opacity; animation-name:wishlist-confetti-fall; animation-timing-function:cubic-bezier(.32,.7,.45,1); animation-iteration-count:infinite; }
-@keyframes wishlist-confetti-fall { 0% { opacity:0; transform:translate3d(0,0,0) rotate(0deg); } 8% { opacity:1; } 85% { opacity:1; } 100% { opacity:0; transform:translate3d(var(--confetti-drift),112vh,0) rotate(var(--confetti-spin)); } }
-.wishlist-celebration-card { animation:wishlist-celebration-in .5s cubic-bezier(.22,1.1,.36,1) both; }
-@keyframes wishlist-celebration-in { from { opacity:0; transform:translateY(14px) scale(.97); } to { opacity:1; transform:none; } }
-/* Respect the OS setting: keep the confirmation, drop the movement. */
-@media (prefers-reduced-motion:reduce) { .wishlist-confetti { display:none; } .wishlist-celebration-card { animation:none; } }
 @media (min-width:768px) { .auth-panel { padding:2.25rem; } }
 @media (min-width:900px) { .login-shell { grid-template-columns:minmax(28rem, .92fr) minmax(28rem, 1.08fr); padding-top:0; } .login-form-side { padding:7rem 4rem 4rem; } .login-visual { display:block; } }
 .site-header { position:fixed; top:0; left:0; right:0; z-index:40; color:var(--ink); border-bottom:1px solid transparent; background:transparent; transition:background-color .35s ease, border-color .35s ease, box-shadow .35s ease, backdrop-filter .35s ease, top .35s ease; }

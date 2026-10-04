@@ -217,7 +217,7 @@ export function StayDetailExperience({ stay, reviewData, pickupRoutes = [], pick
       <button
         aria-label={saved ? 'Remove from wishlist' : 'Save to wishlist'}
         aria-pressed={saved}
-        onClick={() => toggleWishlist(stay.slug, stay.title)}
+        onClick={() => toggleWishlist(stay.slug)}
         title={saved ? 'Remove from wishlist' : 'Save to wishlist'}
         className={`grid h-10 w-10 place-items-center rounded-full bg-white shadow-sm ring-1 transition hover:bg-[#f5f7fa] ${saved ? 'ring-[#f3c3cf]' : 'ring-[#e4e8e2]'} ${heartPop ? 'heart-pop' : ''}`}
       >
