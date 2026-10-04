@@ -66,8 +66,11 @@ export function discountPercent(basePrice?: number | null, sellPrice?: number | 
   if (basePrice == null || sellPrice == null) return 0;
   const base = Number(basePrice);
   const sell = Number(sellPrice);
-  if (!Number.isFinite(base) || !Number.isFinite(sell) || base <= 0 || sell < 0 || sell >= base) return 0;
-  return Math.round(((base - sell) / base) * 100);
+  // A 0/absent selling price is missing data, not a 100%-off deal. Without this
+  // guard an unset price renders "₹0 · 100% off" and advertises a free stay.
+  if (!Number.isFinite(base) || !Number.isFinite(sell) || base <= 0 || sell <= 0 || sell >= base) return 0;
+  const percent = Math.round(((base - sell) / base) * 100);
+  return percent > 0 && percent < 100 ? percent : 0;
 }
 
 /**

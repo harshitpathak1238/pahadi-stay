@@ -80,8 +80,17 @@ export type ItineraryStop = { label: string; note: string };
 /** Hard cap so a package can't balloon into an unusable wall of text. */
 export const MAX_ITINERARY_STOPS = 30;
 
+/**
+ * Longest a single stop description may be.
+ *
+ * Exported so the editor's `maxLength`, the zod route schemas and the
+ * normaliser below can never drift apart. Generous enough for a real
+ * day-by-day paragraph; anything longer belongs in the package description.
+ */
+export const MAX_ITINERARY_NOTE = 600;
+
 const MAX_LABEL = 120;
-const MAX_NOTE = 300;
+const MAX_NOTE = MAX_ITINERARY_NOTE;
 
 const clip = (value: unknown, max: number) => (typeof value === 'string' ? value.trim().slice(0, max) : '');
 

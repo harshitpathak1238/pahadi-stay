@@ -58,8 +58,12 @@ export function isPricingCategory(value: unknown): value is PricingCategory {
 /**
  * Coerce anything the database or an API body hands us into a usable number.
  *
- * MySQL `DECIMAL` arrives as a string through Prisma and JSON columns can hold
- * anything at all, so `Number()` alone is not enough — `NaN` must become 0.
+ * Prisma returns MySQL `DECIMAL` columns as `Decimal` *instances*, so
+ * `typeof` is `'object'` and neither the number nor the string branch below
+ * matches — that silently turned every stored price into 0 and made cards
+ * render "₹0 · 100% off". Decimalising objects are coerced through their
+ * string form (which is why `Number()` worked for basePrice but not here).
+ * JSON columns can hold anything at all, so `NaN` must still become 0.
  */
 export function toPriceNumber(value: unknown): number {
   if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
@@ -68,6 +72,15 @@ export function toPriceNumber(value: unknown): number {
     if (!trimmed) return 0;
     const parsed = Number(trimmed);
     return Number.isFinite(parsed) ? parsed : 0;
+  }
+  // Prisma `Decimal` (and anything else with a meaningful toString). Guarded so
+  // plain objects and arrays still fall through to 0 rather than being coerced.
+  if (value !== null && typeof value === 'object') {
+    const text = String(value).trim();
+    if (text && text !== '[object Object]') {
+      const parsed = Number(text);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
   }
   return 0;
 }

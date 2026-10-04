@@ -4,6 +4,7 @@ import {
   inclusionKind,
   isTransportCategory,
   matchesQuery,
+  MAX_ITINERARY_NOTE,
   MAX_ITINERARY_STOPS,
   moveStop,
   parseItinerary,
@@ -154,9 +155,9 @@ describe('parseItinerary', () => {
   });
 
   it('trims and caps overlong text', () => {
-    const [stop] = parseItinerary([{ label: `  ${'a'.repeat(200)}  `, note: 'b'.repeat(500) }]);
+    const [stop] = parseItinerary([{ label: `  ${'a'.repeat(200)}  `, note: 'b'.repeat(1000) }]);
     expect(stop.label).toHaveLength(120);
-    expect(stop.note).toHaveLength(300);
+    expect(stop.note).toHaveLength(MAX_ITINERARY_NOTE);
   });
 
   it('caps the number of stops at the maximum', () => {

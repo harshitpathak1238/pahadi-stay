@@ -5,9 +5,9 @@ import { db } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin';
 import { cacheDeletePrefix } from '@/lib/cache';
 import { packageLiveRequirements } from '@/lib/listing-requirements';
-import { MAX_ITINERARY_STOPS, serializeItinerary } from '@/lib/package-inclusions-shared';
+import { MAX_ITINERARY_NOTE, MAX_ITINERARY_STOPS, serializeItinerary } from '@/lib/package-inclusions-shared';
 
-const itineraryStopSchema = z.object({ label: z.string().trim().max(120).default(''), note: z.string().trim().max(300).optional().default('') });
+const itineraryStopSchema = z.object({ label: z.string().trim().max(120).default(''), note: z.string().trim().max(MAX_ITINERARY_NOTE).optional().default('') });
 
 const packageSchema = z.object({
   title: z.string().trim().max(120).optional(),

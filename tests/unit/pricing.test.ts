@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { Prisma } from '@prisma/client';
 import {
   DEFAULT_PRICING_MODE,
   isPricingCategory,
@@ -21,9 +22,18 @@ describe('toPriceNumber', () => {
   });
 
   it('parses the strings MySQL DECIMAL arrives as', () => {
-    // Prisma returns DECIMAL columns as strings, not numbers.
     expect(toPriceNumber('4200.50')).toBe(4200.5);
     expect(toPriceNumber('  900  ')).toBe(900);
+  });
+
+  it('parses Prisma Decimal objects, which are what actually come back from the DB', () => {
+    // Regression: `typeof decimal === 'object'`, so the number/string branches
+    // both missed it and every price resolved to 0 ("₹0 · 100% off").
+    expect(toPriceNumber(new Prisma.Decimal(29999))).toBe(29999);
+    expect(toPriceNumber(new Prisma.Decimal('54998.9'))).toBe(54998.9);
+    expect(toPriceNumber(new Prisma.Decimal(0))).toBe(0);
+    // A zero Decimal must stay 0, not become a truthy string.
+    expect(toPriceNumber(new Prisma.Decimal(0))).toBe(0);
   });
 
   it('collapses junk to 0 instead of leaking NaN into a price', () => {
@@ -35,6 +45,20 @@ describe('toPriceNumber', () => {
     expect(toPriceNumber(NaN)).toBe(0);
     expect(toPriceNumber(Infinity)).toBe(0);
     expect(toPriceNumber({})).toBe(0);
+    expect(toPriceNumber([])).toBe(0);
+    expect(toPriceNumber({ toString: () => 'not a number' })).toBe(0);
+  });
+});
+
+describe('resolveDisplayPrice with Decimal columns', () => {
+  it('never returns 0 for a listing that has a real price stored', () => {
+    const record = {
+      price: new Prisma.Decimal(29999),
+      seasonPrice: new Prisma.Decimal(66000),
+      offSeasonPrice: new Prisma.Decimal(44000),
+    };
+    expect(resolveDisplayPrice(record, on, 'STAY')).toBe(66000);
+    expect(resolveDisplayPrice(record, off, 'STAY')).toBe(44000);
   });
 });
 
