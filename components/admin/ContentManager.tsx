@@ -20,6 +20,7 @@ import { defaultStayFacilities } from '@/lib/stay-facilities';
 import { DefaultHouseRules, type HouseRule } from '@/lib/listings-shared';
 import { isTransportCategory, parseItinerary, splitInclusionsByGroup, type ItineraryStop } from '@/lib/package-inclusions-shared';
 import { ItineraryEditor } from './ItineraryEditor';
+import { InventoryRowSkeleton, PanelLoader } from '@/components/ui/SiteLoader';
 
 type Category = 'STAY' | 'RIDE' | 'RENTAL' | 'ACTIVITY';
 type Section = Category | 'PACKAGE';
@@ -82,15 +83,28 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
   const [showForm, setShowForm] = useState(false);
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
+  // Drives the mountain loader for the tab whose rows are in flight. Without it
+  // the list simply stayed blank while `load()` was fetching, which read as an
+  // empty inventory rather than a pending one.
+  const [loading, setLoading] = useState(true);
 
   const load = async () => {
-    const response = await fetch(section === 'PACKAGE' ? '/api/admin/packages' : `/api/admin/listings?category=${section}`, { cache: 'no-store' });
-    if (!response.ok) {
-      setMessage('Could not load this section. Check admin access and database connection.');
-      return;
+    setLoading(true);
+    try {
+      const response = await fetch(section === 'PACKAGE' ? '/api/admin/packages' : `/api/admin/listings?category=${section}`, { cache: 'no-store' });
+      if (!response.ok) {
+        setMessage('Could not load this section. Check admin access and database connection.');
+        return;
+      }
+      if (section === 'PACKAGE') setPackages(await response.json());
+      else setItems(await response.json());
+    } catch {
+      // A dropped connection used to leave an unhandled rejection and the
+      // loader spinning forever, so this is reported rather than swallowed.
+      setMessage('Could not reach the content service. Check your connection and try again.');
+    } finally {
+      setLoading(false);
     }
-    if (section === 'PACKAGE') setPackages(await response.json());
-    else setItems(await response.json());
   };
 
   const loadAllListings = async () => {
@@ -103,6 +117,11 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
     setShowForm(false);
     setForm(freshForm());
     setMessage('');
+    // Drop the previous tab's rows immediately. Without this the loader would
+    // paint over the *old* category's records, which look like real results for
+    // the tab that was just clicked.
+    setItems([]);
+    setPackages([]);
     load();
     if (section === 'PACKAGE') loadAllListings();
   }, [section]);
@@ -414,8 +433,18 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
 
       {message && <p className="mt-4 rounded-xl bg-[#e2eee7] p-3 sans text-sm text-[#24584a]">{message}</p>}
 
-      <div className="mt-6 divide-y divide-[#e4e3da]">
-        {records.map((item) => (
+      {loading ? (
+        /* Mountain loader + shaped placeholders, so the panel keeps its height
+           and the content does not jump when the rows land. */
+        <>
+          <PanelLoader label={`Loading ${label}s`} />
+          <InventoryRowSkeleton />
+        </>
+      ) : (
+        <>
+          {records.length ? (
+            <div className="divide-y divide-[#e4e3da]">
+              {records.map((item) => (
           <div key={item.id} className="flex flex-col gap-4 py-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
               <h3 className="flex flex-wrap items-center gap-2 truncate font-bold text-[#173f35]">
@@ -440,8 +469,17 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
               <button type="button" onClick={() => remove(item.id, section === 'PACKAGE')} className="inline-flex items-center gap-2 rounded-full border border-[#e2b5b5] bg-[#fff6f6] px-3 py-2 text-[12px] font-semibold text-[#a44a4a] hover:bg-[#fff0f0]"><Trash2 size={14} /> Delete</button>
             </div>
           </div>
-        ))}
-      </div>
+              ))}
+            </div>
+          ) : (
+            /* An empty list used to render nothing at all, which is
+               indistinguishable from a failed load. */
+            <p className="rounded-xl border border-dashed border-[#e0e2de] bg-[#fafaf8] px-4 py-10 text-center sans text-sm text-[#6c7770]">
+              No {label}s yet. Use <span className="font-semibold text-[#173f35]">Add new {label}</span> to create the first one.
+            </p>
+          )}
+        </>
+      )}
     </section>
   );
 }
