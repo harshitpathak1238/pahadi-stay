@@ -2,12 +2,14 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
 import { ArrowLeft, Check, Loader2, Save, TrendingDown, TrendingUp } from 'lucide-react';
 import {
   PRICING_CATEGORIES,
   PRICING_CATEGORY_LABELS,
   hasSeasonalOverride,
   readSeasonPrices,
+  selectDirtyRows,
   showsPeakPrice,
   withPercentChange,
   type PricingCategory,
@@ -50,6 +52,20 @@ const NO_MODE: PricingMode = { peakModeEnabled: false, activeCategories: [], lab
 
 const fareKey = (row: RideFareRow) => `${row.rideRouteId}:${row.vehicleTypeId}`;
 
+/**
+ * Mark keys as edited, keeping the previous set reference when nothing new was
+ * added so an untouched grid does not re-render on every keystroke.
+ */
+function addDirtyKeys(setter: Dispatch<SetStateAction<ReadonlySet<string>>>, keys: readonly string[]) {
+  if (!keys.length) return;
+  setter((current) => {
+    if (keys.every((key) => current.has(key))) return current;
+    const next = new Set(current);
+    for (const key of keys) next.add(key);
+    return next;
+  });
+}
+
   /**
    * Normalise a row into the `{ price, seasonPrice, offSeasonPrice }` shape the
    * shared helpers expect. Listings store their base rate in `sellPrice` while
@@ -75,6 +91,10 @@ export function AdminPricingPage() {
   const [error, setError] = useState('');
   const [category, setCategory] = useState<PricingCategory>('STAY');
   const [percent, setPercent] = useState('10');
+  // Keys the admin has edited since the last successful load. Only these rows
+  // are sent on save, so one changed price is one write instead of one per row.
+  const [dirtyListings, setDirtyListings] = useState<ReadonlySet<string>>(() => new Set());
+  const [dirtyFares, setDirtyFares] = useState<ReadonlySet<string>>(() => new Set());
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -109,6 +129,9 @@ export function AdminPricingPage() {
           offSeasonPrice: fare.offSeasonPrice,
         })),
       ));
+      // Everything on screen now matches the database, so there is nothing to save.
+      setDirtyListings(new Set());
+      setDirtyFares(new Set());
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : 'Pricing data could not be loaded.');
     } finally {
@@ -164,18 +187,24 @@ export function AdminPricingPage() {
     await persist({ ...mode, activeCategories }, mode);
   };
 
-  const setListingRate = (id: string, field: 'seasonPrice' | 'offSeasonPrice', raw: string) =>
+  const setListingRate = (id: string, field: 'seasonPrice' | 'offSeasonPrice', raw: string) => {
+    addDirtyKeys(setDirtyListings, [id]);
     setRows((current) => current.map((row) => (row.id === id ? { ...row, [field]: raw === '' ? null : Number(raw) } : row)));
+  };
 
-  const setFareRate = (key: string, field: 'seasonPrice' | 'offSeasonPrice', raw: string) =>
+  const setFareRate = (key: string, field: 'seasonPrice' | 'offSeasonPrice', raw: string) => {
+    addDirtyKeys(setDirtyFares, [key]);
     setFares((current) => current.map((row) => (fareKey(row) === key ? { ...row, [field]: raw === '' ? null : Number(raw) } : row)));
+  };
 
   const resetListing = (row: ListingRow) => {
+    addDirtyKeys(setDirtyListings, [row.id]);
     const price = Number(row.sellPrice) || 0;
     setRows((current) => current.map((item) => (item.id === row.id ? { ...item, seasonPrice: price, offSeasonPrice: price } : item)));
   };
 
   const resetFare = (row: RideFareRow) => {
+    addDirtyKeys(setDirtyFares, [fareKey(row)]);
     const price = Number(row.price) || 0;
     setFares((current) => current.map((item) => (fareKey(item) === fareKey(row) ? { ...item, seasonPrice: price, offSeasonPrice: price } : item)));
   };
@@ -199,12 +228,27 @@ export function AdminPricingPage() {
     }
     setError('');
     const delta = value * direction;
-    if (isRides) setFares((current) => current.map((row) => ({ ...row, ...withPercentChange(pairOf(row), delta) })));
-    else setRows((current) => current.map((row) => (row.category === category ? { ...row, ...withPercentChange(pairOf(row), delta) } : row)));
+    if (isRides) {
+      addDirtyKeys(setDirtyFares, fares.map(fareKey));
+      setFares((current) => current.map((row) => ({ ...row, ...withPercentChange(pairOf(row), delta) })));
+    } else {
+      addDirtyKeys(setDirtyListings, rows.filter((row) => row.category === category).map((row) => row.id));
+      setRows((current) => current.map((row) => (row.category === category ? { ...row, ...withPercentChange(pairOf(row), delta) } : row)));
+    }
     setMessage(`Bulk change applied in the editor. Review the rows, then save.`);
   };
 
   const savePrices = async () => {
+    // Only the rows the admin actually touched. Re-sending the whole grid meant
+    // a database write per row, which is what timed the save out.
+    const changedListings = selectDirtyRows(rows, (row) => row.id, dirtyListings);
+    const changedFares = selectDirtyRows(fares, fareKey, dirtyFares);
+    if (!changedListings.length && !changedFares.length) {
+      setError('');
+      setMessage('No price changes to save yet.');
+      return;
+    }
+
     setSaving(true);
     setError('');
     setMessage('');
@@ -213,8 +257,8 @@ export function AdminPricingPage() {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          listings: rows.map((row) => ({ id: row.id, seasonPrice: row.seasonPrice ?? null, offSeasonPrice: row.offSeasonPrice ?? null })),
-          fares: fares.map((row) => ({
+          listings: changedListings.map((row) => ({ id: row.id, seasonPrice: row.seasonPrice ?? null, offSeasonPrice: row.offSeasonPrice ?? null })),
+          fares: changedFares.map((row) => ({
             rideRouteId: row.rideRouteId,
             vehicleTypeId: row.vehicleTypeId,
             seasonPrice: row.seasonPrice ?? null,

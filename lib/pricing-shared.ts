@@ -185,6 +185,20 @@ export function hasSeasonalOverride(pair: SeasonPricePair): boolean {
 }
 
 /**
+ * The rows a save actually needs to write.
+ *
+ * The admin grid keeps the whole catalogue in memory and used to re-send every
+ * row on each save, so one edited price meant a database write per row. That is
+ * what pushed the bulk endpoint past Prisma's interactive-transaction timeout.
+ * `dirty` holds the keys the admin has touched since the last successful load,
+ * so only those rows travel.
+ */
+export function selectDirtyRows<T>(rows: readonly T[], keyOf: (row: T) => string, dirty: ReadonlySet<string>): T[] {
+  if (!dirty.size) return [];
+  return rows.filter((row) => dirty.has(keyOf(row)));
+}
+
+/**
  * Warning shown next to a row in the admin editor.
  *
  * Catches the two mistakes that would otherwise look fine on screen but behave

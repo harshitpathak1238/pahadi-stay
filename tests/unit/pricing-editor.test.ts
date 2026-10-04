@@ -4,6 +4,7 @@ import {
   hasSeasonalOverride,
   readSeasonPrices,
   seasonPriceWarning,
+  selectDirtyRows,
   withPercentChange,
 } from '@/lib/pricing-shared';
 
@@ -81,5 +82,45 @@ describe('seasonPriceWarning', () => {
 
   it('stays quiet when a rate is unset', () => {
     expect(seasonPriceWarning({ price: 3000, seasonPrice: 0, offSeasonPrice: 2000 })).toBeNull();
+  });
+});
+
+/**
+ * The bulk price endpoint used to receive every row in the grid on each save,
+ * so a single edited price became a database write per row and the save ran
+ * past Prisma's interactive-transaction timeout. Only touched rows now travel.
+ */
+describe('selectDirtyRows', () => {
+  const rows = [
+    { id: 'a', seasonPrice: 1 },
+    { id: 'b', seasonPrice: 2 },
+    { id: 'c', seasonPrice: 3 },
+  ];
+  const byId = (row: { id: string }) => row.id;
+
+  it('returns only the rows whose key was touched', () => {
+    expect(selectDirtyRows(rows, byId, new Set(['b'])).map(byId)).toEqual(['b']);
+    expect(selectDirtyRows(rows, byId, new Set(['a', 'c'])).map(byId)).toEqual(['a', 'c']);
+  });
+
+  it('sends nothing when the admin has not edited anything', () => {
+    expect(selectDirtyRows(rows, byId, new Set())).toEqual([]);
+  });
+
+  it('ignores dirty keys that no longer match a row', () => {
+    expect(selectDirtyRows(rows, byId, new Set(['gone']))).toEqual([]);
+  });
+
+  it('keeps the original row order regardless of edit order', () => {
+    expect(selectDirtyRows(rows, byId, new Set(['c', 'a'])).map(byId)).toEqual(['a', 'c']);
+  });
+
+  it('works with the composite key ride fares use', () => {
+    const fares = [
+      { rideRouteId: 'r1', vehicleTypeId: 'v1' },
+      { rideRouteId: 'r1', vehicleTypeId: 'v2' },
+    ];
+    const keyOf = (row: { rideRouteId: string; vehicleTypeId: string }) => `${row.rideRouteId}:${row.vehicleTypeId}`;
+    expect(selectDirtyRows(fares, keyOf, new Set(['r1:v2']))).toEqual([{ rideRouteId: 'r1', vehicleTypeId: 'v2' }]);
   });
 });

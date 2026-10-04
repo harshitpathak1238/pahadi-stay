@@ -68,31 +68,41 @@ export async function PATCH(request: Request) {
   }
 
   try {
-    await db.$transaction(async (tx) => {
-      for (const row of listingRows) {
-        await tx.listing.update({
-          where: { id: row.id },
-          data: {
-            ...(row.seasonPrice !== undefined ? { seasonPrice: row.seasonPrice as Prisma.Decimal | null } : {}),
-            ...(row.offSeasonPrice !== undefined ? { offSeasonPrice: row.offSeasonPrice as Prisma.Decimal | null } : {}),
-          },
-        });
-      }
-      for (const row of fareRows) {
-        await tx.rideFare.update({
-          where: { rideRouteId_vehicleTypeId: { rideRouteId: row.rideRouteId, vehicleTypeId: row.vehicleTypeId } },
-          data: {
-            ...(row.seasonPrice !== undefined ? { seasonPrice: row.seasonPrice } : {}),
-            ...(row.offSeasonPrice !== undefined ? { offSeasonPrice: row.offSeasonPrice } : {}),
-          },
-        });
-      }
-    });
+    // A sequential `await tx.update()` per row cost one network round-trip each,
+    // so editing a few dozen rows blew past Prisma's 5s interactive-transaction
+    // default and the whole save failed with "Transaction already closed".
+    //
+    // The array form runs the same statements in a single transaction but
+    // without the interactive wall-clock limit, so the save is bounded by the
+    // work itself rather than by how long the round-trips take. The client now
+    // only sends rows whose price actually changed, which keeps the list short.
+    await db.$transaction([
+      ...listingRows.map((row) => db.listing.update({
+        where: { id: row.id },
+        data: {
+          ...(row.seasonPrice !== undefined ? { seasonPrice: row.seasonPrice as Prisma.Decimal | null } : {}),
+          ...(row.offSeasonPrice !== undefined ? { offSeasonPrice: row.offSeasonPrice as Prisma.Decimal | null } : {}),
+        },
+      })),
+      ...fareRows.map((row) => db.rideFare.update({
+        where: { rideRouteId_vehicleTypeId: { rideRouteId: row.rideRouteId, vehicleTypeId: row.vehicleTypeId } },
+        data: {
+          ...(row.seasonPrice !== undefined ? { seasonPrice: row.seasonPrice } : {}),
+          ...(row.offSeasonPrice !== undefined ? { offSeasonPrice: row.offSeasonPrice } : {}),
+        },
+      })),
+    ]);
   } catch (error) {
-    const missingRecord = typeof error === 'object' && error !== null && (error as { code?: string }).code === 'P2025';
-    const message = missingRecord
-      ? 'One of those prices belongs to a record that no longer exists. Reload and try again.'
-      : error instanceof Error ? error.message : 'Could not save the seasonal prices.';
+    const code = typeof error === 'object' && error !== null ? (error as { code?: string }).code : undefined;
+    if (code === 'P2025') {
+      return NextResponse.json({ error: 'One of those prices belongs to a record that no longer exists. Reload and try again.' }, { status: 400 });
+    }
+    // A rolled-back transaction is retryable, and saying so is far more useful
+    // to the admin than the raw driver message.
+    if (code === 'P2028' || (error instanceof Error && /transaction/i.test(error.message))) {
+      return NextResponse.json({ error: 'The price update took too long and was rolled back, so nothing changed. Try saving a smaller selection.' }, { status: 503 });
+    }
+    const message = error instanceof Error ? error.message : 'Could not save the seasonal prices.';
     return NextResponse.json({ error: message }, { status: 400 });
   }
 
