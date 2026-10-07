@@ -14,6 +14,7 @@ type StaysSearchParams = {
   maxPrice?: string;
   minRating?: string;
   amenities?: string;
+  propertyType?: string;
 };
 
 /**
@@ -49,6 +50,7 @@ export default async function Stays({ searchParams }: { searchParams: StaysSearc
 				initialMaxPrice={Number.isFinite(parsedMaxPrice) ? parsedMaxPrice : undefined}
 				initialMinRating={Number.isFinite(parsedRating) ? parsedRating : undefined}
 				initialAmenities={parseAmenities(searchParams.amenities)}
+				initialPropertyType={(searchParams.propertyType ?? '').trim().slice(0, 40)}
 			/>
 		</>
 	);

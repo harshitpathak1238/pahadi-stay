@@ -9,7 +9,8 @@ import { ResultCard } from './ResultCard';
 import { StaysSearchBar } from './StaysSearchBar';
 import { Breadcrumbs } from './Breadcrumbs';
 import { useWishlist } from '@/hooks/use-wishlist';
-import { STAY_FILTERS, filterStays, normaliseGuests } from '@/lib/search-params';
+import { STAY_FILTERS, filterStays, matchesStayPropertyType, normaliseGuests } from '@/lib/search-params';
+import { PropertyTypeStrip } from './PropertyTypeStrip';
 
 const filters = STAY_FILTERS.map((filter) => filter.label);
 
@@ -23,9 +24,10 @@ type StaysSearchPageProps = {
   initialMaxPrice?: number;
   initialMinRating?: number;
   initialAmenities?: string[];
+  initialPropertyType?: string;
 };
 
-export function StaysSearchPage({ stays, initialLocation, initialCheckIn, initialCheckOut, initialGuests, initialMinPrice, initialMaxPrice, initialMinRating, initialAmenities }: StaysSearchPageProps) {
+export function StaysSearchPage({ stays, initialLocation, initialCheckIn, initialCheckOut, initialGuests, initialMinPrice, initialMaxPrice, initialMinRating, initialAmenities, initialPropertyType }: StaysSearchPageProps) {
   const router = useRouter();
   const prices = stays.map((stay) => stay.price).filter((price) => Number.isFinite(price));
   const datasetMinPrice = prices.length ? Math.min(...prices) : 0;
@@ -37,6 +39,7 @@ export function StaysSearchPage({ stays, initialLocation, initialCheckIn, initia
   const [minPrice, setMinPrice] = useState(initialMinPrice);
   const [sort, setSort] = useState('Recommended');
   const [activeFilters, setActiveFilters] = useState<string[]>(initialAmenities ?? []);
+  const [propertyType, setPropertyType] = useState(initialPropertyType ?? '');
   const [minRating, setMinRating] = useState<number | undefined>(initialMinRating);
   const { slugs: wishlist, toggle: toggleWishlist } = useWishlist();
   const [filterOpen, setFilterOpen] = useState(false);
@@ -50,7 +53,8 @@ export function StaysSearchPage({ stays, initialLocation, initialCheckIn, initia
     setGuestCount(normaliseGuests(initialGuests));
     setMinPrice(initialMinPrice);
     setMaxPrice(initialMaxPrice ?? datasetMaxPrice);
-  }, [datasetMaxPrice, initialCheckIn, initialCheckOut, initialGuests, initialLocation, initialMaxPrice, initialMinPrice]);
+    setPropertyType(initialPropertyType ?? '');
+  }, [datasetMaxPrice, initialCheckIn, initialCheckOut, initialGuests, initialLocation, initialMaxPrice, initialMinPrice, initialPropertyType]);
 
   // Keep the URL in sync with active filters (router.replace so refresh/back
   // behaviour stays clean) — refreshed or shared links restore the same view.
@@ -65,11 +69,12 @@ export function StaysSearchPage({ stays, initialLocation, initialCheckIn, initia
       if (maxPrice !== undefined && maxPrice !== datasetMaxPrice) params.set('maxPrice', String(maxPrice));
       if (minRating !== undefined) params.set('minRating', String(minRating));
       if (activeFilters.length) params.set('amenities', activeFilters.join(','));
+      if (propertyType.trim()) params.set('propertyType', propertyType.trim());
       const query = params.toString();
       router.replace(query ? `/stays?${query}` : '/stays', { scroll: false });
     }, 400);
     return () => window.clearTimeout(timer);
-  }, [activeFilters, checkIn, checkOut, destination, guestCount, maxPrice, minPrice, minRating, datasetMaxPrice, router]);
+  }, [activeFilters, checkIn, checkOut, destination, guestCount, maxPrice, minPrice, minRating, propertyType, datasetMaxPrice, router]);
 
   const handleLocationChange = useCallback((value: string) => setDestination(value), []);
   const handlePriceChange = useCallback((nextMinPrice?: number, nextMaxPrice?: number) => {
@@ -88,19 +93,30 @@ export function StaysSearchPage({ stays, initialLocation, initialCheckIn, initia
   // choosing a party size or a date range changed nothing on screen.
   const hasDates = Boolean(checkIn || checkOut);
 
+  // Everything except the property-type strip, so the chip counts stay
+  // meaningful while a type is selected (mirrors FilterSidebar counting
+  // against the filtered results).
+  const baseResults = useMemo(
+    () =>
+      filterStays(stays, {
+        location: destination,
+        minPrice,
+        maxPrice,
+        guests: guestCount,
+        amenities: activeFilters,
+        excludeFullyBooked: hasDates,
+      }).filter((stay) => minRating === undefined || stay.rating >= minRating),
+    [activeFilters, destination, guestCount, hasDates, maxPrice, minPrice, minRating, stays],
+  );
+
   const results = useMemo(() => {
-    const filtered = filterStays(stays, {
-      location: destination,
-      minPrice,
-      maxPrice,
-      guests: guestCount,
-      amenities: activeFilters,
-      excludeFullyBooked: hasDates,
-    }).filter((stay) => minRating === undefined || stay.rating >= minRating);
+    const filtered = propertyType.trim()
+      ? baseResults.filter((stay) => matchesStayPropertyType(stay, propertyType))
+      : baseResults;
     return [...filtered].sort((a, b) =>
       sort === 'Price: low to high' ? a.price - b.price : sort === 'Guest rating' ? b.rating - a.rating : 0
     );
-  }, [activeFilters, destination, guestCount, hasDates, maxPrice, minPrice, minRating, sort, stays]);
+  }, [baseResults, propertyType, sort]);
 
   const toggleFilter = (filter: string) =>
     setActiveFilters((current) => (current.includes(filter) ? current.filter((item) => item !== filter) : [...current, filter]));
@@ -164,8 +180,17 @@ export function StaysSearchPage({ stays, initialLocation, initialCheckIn, initia
             filters={filters}
           />
 
-          {/* Right column - results */}
-          <section>
+          {/* Right column - results. `min-w-0` is load-bearing: without it the
+              mobile grid's implicit auto track is floored by this column's
+              min-content (the quick-filter chips are shrink-0), which stretched
+              the whole page horizontally instead of letting the chip row clip
+              and scroll inside its own box. */}
+          <section className="min-w-0">
+            {/* Quick property-type filters, right below the Filters bar: All,
+                Homestay, Villa, Hotel plus any custom type the admin added,
+                scrolling horizontally with a clear button at the end. */}
+            <PropertyTypeStrip allStays={stays} results={baseResults} active={propertyType} onChange={setPropertyType} />
+
             {/* Results header: count, sort, list/grid toggle */}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
@@ -242,6 +267,7 @@ export function StaysSearchPage({ stays, initialLocation, initialCheckIn, initia
                     // now resets those too - it used to leave them in place and
                     // appear to do nothing.
                     setActiveFilters([]);
+                    setPropertyType('');
                     setDestination('');
                     setMinPrice(undefined);
                     setMaxPrice(datasetMaxPrice);

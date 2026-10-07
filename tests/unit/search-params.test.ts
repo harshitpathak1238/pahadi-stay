@@ -3,6 +3,7 @@ import {
   DEFAULT_GUESTS,
   MAX_GUESTS,
   SEARCH_TABS,
+  STAY_PROPERTY_TYPES,
   addDaysISO,
   filterStays,
   fitsGuests,
@@ -10,11 +11,13 @@ import {
   guestOptions,
   isIsoDate,
   matchesStayFilter,
+  matchesStayPropertyType,
   matchesStayQuery,
   matchesTextQuery,
   normaliseGuests,
   searchHrefForTab,
   stayCapacity,
+  stayPropertyTypes,
   tabFromPathname,
   todayISO,
   validateDateRange,
@@ -160,6 +163,49 @@ describe('stay filtering', () => {
   it('never matches a very short token inside an unrelated word', () => {
     expect(matchesTextQuery('Kainchi Dham', 'dh')).toBe(false);
     expect(matchesTextQuery('Kainchi Dham', 'dham')).toBe(true);
+  });
+});
+
+describe('property type quick filter', () => {
+  it('offers the preset chips in display order and appends custom types once', () => {
+    const types = stayPropertyTypes([
+      stay({ slug: 'resort-1', propertyType: 'Resort' }),
+      stay({ slug: 'villa-1', propertyType: 'villa' }),
+      stay({ slug: 'resort-2', propertyType: 'RESORT ' }),
+      stay({ slug: 'untyped' }),
+    ]);
+    // Presets stay first (Homestay, Villa, Hotel per the /stays chip order),
+    // custom admin types follow in first-seen order, deduped case-insensitively.
+    expect(types).toEqual(['Homestay', 'Villa', 'Hotel', 'Resort']);
+  });
+
+  it('keeps the standard chips visible even when no listing uses them', () => {
+    expect(stayPropertyTypes([])).toEqual(['Homestay', 'Villa', 'Hotel']);
+  });
+
+  it('matches a selected type case-insensitively and never widens the list', () => {
+    expect(matchesStayPropertyType(stay({ propertyType: 'VILLA' }), 'villa')).toBe(true);
+    expect(matchesStayPropertyType(stay({ propertyType: ' Villa ' }), 'Villa')).toBe(true);
+    // A stay with no type must not sneak back in under a specific chip...
+    expect(matchesStayPropertyType(stay(), 'Villa')).toBe(false);
+    // ...but an empty selection means "All" and matches everything.
+    expect(matchesStayPropertyType(stay(), '')).toBe(true);
+    expect(matchesStayPropertyType(stay(), undefined)).toBe(true);
+  });
+
+  it('narrows the result list to the selected type alongside other filters', () => {
+    const results = filterStays(
+      [
+        stay({ slug: 'home', propertyType: 'Homestay' }),
+        stay({ slug: 'villa', propertyType: 'Villa', maxGuests: 12 }),
+      ],
+      { propertyType: 'villa', guests: 4 },
+    );
+    expect(results.map((item) => item.slug)).toEqual(['villa']);
+  });
+
+  it('exposes the same presets the admin dropdown offers', () => {
+    expect([...STAY_PROPERTY_TYPES].sort()).toEqual(['Homestay', 'Hotel', 'Villa']);
   });
 });
 

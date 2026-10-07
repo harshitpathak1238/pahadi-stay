@@ -4,6 +4,7 @@ import { useEffect, useState, type ChangeEvent, type Dispatch, type FormEvent, t
 import { ArrowDown, ArrowLeft, ArrowUp, Bath, BedDouble, BedSingle, Bold, CircleParking, Code2, ConciergeBell, Flower2, GripVertical, ImagePlus, Info, Italic, Languages, Link as LinkIcon, List, ListOrdered, Monitor, Plus, Quote, Save, Star, Table2, Trash2, Upload, UserRound, Video, Wifi, type LucideIcon } from 'lucide-react';
 import type { AccommodationRow, AdminFaqRow, HouseRuleRow, ListingForm } from './ContentManager';
 import { DefaultHouseRules } from '@/lib/listings-shared';
+import { STAY_PROPERTY_TYPES } from '@/lib/search-params';
 import { stayFacilityGroups } from '@/lib/stay-facilities';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -65,6 +66,58 @@ function DetailTextarea({ label, value, onChange, placeholder = '', className = 
     <label className={`grid gap-1 text-[12px] font-semibold text-[#173f35] ${className}`}>
       <span>{label}</span>
       <textarea value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="min-h-24 rounded-xl border border-[#d6d9d1] bg-white p-3 font-normal outline-none focus:border-[#24584a]" />
+    </label>
+  );
+}
+
+const OTHER_PROPERTY_TYPE = '__other__';
+
+/**
+ * "Property type" as a dropdown: the three preset types (Hotel, Homestay,
+ * Villa) plus "Other — add new…", which reveals a free-text input so the
+ * admin can define a custom type (Resort, Cottage, Hostel...). The final
+ * value is stored in `details.propertyType`, so the LIVE requirement in
+ * `lib/listing-requirements.ts` and the /stays quick filters keep working
+ * unchanged. A value already stored that is not a preset opens on "Other"
+ * with the stored text preserved.
+ */
+function PropertyTypeField({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  const trimmed = value.trim();
+  const preset = STAY_PROPERTY_TYPES.find((option) => option.toLowerCase() === trimmed.toLowerCase()) ?? '';
+  const [choseOther, setChoseOther] = useState(false);
+  const other = choseOther || (trimmed !== '' && !preset);
+  return (
+    <label className="grid gap-1 text-[12px] font-semibold text-[#173f35]">
+      <span>Property type</span>
+      <select
+        value={other ? OTHER_PROPERTY_TYPE : preset}
+        onChange={(event) => {
+          const next = event.target.value;
+          if (next === OTHER_PROPERTY_TYPE) {
+            setChoseOther(true);
+            onChange('');
+            return;
+          }
+          setChoseOther(false);
+          onChange(next);
+        }}
+        className="h-10 rounded-xl border border-[#d6d9d1] bg-white px-3 font-normal outline-none focus:border-[#24584a]"
+      >
+        <option value="">Select property type</option>
+        {STAY_PROPERTY_TYPES.map((option) => (
+          <option key={option} value={option}>{option}</option>
+        ))}
+        <option value={OTHER_PROPERTY_TYPE}>Other — add new…</option>
+      </select>
+      {other && (
+        <input
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          placeholder="e.g. Resort, Cottage, Hostel"
+          className="h-10 rounded-xl border border-[#d6d9d1] bg-white px-3 font-normal outline-none focus:border-[#24584a]"
+        />
+      )}
+      <span className="text-[11px] font-normal text-[#6c7770]">Shown as a quick filter on the stays page. Choose &ldquo;Other&rdquo; to add a new type.</span>
     </label>
   );
 }
@@ -408,7 +461,7 @@ export function CategoryListingEditor({ category, form, setForm, busy, message, 
 
         {category === 'STAY' && activeStayTab === 'location' && (
           <>
-            <DetailInput label="Property type" value={valueOf(form.details, 'propertyType')} onChange={(value) => setDetail('propertyType', value)} placeholder="Homestay, hotel, villa" />
+            <PropertyTypeField value={valueOf(form.details, 'propertyType')} onChange={(value) => setDetail('propertyType', value)} />
             <DetailInput label="Full address" value={valueOf(form.details, 'fullAddress')} onChange={(value) => setDetail('fullAddress', value)} />
             <DetailInput label="Map pin" value={valueOf(form.details, 'mapPin')} onChange={(value) => setDetail('mapPin', value)} placeholder="Google Maps URL or coordinates" className="md:col-span-2" />
             <DetailTextarea label="Neighborhood" value={valueOf(form.details, 'neighborhood')} onChange={(value) => setDetail('neighborhood', value)} className="md:col-span-2" />

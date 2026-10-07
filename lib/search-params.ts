@@ -217,11 +217,13 @@ export type SearchableStay = {
   amenities?: string[];
   maxGuests?: number;
   fullyBooked?: boolean;
+  /** Admin-defined type such as "Hotel", "Villa" or a custom value. */
+  propertyType?: string;
   accommodations?: { bedrooms: number; beds: number }[];
 };
 
 export function staySearchText(stay: SearchableStay): string {
-  return [stay.title, stay.location, stay.description ?? '', ...(stay.amenities ?? [])].join(' ');
+  return [stay.title, stay.location, stay.description ?? '', stay.propertyType ?? '', ...(stay.amenities ?? [])].join(' ');
 }
 
 export function matchesStayQuery(stay: SearchableStay, query: string | null | undefined): boolean {
@@ -255,6 +257,64 @@ export function matchesAllStayFilters(stay: SearchableStay, labels: string[]): b
 }
 
 /**
+ * Preset property types offered by the admin "Property type" dropdown. The
+ * dropdown also accepts a custom value ("Other — add new…"), so anything
+ * outside this list is still a valid stored type and surfaces on /stays as its
+ * own quick filter.
+ */
+export const STAY_PROPERTY_TYPES = ['Hotel', 'Homestay', 'Villa'] as const;
+
+/**
+ * Display order for the /stays quick-filter chips: All, Homestay, Villa,
+ * Hotel, then any custom types the admin has added.
+ */
+const PROPERTY_TYPE_CHIP_ORDER = ['Homestay', 'Villa', 'Hotel'];
+
+/** Trimmed display label for a stay's property type ('' when unset). */
+export function stayPropertyType(stay: { propertyType?: string }): string {
+  return typeof stay.propertyType === 'string' ? stay.propertyType.trim().replace(/\s+/g, ' ') : '';
+}
+
+/**
+ * Case- and spacing-insensitive comparison key. The admin field is free text,
+ * so "VILLA", "villa" and "Villa " all mean the same property type while the
+ * original spelling is kept for display.
+ */
+export function normalisePropertyType(value: unknown): string {
+  return normaliseText(value);
+}
+
+/**
+ * Whether a stay belongs to the selected property type. An empty/undefined
+ * selection means "All" and matches everything; a stay with no type never
+ * matches a specific chip, so a filter never silently widens the list.
+ */
+export function matchesStayPropertyType(stay: SearchableStay, type: string | null | undefined): boolean {
+  const wanted = normalisePropertyType(type);
+  if (!wanted) return true;
+  return normalisePropertyType(stayPropertyType(stay)) === wanted;
+}
+
+/**
+ * Chips for the quick-filter strip: the preset types in display order (always
+ * present so the standard row never changes shape) followed by each custom
+ * type found on the listings, deduped case-insensitively in first-seen order.
+ */
+export function stayPropertyTypes(stays: SearchableStay[]): string[] {
+  const presetKeys = new Set(PROPERTY_TYPE_CHIP_ORDER.map(normalisePropertyType));
+  const customs: string[] = [];
+  const seen = new Set<string>(presetKeys);
+  for (const stay of stays) {
+    const label = stayPropertyType(stay);
+    const key = normalisePropertyType(label);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    customs.push(label);
+  }
+  return [...PROPERTY_TYPE_CHIP_ORDER, ...customs];
+}
+
+/**
  * Occupancy for a stay, or null when the partner has not set one.
  *
  * Falls back to twice the number of beds when accommodations are described but
@@ -283,6 +343,8 @@ export type StayQuery = {
   maxPrice?: number | null;
   guests?: number | null;
   amenities?: string[];
+  /** Quick-filter chip on /stays; empty/undefined means "All types". */
+  propertyType?: string | null;
   /** Drop listings flagged fully booked - used once real dates are in play. */
   excludeFullyBooked?: boolean;
 };
@@ -296,6 +358,7 @@ export function filterStays<T extends SearchableStay & { price: number }>(stays:
 
   return stays.filter((stay) => {
     if (query.excludeFullyBooked && stay.fullyBooked) return false;
+    if (!matchesStayPropertyType(stay, query.propertyType)) return false;
     if (!matchesStayQuery(stay, location)) return false;
     if (!fitsGuests(stay, guests)) return false;
     if (!matchesAllStayFilters(stay, amenities)) return false;
