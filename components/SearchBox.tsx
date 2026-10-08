@@ -20,12 +20,9 @@ import {
 /**
  * Hero search widget (home page and the desktop rides page).
  *
- * The chosen category is what decides the destination: pressing "Search" with
- * "Rentals" selected goes to `/rentals` with the place carried across. It used
- * to derive the tab from the current pathname and navigate the instant a tab
- * was clicked, so on the home page the tab bar was decorative, every field was
- * thrown away for four of the five categories, and "4+ guests" silently became
- * exactly 4.
+ * Clicking a category pill navigates immediately to that category (carrying
+ * the typed place/dates/guests across) so the tabs are never dead. Pressing
+ * "Search" re-navigates with the latest values.
  */
 export function SearchBox() {
   const router = useRouter();
@@ -82,9 +79,26 @@ export function SearchBox() {
     router.push(searchHrefForTab(tab, { location, checkIn, checkOut, guests }));
   };
 
+  // Tab clicks navigate immediately (this is the reported bug: they used to
+  // only highlight). Typed values ride along so nothing is thrown away; an
+  // invalid date pair only blocks "Search", not exploring a category.
+  const handleTabSelect = (key: string) => {
+    if (!isSearchTabKey(key)) return;
+    setTab(key);
+    const range = validateDateRange(checkIn, checkOut, { today });
+    router.push(
+      searchHrefForTab(key, {
+        location,
+        checkIn: range.valid ? checkIn : '',
+        checkOut: range.valid ? checkOut : '',
+        guests,
+      }),
+    );
+  };
+
   return (
     <div className="sans mx-auto w-full max-w-3xl">
-      <div className="mb-4"><CategoryTabs activeKey={tab} onSelectKey={(key) => { if (isSearchTabKey(key)) setTab(key); }} /></div>
+      <div className="mb-4"><CategoryTabs activeKey={tab} onSelectKey={handleTabSelect} /></div>
       <form
         onSubmit={submit}
         role="search"
