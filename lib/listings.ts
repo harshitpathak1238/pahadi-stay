@@ -3,7 +3,7 @@ import { db } from '@/lib/db';
 import { cached, cacheDeletePrefix } from '@/lib/cache';
 import { rentals, stays, type Listing, type Rental } from '@/lib/mock-data';
 import { defaultStayFacilities } from '@/lib/stay-facilities';
-import { strings, faqs, parseHouseRules, type PublicResult } from '@/lib/listings-shared';
+import { strings, faqs, parseHouseRules, toListingRating, type PublicResult, type ListingRating } from '@/lib/listings-shared';
 import { getPricingMode, resolveCompareAtPrice, resolveDisplayPrice, type PricingMode } from '@/lib/pricing';
 
 // Pure types/constants/parsers live in '@/lib/listings-shared' so client
@@ -15,6 +15,7 @@ export * from '@/lib/listings-shared';
  * `findMany` result and a narrower `select` without a cast at every call site.
  */
 type ListingRecordLike = {
+  id: string;
   slug: string;
   title: string;
   location: string;
@@ -32,7 +33,10 @@ type ListingRecordLike = {
   fullyBooked?: unknown;
 };
 
-function mapRecord(record: ListingRecordLike, pricing?: PricingMode): Listing {
+// Review-derived rating attached to a listing. `rating` is the rounded average
+// of approved reviews (1–5); `count` lets the cards hide the badge entirely
+// when a stay has not been reviewed yet, instead of faking a 5.0.
+function mapRecord(record: ListingRecordLike, pricing?: PricingMode, review?: ListingRating): Listing {
   const details = record.details && typeof record.details === 'object' ? record.details as Record<string, unknown> : {};
   const facilities = details.facilities && typeof details.facilities === 'object' ? Object.fromEntries(Object.entries(details.facilities).filter(([, value]) => typeof value === 'boolean')) as Record<string, boolean> : { ...defaultStayFacilities };
   const recordFaqs = record.faqs;
@@ -49,7 +53,7 @@ function mapRecord(record: ListingRecordLike, pricing?: PricingMode): Listing {
   // and only when it genuinely sits above the quoted rate.
   const base = Number(record.basePrice);
   const compareAt = pricing ? resolveCompareAtPrice(seasonal, pricing, record.category) : null;
-  return { slug: record.slug, title: record.title, location: record.location, price, ...((Number.isFinite(base) && base > 0 && base > price) ? { basePrice: base } : {}), ...(compareAt !== null && compareAt > price ? { peakCompareAtPrice: compareAt } : {}), ...(Number(details.maxGuests) > 0 ? { maxGuests: Math.trunc(Number(details.maxGuests)) } : {}), fullyBooked: Boolean(record.fullyBooked), rating: 5, category: record.category === 'RENTAL' ? 'rental' : record.category === 'ACTIVITY' ? 'activity' : 'stay', image: strings(record.images)[0] || '/images/Logo.png', images: strings(record.images), description: '', amenities: strings(record.amenities), facilities, faqs: faqs(recordFaqs), houseRules: parseHouseRules(recordHouseRules), mapPin: typeof details.mapPin === 'string' ? details.mapPin : '', ...(typeof details.propertyType === 'string' && details.propertyType.trim() ? { propertyType: details.propertyType.trim() } : {}), accommodations: parseAccommodations(recordAccommodations) };
+  return { slug: record.slug, title: record.title, location: record.location, price, ...((Number.isFinite(base) && base > 0 && base > price) ? { basePrice: base } : {}), ...(compareAt !== null && compareAt > price ? { peakCompareAtPrice: compareAt } : {}), ...(Number(details.maxGuests) > 0 ? { maxGuests: Math.trunc(Number(details.maxGuests)) } : {}), fullyBooked: Boolean(record.fullyBooked), rating: review ? review.rating : 0, ...(review ? { reviewCount: review.count } : {}), category: record.category === 'RENTAL' ? 'rental' : record.category === 'ACTIVITY' ? 'activity' : 'stay', image: strings(record.images)[0] || '/images/Logo.png', images: strings(record.images), description: '', amenities: strings(record.amenities), facilities, faqs: faqs(recordFaqs), houseRules: parseHouseRules(recordHouseRules), mapPin: typeof details.mapPin === 'string' ? details.mapPin : '', ...(typeof details.propertyType === 'string' && details.propertyType.trim() ? { propertyType: details.propertyType.trim() } : {}), accommodations: parseAccommodations(recordAccommodations) };
 }
 
 function parseAccommodations(value: unknown): Accommodation[] {
@@ -79,14 +83,39 @@ const localRentals = (): Listing[] => rentals.map((rental) => ({ slug: rental.sl
 // must never render fake, bookable listings — pages show a degraded banner.
 const fallbackListings = (category: ListingCategory): PublicResult<Listing[]> => ({ data: process.env.NODE_ENV === 'production' ? [] : category === 'RENTAL' ? localRentals() : stays, degraded: true });
 
+// Real, approved-review average per listing. A single grouped query for the
+// whole page keeps this at one round-trip regardless of catalogue size.
+// Listings with no approved reviews are simply absent from the map, so their
+// cards fall back to "New" instead of a fabricated 5.0. Never throws — a DB
+// hiccup degrades to "New" everywhere rather than failing the page.
+async function reviewAverages(listingIds: string[]): Promise<Map<string, ListingRating>> {
+  const map = new Map<string, ListingRating>();
+  if (!listingIds.length) return map;
+  try {
+    const grouped = await db.review.groupBy({
+      by: ['listingId'],
+      where: { listingId: { in: listingIds }, status: 'APPROVED' },
+      _avg: { overallRating: true },
+      _count: { _all: true },
+    });
+    for (const row of grouped) {
+      const rating = toListingRating(row._avg.overallRating, row._count._all);
+      if (rating) map.set(row.listingId, rating);
+    }
+  } catch (error) {
+    console.error('Review averages unavailable:', error);
+  }
+  return map;
+}
+
 export async function getPublicListings(category: ListingCategory): Promise<PublicResult<Listing[]>> {
   return cached(`listings:${category}`, 60, async () => {
     try {
-      const records = await db.listing.findMany({ where: { category, status: 'LIVE' }, select: { slug: true, title: true, location: true, sellPrice: true, basePrice: true, seasonPrice: true, offSeasonPrice: true, category: true, images: true, amenities: true, details: true, accommodations: true, fullyBooked: true, description: true }, orderBy: { createdAt: 'desc' } });
+      const records = await db.listing.findMany({ where: { category, status: 'LIVE' }, select: { id: true, slug: true, title: true, location: true, sellPrice: true, basePrice: true, seasonPrice: true, offSeasonPrice: true, category: true, images: true, amenities: true, details: true, accommodations: true, fullyBooked: true, description: true }, orderBy: { createdAt: 'desc' } });
       if (records.length) {
-        // One switch read for the whole page, not one per listing.
-        const pricing = await getPricingMode();
-        return { data: records.map((record) => ({ ...mapRecord(record, pricing), description: record.description })), degraded: false };
+        // One switch read + one grouped review average for the whole page.
+        const [pricing, ratings] = await Promise.all([getPricingMode(), reviewAverages(records.map((record) => record.id))]);
+        return { data: records.map((record) => ({ ...mapRecord(record, pricing, ratings.get(record.id)), description: record.description })), degraded: false };
       }
       return fallbackListings(category);
     } catch (error) {
@@ -103,8 +132,8 @@ export async function getPublicListing(slug: string): Promise<PublicResult<Listi
   // `cacheDeletePrefix('listings:')` invalidates it with no extra wiring.
   return cached(`listing:${slug}`, 120, async () => {
     try {
-      const record = await db.listing.findFirst({ where: { slug, status: 'LIVE' }, select: { slug: true, title: true, location: true, sellPrice: true, basePrice: true, seasonPrice: true, offSeasonPrice: true, category: true, images: true, amenities: true, details: true, accommodations: true, fullyBooked: true, description: true, faqs: { orderBy: { order: 'asc' }, select: { question: true, answer: true } } }, });
-      if (record) return { data: { ...mapRecord(record, await getPricingMode()), description: record.description }, degraded: false };
+      const record = await db.listing.findFirst({ where: { slug, status: 'LIVE' }, select: { id: true, slug: true, title: true, location: true, sellPrice: true, basePrice: true, seasonPrice: true, offSeasonPrice: true, category: true, images: true, amenities: true, details: true, accommodations: true, fullyBooked: true, description: true, faqs: { orderBy: { order: 'asc' }, select: { question: true, answer: true } } }, });
+      if (record) { const [pricing, ratings] = await Promise.all([getPricingMode(), reviewAverages([record.id])]); return { data: { ...mapRecord(record, pricing, ratings.get(record.id)), description: record.description }, degraded: false }; }
     } catch (error) {
       console.error(`Public listing (${slug}) unavailable:`, error);
     }

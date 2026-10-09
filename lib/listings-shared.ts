@@ -5,6 +5,22 @@
 
 export type PublicResult<T> = { data: T; degraded: boolean };
 
+// A listing's star badge, derived purely from an aggregate of its approved
+// reviews. `rating` is the average on the 1–5 scale; `count` is how many
+// approved reviews back it.
+export type ListingRating = { rating: number; count: number };
+
+// Turn a DB aggregate (`_avg.overallRating`, `_count._all`) into the badge a
+// card should show. Returns null when there are no approved reviews, so the
+// caller shows "New" rather than a fabricated 5.0. Pure — no DB, safe to test.
+export function toListingRating(avg: unknown, count: unknown): ListingRating | null {
+  const reviews = Number(count);
+  const average = Number(avg);
+  if (!Number.isFinite(reviews) || reviews <= 0) return null;
+  if (!Number.isFinite(average) || average <= 0) return null;
+  return { rating: Math.round(average * 10) / 10, count: Math.trunc(reviews) };
+}
+
 export type ListingFaqItem = { question: string; answer: string };
 
 export type HouseRule = { title: string; text: string };

@@ -48,6 +48,16 @@ function SaveButton({ stay, isWishlisted, onToggleWishlist }: Pick<ResultCardPro
 
 // Single, consolidated rating presentation shared by both views.
 function RatingRow({ stay }: { stay: Listing }) {
+  // No approved reviews yet → show "New" rather than a fabricated number,
+  // matching the stay detail page. `reviewCount` is only present when real
+  // reviews exist, so this is the single source of truth for "is it rated".
+  if (!stay.reviewCount) {
+    return (
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <span className="rounded-full border border-[#d5e5ef] bg-[#eef7ff] px-2 py-0.5 text-xs font-semibold text-[#24584a]">New</span>
+      </div>
+    );
+  }
   return (
     <div className="mt-2 flex flex-wrap items-center gap-2">
       <div className="flex items-center gap-0.5 text-[#f59e0b]">

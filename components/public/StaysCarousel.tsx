@@ -45,7 +45,7 @@ export function StaysCarousel({ stays }: { stays: Listing[] }) {
                 {discount !== null && (
                   <span className="sans absolute left-3 top-3 inline-flex items-center rounded-full bg-[#b66b45] px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">{discount}% off</span>
                 )}
-                <span className="sans absolute bottom-3 right-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-xs font-bold text-[#173f35] shadow-sm"><Star size={12} fill="currentColor" /> {stay.rating}</span>
+                {stay.reviewCount ? <span className="sans absolute bottom-3 right-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-xs font-bold text-[#173f35] shadow-sm"><Star size={12} fill="currentColor" /> {stay.rating}</span> : null}
               </div>
               <div className="flex flex-col p-5">
                 <h3 className="text-lg font-bold leading-snug text-[#173f35]">{stay.title}</h3>

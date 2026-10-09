@@ -31,7 +31,7 @@ export function FeaturedStaysRail({ stays }: { stays: Listing[] }) {
                 {fullyBooked ? (
                   <span className="sans absolute left-2 top-2 rounded-[0.55rem] bg-[#171717]/85 px-2 py-1 text-[11px] font-bold leading-none text-white shadow-sm">Fully booked</span>
                 ) : discount !== null && (<span className="sans absolute left-2 top-2 rounded-[0.55rem] bg-[#c46a3a] px-2 py-1 text-[11px] font-bold leading-none text-white shadow-sm">{discount}% off</span>)}
-                {!fullyBooked && <span className="sans absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-[3px] text-[11px] font-bold text-[#173f35] shadow-sm"><Star size={11} fill="currentColor" /> {stay.rating}</span>}
+                {!fullyBooked && stay.reviewCount ? <span className="sans absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-[3px] text-[11px] font-bold text-[#173f35] shadow-sm"><Star size={11} fill="currentColor" /> {stay.rating}</span> : null}
               </div>
               <div className="flex min-w-0 flex-col px-4 py-3.5 sm:px-5 sm:py-4">
                 <h3 className="truncate text-[16px] font-bold leading-snug text-[#3d2b1f] sm:text-[17px]">{stay.title}</h3>
