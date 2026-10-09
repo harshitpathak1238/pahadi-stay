@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, Compass, HandHeart, Home as HomeIcon, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowRight, Compass, Home as HomeIcon, Sparkles } from 'lucide-react';
 import { SearchBox } from '@/components/SearchBox';
 import { FeaturedStaysRail } from '@/components/public/FeaturedStaysRail';
 import { JournalRail } from '@/components/public/JournalRail';
@@ -19,12 +19,6 @@ const packageExcerpt = (html: string) => html.replace(/<style[\s\S]*?<\/style>/g
 // How many items each home-page teaser rail promotes lives in
 // `@/lib/home-limits` so the unit tests can assert it without importing this
 // page (which would drag Prisma into the test process).
-
-const values = [
-  { icon: Sparkles, title: 'Thoughtfully chosen', text: 'Stays and experiences we would recommend to friends.' },
-  { icon: ShieldCheck, title: 'Clear from the start', text: 'Straightforward details, honest prices, no surprises.' },
-  { icon: HandHeart, title: 'Local when it matters', text: 'A real person to help before and during your trip.' },
-];
 
 export default async function Home() {
   type HomeReview = { id: string; guest: string; comment: string; rating: number; stay: string; slug: string; ago: string };
@@ -114,20 +108,6 @@ export default async function Home() {
             <span className="flex items-center gap-2"><Compass size={15} className="text-[#e5b785]" /> Start with a place</span>
             <Link href="/packages" className="inline-flex items-center gap-1 text-white underline decoration-white/30 underline-offset-4 transition hover:decoration-white">Browse curated packages <ArrowRight size={14} /></Link>
           </div>
-        </div>
-      </section>
-
-      <section className="relative z-10 mt-2 px-4">
-        <div className="mx-auto grid max-w-6xl gap-px overflow-hidden rounded-2xl border border-[#e0e6e0] bg-[#e0e6e0] shadow-[0_14px_35px_rgba(6,95,70,.1)] sm:grid-cols-3">
-          {values.map(({ icon: Icon, title, text }) => (
-            <div key={title} className="flex items-start gap-3 bg-white px-4 py-4 sm:gap-3.5 sm:px-6">
-              <Icon size={20} strokeWidth={1.8} className="mt-0.5 shrink-0 text-[#b66b45]" />
-              <div className="min-w-0">
-                <h3 className="min-h-[2.6rem] text-[15px] font-semibold leading-snug text-[#065f46]">{title}</h3>
-                <p className="sans mt-1 text-xs leading-5 text-[#6c7770]">{text}</p>
-              </div>
-            </div>
-          ))}
         </div>
       </section>
 
