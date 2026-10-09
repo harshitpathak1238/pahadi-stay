@@ -108,6 +108,11 @@ body:has(.admin-scope) .main-region { padding-top:0; padding-bottom:0; }
 .site-header.is-hero .account-menu > summary:hover { border-color:rgba(255,255,255,.85); background:rgba(255,255,255,.18); }
 .site-header.is-hero .bg-\[\#065f46\] { box-shadow:0 0 0 1px rgba(255,255,255,.28); }
 .site-header.is-hero .text-\[\#065f46\] { color:#f4f8f4; }
+/* The account dropdown is a solid card, not dissolved bar chrome — the hero
+   light-text override must not wash out its inherited ink (name + links had
+   ~1.07:1 contrast: #f4f8f4 on white). Keep dark green in light mode. */
+.site-header.is-hero .account-menu > div { color:#065f46; }
+.dark .site-header.is-hero .account-menu > div { color:#e8e8e8; }
 .dark .site-header .text-\[\#526057\], .dark .nav-shell { color:#b8c8bd; }
 .dark .nav-link:hover, .dark .nav-link-active { color:#e8e8e8; }
 .dark .mobile-menu nav, .dark .account-menu > div { border-color:rgba(255,255,255,.12); background:#242625; color:#e8e8e8; }
