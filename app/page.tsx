@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, Compass, HandHeart, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowRight, Compass, HandHeart, Home as HomeIcon, ShieldCheck, Sparkles } from 'lucide-react';
 import { SearchBox } from '@/components/SearchBox';
 import { FeaturedStaysRail } from '@/components/public/FeaturedStaysRail';
 import { JournalRail } from '@/components/public/JournalRail';
@@ -27,14 +27,30 @@ const values = [
 ];
 
 export default async function Home() {
-  type HomeReview = { id: string; guest: string; comment: string; rating: number; stay: string; ago: string };
+  type HomeReview = { id: string; guest: string; comment: string; rating: number; stay: string; slug: string; ago: string };
   // Cached: the home page renders on every visit but this aggregate is slow
   // (join + aggregate) and changes only when a review is approved.
   const fetchReviews = (): Promise<{ recent: HomeReview[]; count: number; average: number | null }> =>
     cached('home:reviews', 300, async () => {
       try {
-        const rows = await db.review.findMany({ where: { status: 'APPROVED' }, include: { listing: { select: { title: true } } }, orderBy: { createdAt: 'desc' }, take: 3 });
-        const recent: HomeReview[] = rows.map((row) => ({ id: row.id, guest: row.guestName || 'Guest', comment: row.comment, rating: row.overallRating, stay: row.listing.title, ago: relativeTime(row.createdAt.toISOString()) }));
+        const rows = await db.review.findMany({ where: { status: 'APPROVED' }, include: { listing: { select: { title: true, slug: true } } }, orderBy: { createdAt: 'desc' }, take: 24 });
+        // One card per property: walking newest-first keeps each stay's freshest
+        // review, so the home page shows a spread of properties instead of three
+        // reviews from the same one.
+        const picked: typeof rows = [];
+        const seenListings = new Set<string>();
+        for (const row of rows) {
+          if (seenListings.has(row.listingId)) continue;
+          seenListings.add(row.listingId);
+          picked.push(row);
+        }
+        // Fewer than three properties have approved reviews yet — top up with the
+        // newest remaining ones so the section still shows three cards.
+        for (const row of rows) {
+          if (picked.length >= 3) break;
+          if (!picked.some((kept) => kept.id === row.id)) picked.push(row);
+        }
+        const recent: HomeReview[] = picked.slice(0, 3).map((row) => ({ id: row.id, guest: row.guestName || 'Guest', comment: row.comment, rating: row.overallRating, stay: row.listing.title, slug: row.listing.slug, ago: relativeTime(row.createdAt.toISOString()) }));
         let count = 0;
         let average: number | null = null;
         if (rows.length) {
@@ -198,13 +214,19 @@ export default async function Home() {
                 {recentReviews.map((review) => (
                   <figure key={review.id} className="rounded-[1.25rem] border border-[#e3e7df] bg-white p-4 shadow-[0_10px_26px_rgba(6,95,70,.06)]">
                     <blockquote className="sans text-sm leading-6 text-[#526057]">“{review.comment}”</blockquote>
-                    <figcaption className="sans mt-3 flex items-center gap-2 text-xs text-[#6c7770]">
+                    <figcaption className="sans mt-3 flex items-start gap-2 text-xs text-[#6c7770]">
                       <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#e7eadf] text-[11px] font-bold text-[#065f46]">{review.guest.charAt(0).toUpperCase()}</span>
-                      <span className="font-semibold text-[#065f46]">{review.guest}</span>
-                      <span aria-hidden="true">·</span>
-                      <span className="truncate">{review.stay}</span>
-                      <span aria-hidden="true">·</span>
-                      <span>{review.ago}</span>
+                      <span className="min-w-0 flex-1">
+                        <span className="flex flex-wrap items-center gap-x-2">
+                          <span className="font-semibold text-[#065f46]">{review.guest}</span>
+                          <span aria-hidden="true">·</span>
+                          <span>{review.ago}</span>
+                        </span>
+                        <Link href={`/stays/${review.slug}`} className="mt-1 flex min-w-0 items-center gap-1.5 text-[#8a948c] transition hover:text-[#047857]">
+                          <HomeIcon size={12} className="shrink-0" />
+                          <span className="line-clamp-1 min-w-0 break-words">{review.stay}</span>
+                        </Link>
+                      </span>
                     </figcaption>
                   </figure>
                 ))}
