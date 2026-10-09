@@ -14,13 +14,13 @@ export function RideCard({ ride }: { ride: PublicRide }) {
   const meta = [ride.distanceKm ? `${ride.distanceKm} km` : '', ride.durationDays ? `${ride.durationDays} ${ride.durationDays === 1 ? 'day' : 'days'}` : ''].filter(Boolean).join(' · ');
   const snippet = cardDescriptionSnippet(ride.description);
   return (
-    <Link href={`/rides/${ride.slug}`} className="group grid grid-cols-[124px_minmax(0,1fr)] overflow-hidden rounded-2xl bg-white ring-1 ring-[#e4e3da] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(23,63,53,.12)] hover:ring-[#d6d5c9] sm:grid-cols-[180px_minmax(0,1fr)] md:grid-cols-[300px_minmax(0,1fr)]">
+    <Link href={`/rides/${ride.slug}`} className="group grid grid-cols-[124px_minmax(0,1fr)] overflow-hidden rounded-2xl bg-white ring-1 ring-[#e4e3da] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(6,95,70,.12)] hover:ring-[#d6d5c9] sm:grid-cols-[180px_minmax(0,1fr)] md:grid-cols-[300px_minmax(0,1fr)]">
       <div className="relative min-h-[136px] bg-[#eef3f0] sm:min-h-[150px] md:min-h-[196px]">
         {ride.image ? <Image src={ride.image} alt={ride.title} fill sizes="(max-width: 640px) 124px, (max-width: 768px) 180px, 300px" className="object-cover transition duration-500 group-hover:scale-[1.04]" /> : null}
-        <span className="sans absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.12em] text-[#173f35] backdrop-blur-sm sm:left-4 sm:top-4 sm:text-[11px]">{ride.type === 'TRANSFER' ? 'Transfer' : 'Sightseeing'}</span>
+        <span className="sans absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.12em] text-[#065f46] backdrop-blur-sm sm:left-4 sm:top-4 sm:text-[11px]">{ride.type === 'TRANSFER' ? 'Transfer' : 'Sightseeing'}</span>
       </div>
       <div className="flex min-w-0 flex-col p-4 sm:p-5 md:p-6">
-        <h3 className="text-lg font-semibold leading-snug text-[#173f35] sm:text-xl md:text-2xl">{ride.title}</h3>
+        <h3 className="text-lg font-semibold leading-snug text-[#065f46] sm:text-xl md:text-2xl">{ride.title}</h3>
         {subtitle && (
           <p className="sans mt-1.5 flex min-w-0 items-center gap-1.5 text-xs text-[#526057] sm:text-sm">
             <MapPin size={13} className="shrink-0 text-[#b66b45]" />
@@ -36,7 +36,7 @@ export function RideCard({ ride }: { ride: PublicRide }) {
             ) : (
               <>
                 <span className="block text-[10px] uppercase tracking-[.16em] text-[#8a948c]">Starting from</span>
-                <span className="text-base font-bold text-[#173f35] sm:text-lg">{inr(ride.minFare)}</span>
+                <span className="text-base font-bold text-[#065f46] sm:text-lg">{inr(ride.minFare)}</span>
               </>
             )}
           </p>
@@ -99,7 +99,7 @@ export function RideCategoryToggle({ sightseeingCount, transfersCount }: { sight
             role="tab"
             aria-selected={isActive}
             onClick={() => go(section)}
-            className={`sans inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-bold transition-all duration-300 sm:px-5 ${isActive ? 'bg-[#173f35] text-white shadow-[0_6px_16px_rgba(23,63,53,.24)]' : 'text-[#526057] hover:text-[#173f35]'}`}
+            className={`sans inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-bold transition-all duration-300 sm:px-5 ${isActive ? 'bg-[#065f46] text-white shadow-[0_6px_16px_rgba(6,95,70,.24)]' : 'text-[#526057] hover:text-[#065f46]'}`}
           >
             <span className="truncate">{section.label}</span>
             <span className={`shrink-0 rounded-full px-1.5 text-[10px] font-bold ${isActive ? 'bg-white/15 text-white' : 'bg-[#e2dfd4] text-[#6c7770]'}`}>{counts[section.key]}</span>

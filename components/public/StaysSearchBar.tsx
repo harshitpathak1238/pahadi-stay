@@ -123,7 +123,7 @@ export function StaysSearchBar({
   };
 
   return (
-    <form onSubmit={submit} className="rounded-2xl bg-white p-1.5 shadow-[0_10px_28px_rgba(23,63,53,.10)] ring-1 ring-[#e4e8e2] md:rounded-full md:p-1">
+    <form onSubmit={submit} className="rounded-2xl bg-white p-1.5 shadow-[0_10px_28px_rgba(6,95,70,.10)] ring-1 ring-[#e4e8e2] md:rounded-full md:p-1">
       <div className="grid grid-cols-6 gap-1 md:grid-cols-[1.35fr_1fr_1fr_0.8fr_1fr_auto] md:items-center md:gap-0">
         <label className="col-span-6 flex min-w-0 items-center gap-2.5 rounded-xl bg-[#faf9f4] px-3 py-2 text-sm text-[#23332e] transition focus-within:bg-[#f4f6f1] md:col-span-1 md:rounded-full md:bg-transparent md:px-4 md:py-2 md:focus-within:bg-[#f6f8f5]">
           <MapPin size={16} className="shrink-0 text-[#b66b45]" />
@@ -158,7 +158,7 @@ export function StaysSearchBar({
               <ChevronDown size={13} className={`shrink-0 text-[#6c7770] transition ${guestMenu ? 'rotate-180' : ''}`} />
             </button>
           </span>
-          {guestMenu && <div role="listbox" aria-label="Number of guests" className="absolute inset-x-2 top-[calc(100%+8px)] z-30 max-h-64 overflow-y-auto rounded-xl border border-[#e4e8e2] bg-white p-1 shadow-[0_16px_36px_rgba(23,63,53,.16)]">{guestOptions().map((count) => <button type="button" role="option" aria-selected={guests === count} key={count} onClick={() => { setGuests(count); setGuestMenu(false); }} className={`block w-full rounded-lg px-3 py-2 text-left text-sm ${guests === count ? 'bg-[#e7eadf] font-bold text-[#173f35]' : 'text-[#526057] hover:bg-[#f2f4ed]'}`}>{guestLabel(count)}</button>)}</div>}
+          {guestMenu && <div role="listbox" aria-label="Number of guests" className="absolute inset-x-2 top-[calc(100%+8px)] z-30 max-h-64 overflow-y-auto rounded-xl border border-[#e4e8e2] bg-white p-1 shadow-[0_16px_36px_rgba(6,95,70,.16)]">{guestOptions().map((count) => <button type="button" role="option" aria-selected={guests === count} key={count} onClick={() => { setGuests(count); setGuestMenu(false); }} className={`block w-full rounded-lg px-3 py-2 text-left text-sm ${guests === count ? 'bg-[#e7eadf] font-bold text-[#065f46]' : 'text-[#526057] hover:bg-[#f2f4ed]'}`}>{guestLabel(count)}</button>)}</div>}
         </div>
 
         <label className="col-span-2 flex min-w-0 items-center gap-2 rounded-xl bg-[#faf9f4] px-2.5 py-2 text-sm text-[#23332e] transition focus-within:bg-[#f4f6f1] md:col-span-1 md:rounded-none md:bg-transparent md:px-4 md:py-2 md:focus-within:bg-[#f6f8f5] md:hover:bg-[#f6f8f5] md:border-l md:border-[#eceae1]">
@@ -172,7 +172,7 @@ export function StaysSearchBar({
           </span>
         </label>
 
-        <button type="submit" aria-label="Search stays" className="col-span-2 inline-flex h-10 items-center justify-center gap-2 self-center rounded-full bg-[#173f35] px-5 text-sm font-bold text-white shadow-[0_8px_20px_rgba(23,63,53,.28)] transition hover:bg-[#24584a] focus:outline-none focus:ring-2 focus:ring-[#24584a]/40 focus:ring-offset-2 md:col-span-1 md:ml-1.5 md:h-10 md:w-10 md:self-center md:px-0">
+        <button type="submit" aria-label="Search stays" className="col-span-2 inline-flex h-10 items-center justify-center gap-2 self-center rounded-full bg-[#065f46] px-5 text-sm font-bold text-white shadow-[0_8px_20px_rgba(6,95,70,.28)] transition hover:bg-[#047857] focus:outline-none focus:ring-2 focus:ring-[#047857]/40 focus:ring-offset-2 md:col-span-1 md:ml-1.5 md:h-10 md:w-10 md:self-center md:px-0">
           <Search size={16} />
           <span className="md:hidden">Search</span>
         </button>

@@ -8,12 +8,12 @@ export default function AdminRides() {
       <p className="mt-1 text-sm text-[#616161]">Sightseeing packages and point-to-point transfers with fare-per-vehicle pricing. Replaces the old generic RIDE listing — keep using this page going forward.</p>
 
       <section className="mt-8">
-        <h2 className="mb-3 text-lg font-bold text-[#24584a]">Vehicle types</h2>
+        <h2 className="mb-3 text-lg font-bold text-[#047857]">Vehicle types</h2>
         <VehicleManager />
       </section>
 
       <section className="mt-10">
-        <h2 className="mb-3 text-lg font-bold text-[#24584a]">Ride routes</h2>
+        <h2 className="mb-3 text-lg font-bold text-[#047857]">Ride routes</h2>
         <RideManager />
       </section>
     </div>

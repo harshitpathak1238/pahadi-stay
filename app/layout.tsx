@@ -56,7 +56,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <SiteNavigation />
             <div className="flex items-center gap-1.5 text-sm sm:gap-2 md:gap-3">
               <span className="hidden md:block"><ThemeToggle /></span>
-              <Link href="/partner/login" className="hidden items-center gap-1.5 rounded-full border border-[#dfe3d8] px-3.5 py-2 text-sm font-semibold text-[#526057] transition hover:border-[#cbd5cf] hover:text-[#173f35] md:inline-flex">List your place</Link>
+              <Link href="/partner/login" className="hidden items-center gap-1.5 rounded-full border border-[#dfe3d8] px-3.5 py-2 text-sm font-semibold text-[#526057] transition hover:border-[#cbd5cf] hover:text-[#065f46] md:inline-flex">List your place</Link>
               {/* Session-aware chrome lives in client components so this layout
                   never reads cookies and can be prerendered + cached. */}
               <SessionMenu />

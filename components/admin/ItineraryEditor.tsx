@@ -50,8 +50,8 @@ export function ItineraryEditor({ stops, onChange }: { stops: ItineraryStop[]; o
     <section className="rounded-2xl border border-[#d9d9dc] bg-white p-4 sm:p-5">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <h3 className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-[.08em] text-[#173f35]">
-            <Route size={15} aria-hidden="true" className="shrink-0 text-[#24584a]" />
+          <h3 className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-[.08em] text-[#065f46]">
+            <Route size={15} aria-hidden="true" className="shrink-0 text-[#047857]" />
             Day-by-day itinerary
           </h3>
           <p className="mt-1 text-[12px] leading-5 text-[#6c7770]">
@@ -66,9 +66,9 @@ export function ItineraryEditor({ stops, onChange }: { stops: ItineraryStop[]; o
       {stops.length ? (
         <ol className="mt-4 grid gap-2.5">
           {stops.map((stop, index) => (
-            <li key={index} className="rounded-xl border border-[#e5e5e4] bg-[#fafaf8] p-3 transition focus-within:border-[#8db9a0] focus-within:bg-white focus-within:shadow-[0_2px_10px_rgba(23,63,53,.08)]">
+            <li key={index} className="rounded-xl border border-[#e5e5e4] bg-[#fafaf8] p-3 transition focus-within:border-[#8db9a0] focus-within:bg-white focus-within:shadow-[0_2px_10px_rgba(6,95,70,.08)]">
               <div className="flex items-start gap-2.5">
-                <span aria-hidden="true" className="mt-[22px] grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#173f35] text-[11px] font-bold text-white">
+                <span aria-hidden="true" className="mt-[22px] grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#065f46] text-[11px] font-bold text-white">
                   {index + 1}
                 </span>
 
@@ -154,7 +154,7 @@ export function ItineraryEditor({ stops, onChange }: { stops: ItineraryStop[]; o
         type="button"
         onClick={() => onChange([...stops, emptyStop()])}
         disabled={atLimit}
-        className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-[#d5dbd5] bg-white px-3 py-2 text-[13px] font-semibold text-[#24584a] transition hover:border-[#8db9a0] hover:bg-[#eef7f1] disabled:pointer-events-none disabled:opacity-45"
+        className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-[#d5dbd5] bg-white px-3 py-2 text-[13px] font-semibold text-[#047857] transition hover:border-[#8db9a0] hover:bg-[#eef7f1] disabled:pointer-events-none disabled:opacity-45"
       >
         <Plus size={15} aria-hidden="true" /> Add stop
       </button>

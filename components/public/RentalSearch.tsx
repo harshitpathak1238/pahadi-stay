@@ -25,7 +25,7 @@ export function RentalSearch({ query }: { query: string }) {
   };
 
   return (
-    <form onSubmit={submit} role="search" aria-label="Search rentals by pickup area" className="sans mt-6 flex items-center gap-2.5 rounded-full bg-white py-2 pl-4 pr-2 shadow-[0_10px_28px_rgba(23,63,53,.10)] ring-1 ring-[#dfe3d8] transition focus-within:ring-2 focus-within:ring-[#24584a]/30">
+    <form onSubmit={submit} role="search" aria-label="Search rentals by pickup area" className="sans mt-6 flex items-center gap-2.5 rounded-full bg-white py-2 pl-4 pr-2 shadow-[0_10px_28px_rgba(6,95,70,.10)] ring-1 ring-[#dfe3d8] transition focus-within:ring-2 focus-within:ring-[#047857]/30">
       <MapPin size={16} className="shrink-0 text-[#b66b45]" />
       <input
         value={value}
@@ -42,11 +42,11 @@ export function RentalSearch({ query }: { query: string }) {
         ))}
       </datalist>
       {value && (
-        <button type="button" onClick={() => { setValue(''); router.push('/rentals'); }} aria-label="Clear rental search" className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[#6c7770] transition hover:bg-[#f2f4ed] hover:text-[#173f35]">
+        <button type="button" onClick={() => { setValue(''); router.push('/rentals'); }} aria-label="Clear rental search" className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[#6c7770] transition hover:bg-[#f2f4ed] hover:text-[#065f46]">
           <X size={15} />
         </button>
       )}
-      <button type="submit" aria-label="Search rentals" className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-b from-[#1e5044] to-[#173f35] text-white shadow-[0_8px_18px_rgba(23,63,53,.35)] ring-1 ring-white/15 transition hover:from-[#266254] hover:to-[#1e5044] active:scale-95">
+      <button type="submit" aria-label="Search rentals" className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-b from-[#1e5044] to-[#065f46] text-white shadow-[0_8px_18px_rgba(6,95,70,.35)] ring-1 ring-white/15 transition hover:from-[#266254] hover:to-[#1e5044] active:scale-95">
         <Search size={15} />
       </button>
     </form>

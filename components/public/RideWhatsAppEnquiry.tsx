@@ -111,19 +111,19 @@ export function RideWhatsAppEnquiryModal({ ride, open, onClose }: { ride: RideLi
           onClick={(event) => event.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-start justify-between gap-3 border-b border-[#e2e6df] bg-[#f7f4ec] px-4 py-4 sm:px-5">
+          <div className="flex items-start justify-between gap-3 border-b border-[#e2e6df] bg-[#f4f8f4] px-4 py-4 sm:px-5">
             <div className="min-w-0">
               <p className="sans inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[.14em] text-[#1d7a4f]">
                 <WhatsAppMark size={13} /> Enquire on WhatsApp
               </p>
-              <h3 className="mt-1 text-lg font-bold leading-snug text-[#173f35] sm:text-xl">Choose your vehicle</h3>
+              <h3 className="mt-1 text-lg font-bold leading-snug text-[#065f46] sm:text-xl">Choose your vehicle</h3>
               <p className="sans mt-0.5 truncate text-xs text-[#6c7770] sm:text-[13px]">{ride.title} · {routeLine}</p>
             </div>
             <button
               type="button"
               onClick={onClose}
               aria-label="Close enquiry"
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white text-[#173f35] ring-1 ring-[#e2e6df] transition hover:bg-[#eef3ed]"
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white text-[#065f46] ring-1 ring-[#e2e6df] transition hover:bg-[#eef3ed]"
             >
               <X size={18} />
             </button>
@@ -151,13 +151,13 @@ export function RideWhatsAppEnquiryModal({ ride, open, onClose }: { ride: RideLi
           <div className="border-t border-[#e2e6df] bg-white px-4 pb-[max(0.875rem,env(safe-area-inset-bottom))] pt-3.5 sm:px-5">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
-                <p className="sans text-sm font-bold text-[#173f35]">
+                <p className="sans text-sm font-bold text-[#065f46]">
                   {selected.length ? `${selected.length} vehicle${selected.length > 1 ? 's' : ''} selected` : 'No vehicle selected yet'}
                 </p>
                 <p className="sans mt-0.5 text-xs text-[#6c7770]">
                   {selected.length
                     ? total > 0
-                      ? <>Estimated <span className="font-bold text-[#173f35]">₹{total.toLocaleString('en-IN')}</span> for the ride</>
+                      ? <>Estimated <span className="font-bold text-[#065f46]">₹{total.toLocaleString('en-IN')}</span> for the ride</>
                       : 'Price on request'
                     : 'Tap one or more vehicles above'}
                 </p>
@@ -223,7 +223,7 @@ function VehicleCard({ vehicle, selected, onToggle }: { vehicle: EnquiryVehicle;
             <Image src={photos[photoIndex]} alt={vehicle.name} fill sizes="(max-width: 640px) 46vw, 300px" unoptimized className="object-cover" />
           </div>
         ) : (
-          <div className="flex h-full items-center justify-center text-[#24584a]">
+          <div className="flex h-full items-center justify-center text-[#047857]">
             <Car size={26} strokeWidth={1.6} />
           </div>
         )}
@@ -237,11 +237,11 @@ function VehicleCard({ vehicle, selected, onToggle }: { vehicle: EnquiryVehicle;
         </span>
 
         {vehicle.price != null ? (
-          <span className="pointer-events-none absolute right-1.5 top-1.5 rounded-full bg-[#173f35] px-2 py-0.5 text-[10px] font-bold text-white shadow-[0_4px_10px_rgba(7,26,21,.35)] sm:text-[11px]">
+          <span className="pointer-events-none absolute right-1.5 top-1.5 rounded-full bg-[#065f46] px-2 py-0.5 text-[10px] font-bold text-white shadow-[0_4px_10px_rgba(7,26,21,.35)] sm:text-[11px]">
             ₹{vehicle.price.toLocaleString('en-IN')} <span className="font-medium text-white/80">/ ride</span>
           </span>
         ) : (
-          <span className="pointer-events-none absolute right-1.5 top-1.5 rounded-full bg-[#173f35] px-2 py-0.5 text-[10px] font-bold text-white shadow-[0_4px_10px_rgba(7,26,21,.35)] sm:text-[11px]">
+          <span className="pointer-events-none absolute right-1.5 top-1.5 rounded-full bg-[#065f46] px-2 py-0.5 text-[10px] font-bold text-white shadow-[0_4px_10px_rgba(7,26,21,.35)] sm:text-[11px]">
             Price on request
           </span>
         )}
@@ -274,9 +274,9 @@ function VehicleCard({ vehicle, selected, onToggle }: { vehicle: EnquiryVehicle;
 
       {/* Title + details */}
       <div className="flex min-w-0 flex-1 flex-col gap-1 p-2 sm:p-2.5">
-        <p className="text-[13px] font-bold leading-tight text-[#173f35] sm:text-sm">{vehicle.name}</p>
+        <p className="text-[13px] font-bold leading-tight text-[#065f46] sm:text-sm">{vehicle.name}</p>
         {(vehicle.capacity > 0 || vehicle.price != null) && (
-          <p className={`mt-auto inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold transition sm:text-[11px] ${selected ? 'bg-[#dcf7e6] text-[#0d7a43]' : 'bg-[#eef3ef] text-[#24584a]'}`}>
+          <p className={`mt-auto inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold transition sm:text-[11px] ${selected ? 'bg-[#dcf7e6] text-[#0d7a43]' : 'bg-[#eef3ef] text-[#047857]'}`}>
             <Car size={11} /> {vehicleCapacityLabel(vehicle.capacity)}
           </p>
         )}

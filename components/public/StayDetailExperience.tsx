@@ -212,7 +212,7 @@ export function StayDetailExperience({ stay, reviewData, pickupRoutes = [], pick
   const wishlistShareControls = (
     <>
       {shareMessage && (
-        <span className="sans shrink-0 rounded-full bg-[#173f35] px-2.5 py-1 text-[10px] font-bold text-white">{shareMessage}</span>
+        <span className="sans shrink-0 rounded-full bg-[#065f46] px-2.5 py-1 text-[10px] font-bold text-white">{shareMessage}</span>
       )}
       <button
         aria-label={saved ? 'Remove from wishlist' : 'Save to wishlist'}
@@ -269,7 +269,7 @@ export function StayDetailExperience({ stay, reviewData, pickupRoutes = [], pick
                   <span className="rounded-full bg-[#003b95] px-2.5 py-1 text-xs font-bold text-white">{headerRating.toFixed(1)}</span>
                 )}
                 {!hasRealRating && (
-                  <span className="rounded-full border border-[#d5e5ef] bg-[#eef7ff] px-2.5 py-1 text-xs font-semibold text-[#24584a]">New</span>
+                  <span className="rounded-full border border-[#d5e5ef] bg-[#eef7ff] px-2.5 py-1 text-xs font-semibold text-[#047857]">New</span>
                 )}
               </div>
 
@@ -363,7 +363,7 @@ export function StayDetailExperience({ stay, reviewData, pickupRoutes = [], pick
           >
             <Image src={gallery[0]} alt={stay.title} fill priority sizes="100vw" className="object-cover transition duration-500 group-hover:scale-105" />
             {gallery.length > 1 && (
-              <span className="absolute bottom-3 right-3 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold text-[#173f35] shadow-sm sm:text-sm">See all {gallery.length} photos</span>
+              <span className="absolute bottom-3 right-3 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold text-[#065f46] shadow-sm sm:text-sm">See all {gallery.length} photos</span>
             )}
           </button>
 
@@ -508,7 +508,7 @@ export function StayDetailExperience({ stay, reviewData, pickupRoutes = [], pick
                   type="button"
                   onClick={() => setShowAllFacilities((current) => !current)}
                   aria-expanded={showAllFacilities}
-                  className="shrink-0 rounded-full border border-[#d9e0e8] bg-white px-4 py-1.5 text-xs font-semibold text-[#24584a] hover:bg-[#f5f7fa]"
+                  className="shrink-0 rounded-full border border-[#d9e0e8] bg-white px-4 py-1.5 text-xs font-semibold text-[#047857] hover:bg-[#f5f7fa]"
                 >
                   {showAllFacilities ? 'Show fewer' : 'View more (' + (flatFacilities.length - defaultVisibleCount) + ' more)'}
                 </button>
@@ -520,9 +520,9 @@ export function StayDetailExperience({ stay, reviewData, pickupRoutes = [], pick
                   const Icon = facilityMeta[facility.label]?.icon ?? defaultFacilityIcon;
                   return (
                     <div key={facility.label} className="flex min-w-0 items-center gap-1.5 rounded-lg border border-[#e5e7eb] bg-[#fafbfa] px-2 py-1.5 sm:gap-3 sm:rounded-xl sm:px-4 sm:py-3">
-                      <Icon size={14} className="shrink-0 text-[#24584a]" />
+                      <Icon size={14} className="shrink-0 text-[#047857]" />
                       <span className="min-w-0 flex-1 truncate text-[11px] text-[#23332e] sm:whitespace-normal sm:text-sm">{facility.label}</span>
-                      <span className="hidden rounded-full bg-[#eef3ef] px-2 py-0.5 text-xs font-semibold text-[#24584a] sm:inline">
+                      <span className="hidden rounded-full bg-[#eef3ef] px-2 py-0.5 text-xs font-semibold text-[#047857] sm:inline">
                         {facility.category}
                       </span>
                     </div>
@@ -540,7 +540,7 @@ export function StayDetailExperience({ stay, reviewData, pickupRoutes = [], pick
                         const Icon = facilityMeta[item.label]?.icon ?? defaultFacilityIcon;
                         return (
                           <p key={item.label} className="flex items-start gap-2 text-xs text-[#536274] sm:text-sm">
-                            <Icon size={14} className="mt-0.5 shrink-0 text-[#24584a]" />
+                            <Icon size={14} className="mt-0.5 shrink-0 text-[#047857]" />
                             <span>{item.label}</span>
                           </p>
                         );
@@ -556,7 +556,7 @@ export function StayDetailExperience({ stay, reviewData, pickupRoutes = [], pick
             {stay.houseRules && stay.houseRules.length > 0 ? (
               <section id="house-rules" className="mt-5 scroll-mt-24 rounded-lg border border-[#d9e0e8] bg-white p-4 sm:p-4 sm:p-5 md:p-7">
                 <h2 className="flex items-center gap-2 text-xl font-bold sm:text-2xl">
-                  <ShieldCheck size={20} className="text-[#24584a]" />
+                  <ShieldCheck size={20} className="text-[#047857]" />
                   House rules
                 </h2>
                 <p className="mt-2 text-xs text-[#536274] sm:text-sm">
@@ -568,7 +568,7 @@ export function StayDetailExperience({ stay, reviewData, pickupRoutes = [], pick
                       key={index}
                       className="group flex gap-2.5 rounded-xl border border-[#e5e7eb] bg-[#fafbfa] p-3 transition hover:border-[#c9d6cf] hover:bg-white sm:gap-3 sm:p-4"
                     >
-                      <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#eef3ef] text-xs font-bold text-[#24584a] sm:h-7 sm:w-7 sm:text-sm">
+                      <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#eef3ef] text-xs font-bold text-[#047857] sm:h-7 sm:w-7 sm:text-sm">
                         {index + 1}
                       </span>
                       <div>
@@ -586,7 +586,7 @@ export function StayDetailExperience({ stay, reviewData, pickupRoutes = [], pick
               /* Fallback when no rules are stored yet */
               <section id="house-rules" className="mt-5 scroll-mt-24 rounded-lg border border-[#d9e0e8] bg-white p-4 sm:p-4 sm:p-5 md:p-7">
                 <h2 className="flex items-center gap-2 text-xl font-bold sm:text-2xl">
-                  <ShieldCheck size={20} className="text-[#24584a]" />
+                  <ShieldCheck size={20} className="text-[#047857]" />
                   House rules
                 </h2>
                 <p className="mt-2 text-xs text-[#536274] sm:text-sm">This property&apos;s house rules are being finalised. Please contact the host for the latest information.</p>
@@ -785,12 +785,12 @@ function AccommodationCard({ acc, onOpen }: { acc: AccommodationCardData; onOpen
             <Image src={photos[photoIndex]} alt={acc.title} fill sizes="(max-width: 640px) 220px, 250px" unoptimized className="object-cover" />
           </button>
         ) : (
-          <div className="flex h-full items-center justify-center text-[#24584a]">
+          <div className="flex h-full items-center justify-center text-[#047857]">
             <BedDouble size={30} strokeWidth={1.6} />
           </div>
         )}
         {acc.price != null && acc.price > 0 && (
-          <span className="pointer-events-none absolute right-2 top-2 rounded-full bg-[#173f35] px-2.5 py-1 text-[11px] font-bold text-white shadow-[0_4px_12px_rgba(7,26,21,.35)] sm:text-xs">
+          <span className="pointer-events-none absolute right-2 top-2 rounded-full bg-[#065f46] px-2.5 py-1 text-[11px] font-bold text-white shadow-[0_4px_12px_rgba(7,26,21,.35)] sm:text-xs">
             ₹{acc.price.toLocaleString('en-IN')} <span className="font-medium text-white/80">/ night</span>
           </span>
         )}

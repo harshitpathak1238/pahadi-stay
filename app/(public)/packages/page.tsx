@@ -37,9 +37,9 @@ export default async function Packages({ searchParams }: { searchParams: { where
 
 			<section className="mx-auto grid max-w-7xl gap-6 px-5 md:grid-cols-2" aria-labelledby="package-heading">
 				{query && <p className="sans text-sm text-[#526057] md:col-span-2">Showing {filtered.length} of {packages.length} packages matching <strong>{query}</strong>. <Link href="/packages" className="font-bold underline">Clear search</Link></p>}
-				{filtered.map((packageItem) => <Link key={packageItem.id} href={`/packages/${packageItem.id}`} className="group overflow-hidden rounded-[2rem] bg-[#24584a] text-white shadow-[0_24px_60px_rgba(23,63,53,.16)]">
-					<div className="relative min-h-[260px] overflow-hidden"><Image src={packageItem.image} alt={packageItem.title} fill sizes="(max-width: 768px) 92vw, 45vw" className="object-cover transition duration-500 group-hover:scale-105" /><div className="absolute inset-0 bg-gradient-to-t from-[#102f27]/90 via-[#173f35]/20 to-transparent" /><span className="sans absolute bottom-5 left-5 rounded-full border border-white/35 bg-[#173f35]/55 px-3 py-1.5 text-xs font-semibold">{packageItem.location}</span></div>
-					<div className="p-7"><p className="sans text-xs font-bold uppercase tracking-[.2em] text-[#e6b17e]">Travel package</p><h2 className="mt-3 text-3xl leading-tight">{packageItem.title}</h2><p className="sans mt-4 line-clamp-3 text-sm leading-7 text-white/75">{packageExcerpt(packageItem.description)}</p><div className="mt-7 flex items-end justify-between gap-4"><div><p className="sans text-xs uppercase tracking-[.16em] text-white/50">Per person price</p><p className="mt-1 text-2xl">₹{packageItem.price.toLocaleString('en-IN')}</p></div><span className="sans text-sm font-bold text-[#f0c28f]">View package ↗</span></div></div>
+				{filtered.map((packageItem) => <Link key={packageItem.id} href={`/packages/${packageItem.id}`} className="group overflow-hidden rounded-[1.75rem] border border-[#e4e3da] bg-white text-[#23332e] shadow-[0_14px_35px_rgba(6,95,70,.08)] transition duration-300 hover:-translate-y-0.5 hover:border-[#c9d6ce] hover:shadow-[0_20px_46px_rgba(6,95,70,.14)]">
+					<div className="relative min-h-[260px] overflow-hidden"><Image src={packageItem.image} alt={packageItem.title} fill sizes="(max-width: 768px) 92vw, 45vw" className="object-cover transition duration-500 group-hover:scale-105" /><div className="absolute inset-0 bg-gradient-to-t from-[#102f27]/55 via-transparent to-transparent" /><span className="sans absolute bottom-5 left-5 rounded-full border border-white/40 bg-white/85 px-3 py-1.5 text-xs font-semibold text-[#065f46] backdrop-blur-sm">{packageItem.location}</span></div>
+					<div className="p-7"><p className="sans text-xs font-bold uppercase tracking-[.2em] text-[#b66b45]">Travel package</p><h2 className="mt-3 text-3xl leading-tight text-[#065f46]">{packageItem.title}</h2><p className="sans mt-4 line-clamp-3 text-sm leading-7 text-[#6c7770]">{packageExcerpt(packageItem.description)}</p><div className="mt-7 flex items-end justify-between gap-4 border-t border-[#e4e3da] pt-5"><div><p className="sans text-xs uppercase tracking-[.16em] text-[#8a948c]">Per person price</p><p className="mt-1 text-2xl font-semibold text-[#065f46]">₹{packageItem.price.toLocaleString('en-IN')}</p></div><span className="sans inline-flex items-center gap-1.5 text-sm font-bold text-[#047857] transition group-hover:gap-2.5">View package <span aria-hidden="true">↗</span></span></div></div>
 				</Link>)}
 				{filtered.length === 0 && <p className="sans rounded-2xl border border-dashed border-[#dfe3d8] p-10 text-center text-[#526057] md:col-span-2">{query ? <>No packages match “{query}”. Try “Bhimtal” or <Link href="/packages" className="font-bold underline">clear the search</Link>.</> : 'Packages will appear here soon.'}</p>}
 				{/* Keep the original feature link available for the seeded package experience. */}
@@ -47,11 +47,11 @@ export default async function Packages({ searchParams }: { searchParams: { where
 			</section>
 			{/*
 			<section className="mx-auto max-w-7xl px-5" aria-labelledby="package-heading">
-				<div className="overflow-hidden rounded-[2rem] bg-[#24584a] text-white shadow-[0_24px_60px_rgba(23,63,53,.16)] md:grid md:grid-cols-[1.05fr_.95fr]">
+				<div className="overflow-hidden rounded-[2rem] bg-[#047857] text-white shadow-[0_24px_60px_rgba(6,95,70,.16)] md:grid md:grid-cols-[1.05fr_.95fr]">
 					<div className="relative min-h-[360px] overflow-hidden md:min-h-[570px]">
 						<img src={bhimtalPackage.image} alt="Mountain lake landscape near Bhimtal" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
-						<div className="absolute inset-0 bg-gradient-to-t from-[#102f27]/85 via-[#173f35]/10 to-transparent" />
-						<div className="sans absolute bottom-6 left-6 rounded-full border border-white/35 bg-[#173f35]/40 px-4 py-2 text-xs font-semibold uppercase tracking-[.16em] backdrop-blur-sm">Ex-Haldwani · 6 guests</div>
+						<div className="absolute inset-0 bg-gradient-to-t from-[#102f27]/85 via-[#065f46]/10 to-transparent" />
+						<div className="sans absolute bottom-6 left-6 rounded-full border border-white/35 bg-[#065f46]/40 px-4 py-2 text-xs font-semibold uppercase tracking-[.16em] backdrop-blur-sm">Ex-Haldwani · 6 guests</div>
 					</div>
 					<div className="flex flex-col justify-between p-7 md:p-12">
 						<div>
@@ -71,7 +71,7 @@ export default async function Packages({ searchParams }: { searchParams: { where
 						</div>
 					</div>
 				</div>
-				<Link href={`/packages/${bhimtalPackage.slug}`} className="sans mt-6 inline-block text-sm font-semibold text-[#24584a] underline decoration-[#d6a06d] underline-offset-4">See the full day-by-day plan</Link>
+				<Link href={`/packages/${bhimtalPackage.slug}`} className="sans mt-6 inline-block text-sm font-semibold text-[#047857] underline decoration-[#d6a06d] underline-offset-4">See the full day-by-day plan</Link>
 			</section>*/}
 		</div>
 	);

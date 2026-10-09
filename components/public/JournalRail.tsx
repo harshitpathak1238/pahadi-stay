@@ -67,7 +67,7 @@ export function JournalRail({ posts }: { posts: JournalCard[] }) {
             key={post.slug}
             href={`/blog/${post.slug}`}
             data-journal-card
-            className="group flex w-[80vw] max-w-[380px] shrink-0 snap-start flex-col overflow-hidden rounded-[1.75rem] border border-[#e3e7df] bg-white shadow-[0_20px_50px_rgba(23,63,53,.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_26px_60px_rgba(23,63,53,.10)] sm:w-[340px]"
+            className="group flex w-[80vw] max-w-[380px] shrink-0 snap-start flex-col overflow-hidden rounded-[1.75rem] border border-[#e3e7df] bg-white shadow-[0_20px_50px_rgba(6,95,70,.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_26px_60px_rgba(6,95,70,.10)] sm:w-[340px]"
           >
             <div className="relative aspect-[4/5] overflow-hidden">
               {post.featuredImage ? (
@@ -79,7 +79,7 @@ export function JournalRail({ posts }: { posts: JournalCard[] }) {
                   className="object-cover transition duration-500 group-hover:scale-105"
                 />
               ) : (
-                <div className="flex h-full items-center justify-center bg-[#edf0ea] text-[#173f35]">
+                <div className="flex h-full items-center justify-center bg-[#edf0ea] text-[#065f46]">
                   <BookOpenText size={36} strokeWidth={1.5} />
                 </div>
               )}
@@ -90,11 +90,11 @@ export function JournalRail({ posts }: { posts: JournalCard[] }) {
                 <span>•</span>
                 <span>{formatDate(post.publishedAt)}</span>
               </div>
-              <h3 className="mt-3 text-xl leading-tight text-[#173f35]">{post.title}</h3>
+              <h3 className="mt-3 text-xl leading-tight text-[#065f46]">{post.title}</h3>
               {post.excerpt && (
                 <p className="sans mt-3 line-clamp-3 text-sm leading-6 text-[#607067]">{post.excerpt}</p>
               )}
-              <span className="mt-auto inline-flex items-center gap-2 pt-5 text-sm font-bold text-[#24584a]">
+              <span className="mt-auto inline-flex items-center gap-2 pt-5 text-sm font-bold text-[#047857]">
                 Read story <ArrowRight size={15} />
               </span>
             </div>
@@ -108,7 +108,7 @@ export function JournalRail({ posts }: { posts: JournalCard[] }) {
             type="button"
             aria-label="Scroll stories left"
             onClick={() => scrollByCard(-1)}
-            className="absolute -left-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white text-[#173f35] shadow ring-1 ring-[#e4e3da] hover:bg-[#f7f4ec] md:grid"
+            className="absolute -left-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white text-[#065f46] shadow ring-1 ring-[#e4e3da] hover:bg-[#f4f8f4] md:grid"
           >
             <ChevronLeft size={18} />
           </button>
@@ -116,7 +116,7 @@ export function JournalRail({ posts }: { posts: JournalCard[] }) {
             type="button"
             aria-label="Scroll stories right"
             onClick={() => scrollByCard(1)}
-            className="absolute -right-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white text-[#173f35] shadow ring-1 ring-[#e4e3da] hover:bg-[#f7f4ec] md:grid"
+            className="absolute -right-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white text-[#065f46] shadow ring-1 ring-[#e4e3da] hover:bg-[#f4f8f4] md:grid"
           >
             <ChevronRight size={18} />
           </button>

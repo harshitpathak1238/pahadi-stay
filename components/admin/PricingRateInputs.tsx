@@ -11,7 +11,7 @@ const money = (value: number) => `₹${Math.round(value).toLocaleString('en-IN')
 export function RateInput({ id, value, onChange, tone, hint = 'Blank = base price' }: { id: string; value: string; onChange: (value: string) => void; tone: 'peak' | 'low'; hint?: string }) {
   return (
     <div className="min-w-0">
-      <label htmlFor={id} className={`mb-1 block text-[11px] font-semibold ${tone === 'peak' ? 'text-[#a15c2e]' : 'text-[#24584a]'}`}>
+      <label htmlFor={id} className={`mb-1 block text-[11px] font-semibold ${tone === 'peak' ? 'text-[#a15c2e]' : 'text-[#047857]'}`}>
         {tone === 'peak' ? 'Peak (max)' : 'Off-season (min)'}
       </label>
       <input
@@ -75,7 +75,7 @@ export function SeasonPriceFields({ form, setForm, className = '' }: { form: Lis
   });
   return (
     <fieldset className={`rounded-xl border border-[#e4e3da] bg-[#faf8f2] p-4 ${className}`}>
-      <legend className="px-1 text-[12px] font-semibold text-[#173f35]">Seasonal pricing</legend>
+      <legend className="px-1 text-[12px] font-semibold text-[#065f46]">Seasonal pricing</legend>
       <p className="mt-0.5 mb-3 text-[11px] text-[#6c7770]">
         Leave a box empty to use the selling price above. Manage the global peak-season switch under Seasonal Pricing.
       </p>

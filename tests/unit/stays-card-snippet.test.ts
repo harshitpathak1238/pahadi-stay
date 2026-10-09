@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { cardDescriptionSnippet, isFullBlogDocument } from '../../lib/sanitize-html';
 
-const fullDocument = `<!doctype html><html><head><style>.amenities-container { display: flex; font-family: -apple-system, #173f35 }</style></head><body><p>Full body for the detail page iframe.</p></body></html>`;
+const fullDocument = `<!doctype html><html><head><style>.amenities-container { display: flex; font-family: -apple-system, #123456 }</style></head><body><p>Full body for the detail page iframe.</p></body></html>`;
 
 describe('listing card description snippets', () => {
   it('detects full HTML documents the same way the detail page does', () => {
@@ -14,7 +14,7 @@ describe('listing card description snippets', () => {
   });
 
   it('strips style/script blocks, tags, and entities from partial HTML', () => {
-    const partial = '<div class="meta"><style>.tag { color: #24584a; }</style>Cozy <strong>lake-view</strong> stay &amp; home-cooked meals&nbsp;near Bhimtal.</div>';
+    const partial = '<div class="meta"><style>.tag { color: #654321; }</style>Cozy <strong>lake-view</strong> stay &amp; home-cooked meals&nbsp;near Bhimtal.</div>';
     expect(cardDescriptionSnippet(partial)).toBe('Cozy lake-view stay & home-cooked meals near Bhimtal.');
   });
 

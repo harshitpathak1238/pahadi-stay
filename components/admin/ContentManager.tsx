@@ -1,4 +1,4 @@
-ï»¿'use client';
+'use client';
 
 import Link from 'next/link';
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
@@ -279,7 +279,7 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
       location: form.location,
       basePrice: Number(form.basePrice),
       sellPrice: Number(form.sellPrice),
-      // Blank means "no seasonal rate" â€” the site then falls back to sellPrice.
+      // Blank means "no seasonal rate" — the site then falls back to sellPrice.
       seasonPrice: form.seasonPrice === '' ? null : Number(form.seasonPrice),
       offSeasonPrice: form.offSeasonPrice === '' ? null : Number(form.offSeasonPrice),
       images: form.images,
@@ -417,7 +417,7 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
       <div className="flex flex-col gap-4 border-b border-[#e4e3da] pb-5 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <p className="sans text-xs font-bold uppercase tracking-[.16em] text-[#b66b45]">Content management</p>
-          <h2 className="mt-2 text-2xl text-[#173f35]">{tabs.find((tab) => tab.key === section)?.label} inventory</h2>
+          <h2 className="mt-2 text-2xl text-[#065f46]">{tabs.find((tab) => tab.key === section)?.label} inventory</h2>
           <p className="mt-1 sans text-sm text-[#6c7770]">Existing records appear below. Add, edit, publish, pause, or turn off bookings from them.</p>
         </div>
         <button type="button" onClick={add} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#b66b45] px-4 py-3 sans text-sm font-bold text-white hover:bg-[#9f5938]"><Plus size={16} /> Add new {label}</button>
@@ -425,13 +425,13 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
 
       <div className="mt-5 flex gap-2 overflow-x-auto pb-1">
         {tabs.map((tab) => (
-          <button key={tab.key} type="button" onClick={() => setSection(tab.key)} className={`shrink-0 rounded-full px-4 py-2 sans text-xs font-bold ${section === tab.key ? 'bg-[#173f35] text-white' : 'bg-[#e7eadf] text-[#24584a]'}`}>
+          <button key={tab.key} type="button" onClick={() => setSection(tab.key)} className={`shrink-0 rounded-full px-4 py-2 sans text-xs font-bold ${section === tab.key ? 'bg-[#065f46] text-white' : 'bg-[#e7eadf] text-[#047857]'}`}>
             {tab.label}
           </button>
         ))}
       </div>
 
-      {message && <p className="mt-4 rounded-xl bg-[#e2eee7] p-3 sans text-sm text-[#24584a]">{message}</p>}
+      {message && <p className="mt-4 rounded-xl bg-[#e2eee7] p-3 sans text-sm text-[#047857]">{message}</p>}
 
       {loading ? (
         /* Mountain loader + shaped placeholders, so the panel keeps its height
@@ -447,7 +447,7 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
               {records.map((item) => (
           <div key={item.id} className="flex flex-col gap-4 py-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <h3 className="flex flex-wrap items-center gap-2 truncate font-bold text-[#173f35]">
+              <h3 className="flex flex-wrap items-center gap-2 truncate font-bold text-[#065f46]">
                 {item.title}
                 {section !== 'PACKAGE' && (item as Listing).fullyBooked && (
                   <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#fdecec] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#a44a4a] ring-1 ring-[#e2b5b5]"><Ban size={11} aria-hidden="true" /> Fully booked</span>
@@ -455,17 +455,17 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
               </h3>
               <p className="mt-1 sans text-sm text-[#6c7770]">
                 {section === 'PACKAGE'
-                  ? `â‚¹${Number((item as TravelPackage).price).toLocaleString('en-IN')} Â· ${(item as TravelPackage).listingIds?.length || 0} included listings`
-                  : `${(item as Listing).location} Â· â‚¹${Number((item as Listing).sellPrice).toLocaleString('en-IN')} Â· ${(item as Listing).status}`}
+                  ? `?${Number((item as TravelPackage).price).toLocaleString('en-IN')} · ${(item as TravelPackage).listingIds?.length || 0} included listings`
+                  : `${(item as Listing).location} · ?${Number((item as Listing).sellPrice).toLocaleString('en-IN')} · ${(item as Listing).status}`}
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
               {section !== 'PACKAGE' && (
-                <button type="button" disabled={busy} onClick={() => toggleFullyBooked(item as Listing)} aria-pressed={Boolean((item as Listing).fullyBooked)} className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-[12px] font-semibold transition disabled:opacity-60 ${(item as Listing).fullyBooked ? 'border-[#8db9a0] bg-[#e8f3ec] text-[#24584a] hover:bg-[#dcefe2]' : 'border-[#e2b5b5] bg-[#fff6f6] text-[#a44a4a] hover:bg-[#fdecec]'}`}>
+                <button type="button" disabled={busy} onClick={() => toggleFullyBooked(item as Listing)} aria-pressed={Boolean((item as Listing).fullyBooked)} className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-[12px] font-semibold transition disabled:opacity-60 ${(item as Listing).fullyBooked ? 'border-[#8db9a0] bg-[#e8f3ec] text-[#047857] hover:bg-[#dcefe2]' : 'border-[#e2b5b5] bg-[#fff6f6] text-[#a44a4a] hover:bg-[#fdecec]'}`}>
                   {(item as Listing).fullyBooked ? <><CheckCircle2 size={14} /> Mark available</> : <><Ban size={14} /> Mark fully booked</>}
                 </button>
               )}
-              <button type="button" onClick={() => edit(item)} className="inline-flex items-center gap-2 rounded-full border border-[#d9d9dc] bg-white px-3 py-2 text-[12px] font-semibold text-[#173f35] hover:bg-[#f4f4f4]"><Pencil size={14} /> Edit</button>
+              <button type="button" onClick={() => edit(item)} className="inline-flex items-center gap-2 rounded-full border border-[#d9d9dc] bg-white px-3 py-2 text-[12px] font-semibold text-[#065f46] hover:bg-[#f4f4f4]"><Pencil size={14} /> Edit</button>
               <button type="button" onClick={() => remove(item.id, section === 'PACKAGE')} className="inline-flex items-center gap-2 rounded-full border border-[#e2b5b5] bg-[#fff6f6] px-3 py-2 text-[12px] font-semibold text-[#a44a4a] hover:bg-[#fff0f0]"><Trash2 size={14} /> Delete</button>
             </div>
           </div>
@@ -475,7 +475,7 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
             /* An empty list used to render nothing at all, which is
                indistinguishable from a failed load. */
             <p className="rounded-xl border border-dashed border-[#e0e2de] bg-[#fafaf8] px-4 py-10 text-center sans text-sm text-[#6c7770]">
-              No {label}s yet. Use <span className="font-semibold text-[#173f35]">Add new {label}</span> to create the first one.
+              No {label}s yet. Use <span className="font-semibold text-[#065f46]">Add new {label}</span> to create the first one.
             </p>
           )}
         </>
@@ -486,7 +486,7 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
 
 function Field({ label, value, onChange, placeholder, type = 'text', multiline = false, hint }: { label: string; value: string; onChange: (value: string) => void; placeholder: string; type?: string; multiline?: boolean; hint?: string }) {
   return (
-    <label className={`grid gap-2 sans text-sm font-bold text-[#173f35] ${multiline ? 'md:col-span-2' : ''}`}>
+    <label className={`grid gap-2 sans text-sm font-bold text-[#065f46] ${multiline ? 'md:col-span-2' : ''}`}>
       <span className="flex items-center gap-2">
         {label}
         {hint && <span className="font-normal text-[#6c7770]">{hint}</span>}
@@ -580,7 +580,7 @@ function PackageEditor({ form, setForm, allListings, toggle, editing, busy, mess
           <button type="button" onClick={cancel} className="inline-flex items-center gap-2 border border-[#d9d9dc] bg-white px-3 py-2 font-semibold"><ArrowLeft size={14} /> Packages</button>
           <span>/ package {editing ? 'editor' : 'creator'}</span>
         </div>
-        <button type="submit" disabled={busy} className="inline-flex items-center gap-2 bg-[#173f35] px-4 py-2 text-[12px] font-semibold text-white disabled:opacity-70"><Save size={14} /> Save</button>
+        <button type="submit" disabled={busy} className="inline-flex items-center gap-2 bg-[#065f46] px-4 py-2 text-[12px] font-semibold text-white disabled:opacity-70"><Save size={14} /> Save</button>
       </div>
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
@@ -588,7 +588,7 @@ function PackageEditor({ form, setForm, allListings, toggle, editing, busy, mess
           <Field label="Package title" value={form.title} onChange={(value) => setForm((current) => ({ ...current, title: value }))} placeholder="Bhimtal weekend escape" />
           <Field label="Price per person" type="number" value={form.price} onChange={(value) => setForm((current) => ({ ...current, price: value }))} placeholder="0" />
             <Field label="Duration" value={form.details.duration || ''} onChange={(value) => setForm((current) => ({ ...current, details: { ...current.details, duration: value } }))} placeholder="3 nights / 4 days" />
-            <label className="grid gap-2 text-[12px] font-semibold text-[#173f35]">Status
+            <label className="grid gap-2 text-[12px] font-semibold text-[#065f46]">Status
               <select value={form.status} onChange={(event) => setForm((current) => ({ ...current, status: event.target.value }))} className="h-10 rounded-xl border border-[#d6d9d1] bg-white px-3 font-normal">
                 <option value="DRAFT">Draft</option>
                 <option value="LIVE">Live</option>
@@ -598,18 +598,18 @@ function PackageEditor({ form, setForm, allListings, toggle, editing, busy, mess
           <div className="rounded-2xl border border-[#d9d9dc] bg-white">
             <div className="flex flex-wrap items-center gap-1 border-b border-[#e1e1e3] bg-[#fafafa] p-2">
               {tools.map(([Icon, label, mark, onClick]) => (
-                <button type="button" key={label} title={label} aria-label={label} aria-pressed={active(mark)} onClick={onClick} className={`grid h-8 w-8 place-items-center transition ${active(mark) ? 'bg-[#dcefe2] text-[#24584a] ring-1 ring-inset ring-[#8db9a0]' : 'hover:bg-[#e9e9eb]'}`}>
+                <button type="button" key={label} title={label} aria-label={label} aria-pressed={active(mark)} onClick={onClick} className={`grid h-8 w-8 place-items-center transition ${active(mark) ? 'bg-[#dcefe2] text-[#047857] ring-1 ring-inset ring-[#8db9a0]' : 'hover:bg-[#e9e9eb]'}`}>
                   <Icon size={15} />
                 </button>
               ))}
-              <button type="button" title="Heading 2" aria-pressed={active('heading')} onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()} className={`h-8 w-8 text-xs font-bold transition ${active('heading') ? 'bg-[#dcefe2] text-[#24584a] ring-1 ring-inset ring-[#8db9a0]' : 'hover:bg-[#e9e9eb]'}`}>
+              <button type="button" title="Heading 2" aria-pressed={active('heading')} onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()} className={`h-8 w-8 text-xs font-bold transition ${active('heading') ? 'bg-[#dcefe2] text-[#047857] ring-1 ring-inset ring-[#8db9a0]' : 'hover:bg-[#e9e9eb]'}`}>
                 H2
               </button>
               <label title="Insert image" className="grid h-8 w-8 cursor-pointer place-items-center hover:bg-[#e9e9eb]">
                 <ImagePlus size={15} />
                 <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={insertUploadedImage} />
               </label>
-              <button type="button" title="HTML source" aria-pressed={source} onClick={toggleSource} className={`grid h-8 w-8 place-items-center transition ${source ? 'bg-[#dcefe2] text-[#24584a] ring-1 ring-inset ring-[#8db9a0]' : 'hover:bg-[#e9e9eb]'}`}>
+              <button type="button" title="HTML source" aria-pressed={source} onClick={toggleSource} className={`grid h-8 w-8 place-items-center transition ${source ? 'bg-[#dcefe2] text-[#047857] ring-1 ring-inset ring-[#8db9a0]' : 'hover:bg-[#e9e9eb]'}`}>
                 <Code2 size={15} />
               </button>
             </div>
@@ -665,7 +665,7 @@ function PackageInclusionPicker({ allListings, selected, onToggle }: { allListin
           <p className="mt-1 text-[13px] text-[#526057]">{selected.length} selected</p>
         </div>
         {selected.length > 0 && (
-          <span className="rounded-full bg-[#e8f3ec] px-2.5 py-1 text-[11px] font-bold text-[#24584a] ring-1 ring-[#cbe4d5]">{selected.length}</span>
+          <span className="rounded-full bg-[#e8f3ec] px-2.5 py-1 text-[11px] font-bold text-[#047857] ring-1 ring-[#cbe4d5]">{selected.length}</span>
         )}
       </div>
 
@@ -675,7 +675,7 @@ function PackageInclusionPicker({ allListings, selected, onToggle }: { allListin
           type="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search stays and carsâ€¦"
+          placeholder="Search stays and cars…"
           aria-label="Search stays and cars"
           className="w-full rounded-xl border border-[#e2e3e0] bg-white py-2 pl-9 pr-3 text-[12px] text-[#2d4037] placeholder:text-[#a3aca4] focus:border-[#8db9a0] focus:outline-none focus:ring-2 focus:ring-[#dcefe2]"
         />
@@ -690,7 +690,7 @@ function PackageInclusionPicker({ allListings, selected, onToggle }: { allListin
             <section key={group.key}>
               <header className="flex items-center justify-between gap-2">
                 <div>
-                  <h3 className="text-[12px] font-bold uppercase tracking-[.08em] text-[#173f35]">{group.label}</h3>
+                  <h3 className="text-[12px] font-bold uppercase tracking-[.08em] text-[#065f46]">{group.label}</h3>
                   <p className="text-[11px] text-[#7d847c]">{group.hint}</p>
                 </div>
                 <span className="shrink-0 rounded-full bg-[#eef1ee] px-2 py-0.5 text-[11px] font-bold text-[#526057]">{total}</span>
@@ -706,15 +706,15 @@ function PackageInclusionPicker({ allListings, selected, onToggle }: { allListin
                           type="button"
                           onClick={() => onToggle(listing.id)}
                           aria-pressed={isSelected}
-                          className={`flex w-full items-center gap-2.5 rounded-xl border p-2 text-left transition ${isSelected ? 'border-[#8db9a0] bg-[#eef7f1] shadow-[0_1px_0_rgba(23,63,53,.06)]' : 'border-[#e5e5e4] bg-white hover:border-[#cbd5cf] hover:bg-[#f7f9f7]'}`}
+                          className={`flex w-full items-center gap-2.5 rounded-xl border p-2 text-left transition ${isSelected ? 'border-[#8db9a0] bg-[#eef7f1] shadow-[0_1px_0_rgba(6,95,70,.06)]' : 'border-[#e5e5e4] bg-white hover:border-[#cbd5cf] hover:bg-[#f7f9f7]'}`}
                         >
-                          <span className={`grid h-4 w-4 shrink-0 place-items-center rounded-[5px] border transition ${isSelected ? 'border-[#24584a] bg-[#24584a] text-white' : 'border-[#c3cac2] bg-white'}`}>
+                          <span className={`grid h-4 w-4 shrink-0 place-items-center rounded-[5px] border transition ${isSelected ? 'border-[#047857] bg-[#047857] text-white' : 'border-[#c3cac2] bg-white'}`}>
                             {isSelected && <Check size={11} strokeWidth={3} aria-hidden="true" />}
                           </span>
                           <span className="min-w-0 flex-1">
                             <span className="block truncate text-[12px] font-semibold text-[#2d4037]">{listing.title}</span>
                             <span className="block truncate text-[11px] text-[#7d847c]">
-                              {listing.location || 'â€”'}
+                              {listing.location || '—'}
                               {listing.status !== 'LIVE' && <span className="ml-1 rounded bg-[#f0f0ee] px-1 py-px text-[10px] font-bold uppercase tracking-wide text-[#8a8f88]">{listing.status}</span>}
                             </span>
                           </span>

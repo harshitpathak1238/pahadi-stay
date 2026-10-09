@@ -18,7 +18,7 @@ const waHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Nama
 export function SiteFooter() {
   return (
     <footer className="site-footer sans relative mt-20 overflow-hidden bg-[#0e2b23] text-[#f4f1e7]">
-      <div aria-hidden="true" className="pointer-events-none absolute -top-32 left-1/2 h-72 w-[42rem] -translate-x-1/2 rounded-full bg-[#24584a]/50 blur-3xl" />
+      <div aria-hidden="true" className="pointer-events-none absolute -top-32 left-1/2 h-72 w-[42rem] -translate-x-1/2 rounded-full bg-[#047857]/50 blur-3xl" />
       <div aria-hidden="true" className="pointer-events-none absolute -bottom-40 -right-24 h-80 w-80 rounded-full bg-[#b66b45]/25 blur-3xl" />
       <div className="relative mx-auto max-w-7xl px-5 pb-8 pt-12 md:px-8 md:pt-14">
         <div className="grid gap-10 lg:grid-cols-[1.3fr_.9fr_1fr]">

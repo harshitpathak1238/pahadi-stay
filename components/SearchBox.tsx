@@ -142,15 +142,15 @@ export function SearchBox() {
             </button>
           </span>
           {guestMenu && (
-            <div role="listbox" aria-label="Number of guests" className="absolute inset-x-1 top-[calc(100%+8px)] z-30 max-h-64 overflow-y-auto rounded-xl border border-[#d6d9d1] bg-white p-1 shadow-[0_20px_44px_rgba(23,63,53,.18)]">
+            <div role="listbox" aria-label="Number of guests" className="absolute inset-x-1 top-[calc(100%+8px)] z-30 max-h-64 overflow-y-auto rounded-xl border border-[#d6d9d1] bg-white p-1 shadow-[0_20px_44px_rgba(6,95,70,.18)]">
               {guestOptions().map((count) => (
-                <button type="button" role="option" aria-selected={guests === count} key={count} onClick={() => { setGuests(count); setGuestMenu(false); }} className={`block w-full rounded-lg px-3 py-2 text-left text-sm ${guests === count ? 'bg-[#e7eadf] font-bold text-[#173f35]' : 'text-[#526057] hover:bg-[#f2f4ed]'}`}>{guestLabel(count)}</button>
+                <button type="button" role="option" aria-selected={guests === count} key={count} onClick={() => { setGuests(count); setGuestMenu(false); }} className={`block w-full rounded-lg px-3 py-2 text-left text-sm ${guests === count ? 'bg-[#e7eadf] font-bold text-[#065f46]' : 'text-[#526057] hover:bg-[#f2f4ed]'}`}>{guestLabel(count)}</button>
               ))}
             </div>
           )}
         </div>
 
-        <button type="submit" className="col-span-2 inline-flex h-11 shrink-0 items-center justify-center gap-2 self-center rounded-full bg-[#173f35] px-6 text-sm font-bold text-white shadow-[0_10px_22px_rgba(23,63,53,.4)] transition hover:bg-[#24584a] active:scale-[.98] focus:outline-none focus:ring-2 focus:ring-[#24584a]/50 focus:ring-offset-2 md:col-span-1 md:ml-3 md:h-12 md:w-12 md:self-stretch md:items-center md:justify-center md:px-0">
+        <button type="submit" className="col-span-2 inline-flex h-11 shrink-0 items-center justify-center gap-2 self-center rounded-full bg-[#065f46] px-6 text-sm font-bold text-white shadow-[0_10px_22px_rgba(6,95,70,.4)] transition hover:bg-[#047857] active:scale-[.98] focus:outline-none focus:ring-2 focus:ring-[#047857]/50 focus:ring-offset-2 md:col-span-1 md:ml-3 md:h-12 md:w-12 md:self-stretch md:items-center md:justify-center md:px-0">
           <Search size={17} />
           <span className="md:hidden">Search</span>
         </button>

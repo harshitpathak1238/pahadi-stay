@@ -54,8 +54,8 @@ export default async function RideDetail({ params }: { params: { slug: string } 
 
         {/* Title block */}
         <div className="mt-6 md:mt-8">
-          <span className="sans inline-block rounded-full bg-[#eef3f0] px-3 py-1 text-[10px] font-bold uppercase tracking-[.16em] text-[#24584a] sm:text-[11px]">{ride.type === 'TRANSFER' ? 'Transfer' : 'Sightseeing'}</span>
-          <h1 className="mt-3 text-3xl font-semibold leading-tight text-[#173f35] sm:text-4xl md:text-5xl">{ride.title}</h1>
+          <span className="sans inline-block rounded-full bg-[#eef3f0] px-3 py-1 text-[10px] font-bold uppercase tracking-[.16em] text-[#047857] sm:text-[11px]">{ride.type === 'TRANSFER' ? 'Transfer' : 'Sightseeing'}</span>
+          <h1 className="mt-3 text-3xl font-semibold leading-tight text-[#065f46] sm:text-4xl md:text-5xl">{ride.title}</h1>
           {routeLine && (
             <p className="sans mt-2.5 flex items-center gap-1.5 text-sm text-[#526057] sm:text-base">
               <MapPin size={15} className="shrink-0 text-[#b66b45]" />
@@ -65,7 +65,7 @@ export default async function RideDetail({ params }: { params: { slug: string } 
           {stats.length > 0 && (
             <p className="sans mt-3 flex flex-wrap gap-2">
               {stats.map(({ icon: Icon, label }) => (
-                <span key={label} className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#24584a] ring-1 ring-[#e4e3da]">
+                <span key={label} className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#047857] ring-1 ring-[#e4e3da]">
                   <Icon size={13} />
                   {label}
                 </span>
@@ -80,12 +80,12 @@ export default async function RideDetail({ params }: { params: { slug: string } 
             {ride.type === 'SIGHTSEEING' && ride.stops.length > 0 && (
               <div>
                 <p className="sans text-xs font-bold uppercase tracking-[.2em] text-[#b66b45]">The journey</p>
-                <h2 className="mt-2 text-2xl font-semibold text-[#173f35] sm:text-3xl">Itinerary &amp; checkpoints</h2>
+                <h2 className="mt-2 text-2xl font-semibold text-[#065f46] sm:text-3xl">Itinerary &amp; checkpoints</h2>
                 <ol className="relative mt-6 space-y-6 border-l-2 border-[#e4e3da] pl-8">
                   {ride.stops.map((s, i) => (
                     <li key={i} className="relative">
-                      <span className="absolute -left-[41px] grid h-6 w-6 place-items-center rounded-full bg-[#173f35] text-[11px] font-bold text-white ring-4 ring-[#faf6ec]">{i + 1}</span>
-                      <p className="font-bold text-[#173f35]">{s.label}</p>
+                      <span className="absolute -left-[41px] grid h-6 w-6 place-items-center rounded-full bg-[#065f46] text-[11px] font-bold text-white ring-4 ring-[#faf6ec]">{i + 1}</span>
+                      <p className="font-bold text-[#065f46]">{s.label}</p>
                       {s.note && <p className="sans mt-1 text-sm leading-6 text-[#6c7770]">{s.note}</p>}
                     </li>
                   ))}

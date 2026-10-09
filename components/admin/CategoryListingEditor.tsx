@@ -54,18 +54,18 @@ type Props = {
 
 function DetailInput({ label, value, onChange, type = 'text', placeholder = '', className = '' }: DetailFieldProps) {
   return (
-    <label className={`grid gap-1 text-[12px] font-semibold text-[#173f35] ${className}`}>
+    <label className={`grid gap-1 text-[12px] font-semibold text-[#065f46] ${className}`}>
       <span>{label}</span>
-      <input type={type} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="h-10 rounded-xl border border-[#d6d9d1] bg-white px-3 font-normal outline-none focus:border-[#24584a]" />
+      <input type={type} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="h-10 rounded-xl border border-[#d6d9d1] bg-white px-3 font-normal outline-none focus:border-[#047857]" />
     </label>
   );
 }
 
 function DetailTextarea({ label, value, onChange, placeholder = '', className = '' }: DetailFieldProps) {
   return (
-    <label className={`grid gap-1 text-[12px] font-semibold text-[#173f35] ${className}`}>
+    <label className={`grid gap-1 text-[12px] font-semibold text-[#065f46] ${className}`}>
       <span>{label}</span>
-      <textarea value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="min-h-24 rounded-xl border border-[#d6d9d1] bg-white p-3 font-normal outline-none focus:border-[#24584a]" />
+      <textarea value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="min-h-24 rounded-xl border border-[#d6d9d1] bg-white p-3 font-normal outline-none focus:border-[#047857]" />
     </label>
   );
 }
@@ -87,7 +87,7 @@ function PropertyTypeField({ value, onChange }: { value: string; onChange: (valu
   const [choseOther, setChoseOther] = useState(false);
   const other = choseOther || (trimmed !== '' && !preset);
   return (
-    <label className="grid gap-1 text-[12px] font-semibold text-[#173f35]">
+    <label className="grid gap-1 text-[12px] font-semibold text-[#065f46]">
       <span>Property type</span>
       <select
         value={other ? OTHER_PROPERTY_TYPE : preset}
@@ -101,7 +101,7 @@ function PropertyTypeField({ value, onChange }: { value: string; onChange: (valu
           setChoseOther(false);
           onChange(next);
         }}
-        className="h-10 rounded-xl border border-[#d6d9d1] bg-white px-3 font-normal outline-none focus:border-[#24584a]"
+        className="h-10 rounded-xl border border-[#d6d9d1] bg-white px-3 font-normal outline-none focus:border-[#047857]"
       >
         <option value="">Select property type</option>
         {STAY_PROPERTY_TYPES.map((option) => (
@@ -114,7 +114,7 @@ function PropertyTypeField({ value, onChange }: { value: string; onChange: (valu
           value={value}
           onChange={(event) => onChange(event.target.value)}
           placeholder="e.g. Resort, Cottage, Hostel"
-          className="h-10 rounded-xl border border-[#d6d9d1] bg-white px-3 font-normal outline-none focus:border-[#24584a]"
+          className="h-10 rounded-xl border border-[#d6d9d1] bg-white px-3 font-normal outline-none focus:border-[#047857]"
         />
       )}
       <span className="text-[11px] font-normal text-[#6c7770]">Shown as a quick filter on the stays page. Choose &ldquo;Other&rdquo; to add a new type.</span>
@@ -126,7 +126,7 @@ function SectionPanel({ title, note, children }: { title: string; note?: string;
   return (
     <section className="rounded-2xl border border-[#dfe3d8] bg-[#f7f8f4] p-4 md:col-span-2">
       <div>
-        <p className="text-[13px] font-bold text-[#173f35]">{title}</p>
+        <p className="text-[13px] font-bold text-[#065f46]">{title}</p>
         {note && <p className="mt-1 text-[11px] font-normal text-[#6c7770]">{note}</p>}
       </div>
       <div className="mt-4">{children}</div>
@@ -140,8 +140,8 @@ function RepeatableRow({ label, index, total, children, onMove, onRemove }: { la
       <div className="flex items-center justify-between gap-2">
         <span className="text-[11px] font-bold uppercase tracking-[.08em] text-[#7d847c]">{label} {index + 1}</span>
         <div className="flex items-center gap-1">
-          <button type="button" title={`Move ${label} up`} aria-label={`Move ${label} up`} disabled={index === 0} onClick={() => onMove(-1)} className="p-1 text-[#24584a] disabled:opacity-30"><ArrowUp size={14} /></button>
-          <button type="button" title={`Move ${label} down`} aria-label={`Move ${label} down`} disabled={index === total - 1} onClick={() => onMove(1)} className="p-1 text-[#24584a] disabled:opacity-30"><ArrowDown size={14} /></button>
+          <button type="button" title={`Move ${label} up`} aria-label={`Move ${label} up`} disabled={index === 0} onClick={() => onMove(-1)} className="p-1 text-[#047857] disabled:opacity-30"><ArrowUp size={14} /></button>
+          <button type="button" title={`Move ${label} down`} aria-label={`Move ${label} down`} disabled={index === total - 1} onClick={() => onMove(1)} className="p-1 text-[#047857] disabled:opacity-30"><ArrowDown size={14} /></button>
           <button type="button" title={`Remove ${label}`} aria-label={`Remove ${label}`} onClick={onRemove} className="p-1 text-[#a44a4a]"><Trash2 size={14} /></button>
         </div>
       </div>
@@ -195,13 +195,13 @@ function AccommodationItem({ accommodation, index, total, onChange, onMove, onRe
     <RepeatableRow label="Accommodation" index={index} total={total} onMove={onMove} onRemove={onRemove}>
       <DetailInput label="Title" value={accommodation.title} onChange={(value) => onChange({ ...accommodation, title: value })} placeholder="Deluxe King Bedroom" />
       <DetailTextarea label="Description" value={accommodation.description} onChange={(value) => onChange({ ...accommodation, description: value })} placeholder="Spacious room with a king-size bed..." />
-      <div className="grid gap-1 text-[12px] font-semibold text-[#173f35] md:col-span-2">
+      <div className="grid gap-1 text-[12px] font-semibold text-[#065f46] md:col-span-2">
         <span>Photos <span className="font-normal text-[#6c7770]">(the first photo is the cover shown on the card; visitors can swipe through all of them)</span></span>
         <div className="flex flex-wrap items-start gap-2 sm:gap-3">
           {accommodation.image && (
             <span className="relative inline-block">
               <img src={accommodation.image} alt={accommodation.title || 'Accommodation'} className="h-16 w-16 rounded-lg object-cover" />
-              <span className="absolute inset-x-0 bottom-0 rounded-b-lg bg-[#173f35]/80 py-px text-center text-[9px] font-bold uppercase tracking-wide text-white">Cover</span>
+              <span className="absolute inset-x-0 bottom-0 rounded-b-lg bg-[#065f46]/80 py-px text-center text-[9px] font-bold uppercase tracking-wide text-white">Cover</span>
               <button type="button" title="Remove cover photo" aria-label="Remove cover photo" onClick={() => onChange({ ...accommodation, image: (accommodation.images || [])[0] || '', images: (accommodation.images || []).slice(1) })} className="absolute -right-1.5 -top-1.5 grid h-5 w-5 place-items-center rounded-full bg-[#a44a4a] text-white"><Trash2 size={11} /></button>
             </span>
           )}
@@ -214,7 +214,7 @@ function AccommodationItem({ accommodation, index, total, onChange, onMove, onRe
           ))}
         </div>
         <div className="mt-1 flex flex-wrap items-center gap-2 sm:gap-3">
-          <button type="button" onClick={onUploadImage} className="inline-flex items-center gap-2 rounded-xl border border-[#173f35] px-4 py-2 text-xs font-bold text-[#173f35] hover:bg-[#eef4ef]"><Upload size={14} /> Upload photos</button>
+          <button type="button" onClick={onUploadImage} className="inline-flex items-center gap-2 rounded-xl border border-[#065f46] px-4 py-2 text-xs font-bold text-[#065f46] hover:bg-[#eef4ef]"><Upload size={14} /> Upload photos</button>
           <span className="text-[11px] font-normal text-[#6c7770]">or</span>
           <span className="flex items-center gap-1.5">
             <input
@@ -223,9 +223,9 @@ function AccommodationItem({ accommodation, index, total, onChange, onMove, onRe
               onChange={(event) => { setImageUrl(event.target.value); setUrlError(''); }}
               onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); addImageUrl(); } }}
               placeholder="Paste image URL"
-              className="h-9 w-52 rounded-lg border border-[#d6d9d1] bg-white px-2.5 text-[12px] font-normal outline-none focus:border-[#24584a]"
+              className="h-9 w-52 rounded-lg border border-[#d6d9d1] bg-white px-2.5 text-[12px] font-normal outline-none focus:border-[#047857]"
             />
-            <button type="button" onClick={addImageUrl} className="inline-flex items-center gap-1.5 rounded-lg border border-[#173f35] px-3 py-2 text-xs font-bold text-[#173f35] hover:bg-[#eef4ef]"><LinkIcon size={13} /> Add</button>
+            <button type="button" onClick={addImageUrl} className="inline-flex items-center gap-1.5 rounded-lg border border-[#065f46] px-3 py-2 text-xs font-bold text-[#065f46] hover:bg-[#eef4ef]"><LinkIcon size={13} /> Add</button>
           </span>
         </div>
         {urlError && <span className="mt-1 text-[11px] font-normal text-[#a44a4a]">{urlError}</span>}
@@ -243,7 +243,7 @@ function AccommodationsEditor({ form, setForm, uploadAccommodationImage }: { for
     <SectionPanel title="Accommodations" note="Add detailed bedroom/accommodation entries with images. These appear in the accommodations gallery on the public stay page.">
       {accommodations.length === 0 && <p className="rounded-xl border border-dashed border-[#c9c9cc] bg-white p-4 text-center text-xs text-[#777]">No accommodations added yet.</p>}
             <div className="grid gap-3">{accommodations.map((acc, index) => <AccommodationItem key={acc.id ?? `new-${index}`} accommodation={acc} index={index} total={accommodations.length} onChange={(next) => setForm((current) => ({ ...current, accommodations: current.accommodations.map((item, i) => i === index ? next : item) }))} onMove={(direction) => setForm((current) => ({ ...current, accommodations: reorder(current.accommodations, index, direction) }))} onRemove={() => setForm((current) => ({ ...current, accommodations: current.accommodations.filter((_, i) => i !== index) }))} onUploadImage={() => uploadAccommodationImage(index)} />)}</div>
-      <div className="mt-3 flex gap-2"><button type="button" onClick={() => setForm((current) => ({ ...current, accommodations: [...(current.accommodations || []), { title: '', description: '', image: '', images: [], price: '', bedrooms: '', beds: '' }] }))} className="inline-flex items-center gap-2 rounded-xl border border-[#173f35] px-4 py-2 text-xs font-bold text-[#173f35] hover:bg-[#eef4ef]"><Plus size={14} /> Add accommodation</button></div>
+      <div className="mt-3 flex gap-2"><button type="button" onClick={() => setForm((current) => ({ ...current, accommodations: [...(current.accommodations || []), { title: '', description: '', image: '', images: [], price: '', bedrooms: '', beds: '' }] }))} className="inline-flex items-center gap-2 rounded-xl border border-[#065f46] px-4 py-2 text-xs font-bold text-[#065f46] hover:bg-[#eef4ef]"><Plus size={14} /> Add accommodation</button></div>
     </SectionPanel>
   );
 }
@@ -429,13 +429,13 @@ export function CategoryListingEditor({ category, form, setForm, busy, message, 
           <button type="button" onClick={cancel} className="inline-flex items-center gap-2 border border-[#d9d9dc] bg-white px-3 py-2 font-semibold"><ArrowLeft size={14} /> Back</button>
           <span>/ {categoryNames[category]} editor</span>
         </div>
-        <button disabled={busy} className="inline-flex items-center gap-2 bg-[#173f35] px-4 py-2 text-[12px] font-semibold text-white disabled:opacity-60"><Save size={14} /> Save</button>
+        <button disabled={busy} className="inline-flex items-center gap-2 bg-[#065f46] px-4 py-2 text-[12px] font-semibold text-white disabled:opacity-60"><Save size={14} /> Save</button>
       </div>
 
       {category === 'STAY' && (
         <div className="mb-5 flex gap-2 overflow-x-auto border-b border-[#e4e7df] pb-2">
           {stayTabs.map((tab) => (
-            <button key={tab.key} type="button" onClick={() => setActiveStayTab(tab.key)} className={`shrink-0 rounded-full px-4 py-2 text-[12px] font-bold transition ${activeStayTab === tab.key ? 'bg-[#173f35] text-white' : 'bg-[#eef4ef] text-[#24584a] hover:bg-[#dcefe2]'}`}>
+            <button key={tab.key} type="button" onClick={() => setActiveStayTab(tab.key)} className={`shrink-0 rounded-full px-4 py-2 text-[12px] font-bold transition ${activeStayTab === tab.key ? 'bg-[#065f46] text-white' : 'bg-[#eef4ef] text-[#047857] hover:bg-[#dcefe2]'}`}>
               {tab.label}
             </button>
           ))}
@@ -489,15 +489,15 @@ export function CategoryListingEditor({ category, form, setForm, busy, message, 
 
         {category === 'STAY' && activeStayTab === 'food' && (
           <>
-            <label className="grid gap-1 text-[12px] font-semibold text-[#173f35]">
+            <label className="grid gap-1 text-[12px] font-semibold text-[#065f46]">
               <span>Meal plan</span>
-              <select value={form.mealPlan} onChange={(event) => setForm((current) => ({ ...current, mealPlan: event.target.value }))} className="h-10 rounded-xl border border-[#d6d9d1] bg-white px-3 font-normal outline-none focus:border-[#24584a]">
+              <select value={form.mealPlan} onChange={(event) => setForm((current) => ({ ...current, mealPlan: event.target.value }))} className="h-10 rounded-xl border border-[#d6d9d1] bg-white px-3 font-normal outline-none focus:border-[#047857]">
                 <option value="">Not specified</option>
                 {mealPlanOptions.map((option) => <option key={option} value={option}>{option}</option>)}
               </select>
             </label>
-            <label className="flex h-10 items-center gap-2 self-end rounded-xl border border-[#d6d9d1] bg-white px-3 text-[12px] font-semibold text-[#173f35]">
-              <input type="checkbox" checked={form.breakfastIncluded} onChange={(event) => setForm((current) => ({ ...current, breakfastIncluded: event.target.checked }))} className="accent-[#24584a]" />
+            <label className="flex h-10 items-center gap-2 self-end rounded-xl border border-[#d6d9d1] bg-white px-3 text-[12px] font-semibold text-[#065f46]">
+              <input type="checkbox" checked={form.breakfastIncluded} onChange={(event) => setForm((current) => ({ ...current, breakfastIncluded: event.target.checked }))} className="accent-[#047857]" />
               <span>Breakfast included</span>
             </label>
             <DetailTextarea label="Cuisine notes" value={form.cuisineNotes} onChange={(value) => setForm((current) => ({ ...current, cuisineNotes: value }))} placeholder="Home-cooked Kumaoni meals, Jain food on request, cafe nearby..." className="md:col-span-2" />
@@ -546,7 +546,7 @@ function LandmarkEditor({ form, setForm }: { form: ListingForm; setForm: Dispatc
           <DetailInput label="Distance (km)" type="number" value={landmark.distanceKm} onChange={(value) => setForm((current) => ({ ...current, landmarks: current.landmarks.map((row, rowIndex) => rowIndex === index ? { ...row, distanceKm: value } : row) }))} placeholder="1.2" />
         </RepeatableRow>
       ))}</div>
-      <button type="button" onClick={() => setForm((current) => ({ ...current, landmarks: [...current.landmarks, { label: '', distanceKm: '' }] }))} className="mt-3 inline-flex items-center gap-2 rounded-xl border border-[#173f35] px-4 py-2 text-xs font-bold text-[#173f35] hover:bg-[#eef4ef]"><Plus size={14} /> Add landmark</button>
+      <button type="button" onClick={() => setForm((current) => ({ ...current, landmarks: [...current.landmarks, { label: '', distanceKm: '' }] }))} className="mt-3 inline-flex items-center gap-2 rounded-xl border border-[#065f46] px-4 py-2 text-xs font-bold text-[#065f46] hover:bg-[#eef4ef]"><Plus size={14} /> Add landmark</button>
     </SectionPanel>
   );
 }
@@ -561,7 +561,7 @@ function ServiceEditor({ form, setForm }: { form: ListingForm; setForm: Dispatch
           <DetailInput label="Note" value={service.note} onChange={(value) => setForm((current) => ({ ...current, services: current.services.map((row, rowIndex) => rowIndex === index ? { ...row, note: value } : row) }))} placeholder="5 min walk" />
         </RepeatableRow>
       ))}</div>
-      <button type="button" onClick={() => setForm((current) => ({ ...current, services: [...current.services, { label: '', note: '' }] }))} className="mt-3 inline-flex items-center gap-2 rounded-xl border border-[#173f35] px-4 py-2 text-xs font-bold text-[#173f35] hover:bg-[#eef4ef]"><Plus size={14} /> Add service</button>
+      <button type="button" onClick={() => setForm((current) => ({ ...current, services: [...current.services, { label: '', note: '' }] }))} className="mt-3 inline-flex items-center gap-2 rounded-xl border border-[#065f46] px-4 py-2 text-xs font-bold text-[#065f46] hover:bg-[#eef4ef]"><Plus size={14} /> Add service</button>
     </SectionPanel>
   );
 }
@@ -576,7 +576,7 @@ function ExperienceEditor({ form, setForm }: { form: ListingForm; setForm: Dispa
           <DetailInput label="Note" value={experience.note} onChange={(value) => setForm((current) => ({ ...current, experiences: current.experiences.map((row, rowIndex) => rowIndex === index ? { ...row, note: value } : row) }))} placeholder="10 min drive" />
         </RepeatableRow>
       ))}</div>
-      <button type="button" onClick={() => setForm((current) => ({ ...current, experiences: [...current.experiences, { title: '', note: '' }] }))} className="mt-3 inline-flex items-center gap-2 rounded-xl border border-[#173f35] px-4 py-2 text-xs font-bold text-[#173f35] hover:bg-[#eef4ef]"><Plus size={14} /> Add experience</button>
+      <button type="button" onClick={() => setForm((current) => ({ ...current, experiences: [...current.experiences, { title: '', note: '' }] }))} className="mt-3 inline-flex items-center gap-2 rounded-xl border border-[#065f46] px-4 py-2 text-xs font-bold text-[#065f46] hover:bg-[#eef4ef]"><Plus size={14} /> Add experience</button>
     </SectionPanel>
   );
 }
@@ -584,13 +584,13 @@ function ExperienceEditor({ form, setForm }: { form: ListingForm; setForm: Dispa
 function DescriptionEditor({ category, form, setForm, source, editor, documentMode, editorStyles, tools, insertImage, toggleSource }: { category: keyof typeof categoryNames; form: ListingForm; setForm: Dispatch<SetStateAction<ListingForm>>; source: boolean; editor: ReturnType<typeof useEditor>; documentMode: boolean; editorStyles: string; tools: [LucideIcon, string, string, () => void][]; insertImage: () => void; toggleSource: () => void }) {
   return (
     <div className="grid gap-2 md:col-span-2">
-      <label className="text-[12px] font-semibold text-[#173f35]">Description{category !== 'RENTAL' && <b className="ml-1 text-[#a44a4a]">*</b>}</label>
+      <label className="text-[12px] font-semibold text-[#065f46]">Description{category !== 'RENTAL' && <b className="ml-1 text-[#a44a4a]">*</b>}</label>
       <div className="rounded-2xl border border-[#d9d9dc] bg-white">
         <div className="flex flex-wrap items-center gap-1 border-b border-[#e1e1e3] bg-[#fafafa] p-2">
           {tools.map(([Icon, label, mark, onClick]) => <button type="button" key={label} title={label} aria-label={label} aria-pressed={Boolean(editor?.isActive(mark))} onClick={onClick} className="grid h-8 w-8 place-items-center hover:bg-[#e9e9eb]"><Icon size={15} /></button>)}
           <button type="button" title="Heading 2" aria-label="Heading 2" aria-pressed={Boolean(editor?.isActive('heading'))} onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()} className="h-8 w-8 text-xs font-bold hover:bg-[#e9e9eb]">H2</button>
           <button type="button" title="Insert image" aria-label="Insert image" onClick={insertImage} className="grid h-8 w-8 place-items-center hover:bg-[#e9e9eb]"><ImagePlus size={15} /></button>
-          <button type="button" title="HTML source" aria-label="HTML source" aria-pressed={source} onClick={toggleSource} className={`grid h-8 w-8 place-items-center text-xs font-bold ${source ? 'bg-[#dcefe2] text-[#24584a]' : 'hover:bg-[#e9e9eb]'}`}><Code2 size={15} /></button>
+          <button type="button" title="HTML source" aria-label="HTML source" aria-pressed={source} onClick={toggleSource} className={`grid h-8 w-8 place-items-center text-xs font-bold ${source ? 'bg-[#dcefe2] text-[#047857]' : 'hover:bg-[#e9e9eb]'}`}><Code2 size={15} /></button>
         </div>
         {source ? <textarea value={form.description} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} className="min-h-[220px] w-full p-4 font-mono text-[12px] outline-none" /> : <div className={documentMode ? 'full-stay-editor' : undefined}>{documentMode && editorStyles && <style dangerouslySetInnerHTML={{ __html: editorStyles }} />}<EditorContent editor={editor} /></div>}
       </div>
@@ -603,17 +603,17 @@ function PhotosEditor({ category, form, imageUrl, setImageUrl, uploadMessage, se
     <div className="md:col-span-2">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-[12px] font-semibold text-[#173f35]">Photos <span className="font-normal text-[#6c7770]">{category === 'STAY' || category === 'ACTIVITY' ? 'minimum 5 to publish' : category === 'RENTAL' ? 'minimum 3 to publish' : 'minimum 2 to publish'}</span></p>
+          <p className="text-[12px] font-semibold text-[#065f46]">Photos <span className="font-normal text-[#6c7770]">{category === 'STAY' || category === 'ACTIVITY' ? 'minimum 5 to publish' : category === 'RENTAL' ? 'minimum 3 to publish' : 'minimum 2 to publish'}</span></p>
           <p className="mt-1 text-[11px] text-[#6c7770]">Use clear photos of the actual listing. Avoid text overlays.</p>
         </div>
-        <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#173f35] px-3 py-2 text-xs font-bold text-white"><Upload size={14} /> {uploading ? 'Uploading...' : 'Upload photos'}<input type="file" accept="image/jpeg,image/png,image/webp" multiple disabled={uploading} onChange={upload} className="hidden" /></label>
+        <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#065f46] px-3 py-2 text-xs font-bold text-white"><Upload size={14} /> {uploading ? 'Uploading...' : 'Upload photos'}<input type="file" accept="image/jpeg,image/png,image/webp" multiple disabled={uploading} onChange={upload} className="hidden" /></label>
       </div>
       <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-        <label className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-[#d6d9d1] bg-white px-3 focus-within:border-[#24584a]">
+        <label className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-[#d6d9d1] bg-white px-3 focus-within:border-[#047857]">
           <LinkIcon size={14} className="shrink-0 text-[#6c7770]" />
           <input type="url" value={imageUrl} onChange={(event) => { setImageUrl(event.target.value); if (uploadMessage) setUploadMessage(''); }} onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); addImageUrl(); } }} placeholder="Paste an image URL" className="h-10 min-w-0 flex-1 outline-none" />
         </label>
-        <button type="button" onClick={addImageUrl} className="inline-flex h-10 items-center justify-center rounded-xl border border-[#173f35] px-4 text-xs font-bold text-[#173f35] hover:bg-[#eef4ef]">Add URL</button>
+        <button type="button" onClick={addImageUrl} className="inline-flex h-10 items-center justify-center rounded-xl border border-[#065f46] px-4 text-xs font-bold text-[#065f46] hover:bg-[#eef4ef]">Add URL</button>
       </div>
       {uploadMessage && <p className="mt-2 text-xs text-[#a44a4a]">{uploadMessage}</p>}
       <div className="mt-3 grid gap-3 sm:grid-cols-3 lg:grid-cols-5">{form.images.map((image, index) => <div key={`${image}-${index}`} className="relative overflow-hidden rounded-xl border border-[#d9d9dc] bg-[#f6f6f4]"><img src={image} alt={`${index === 0 ? 'Featured ' : ''}listing photo`} className="aspect-square w-full object-cover" /><div className="flex items-center justify-between gap-1 p-1"><button type="button" title="Move image left" aria-label="Move image left" disabled={index === 0} onClick={() => moveImage(index, -1)} className="p-1 disabled:opacity-30"><GripVertical size={14} /></button><button type="button" onClick={() => setFeatured(index)} className={`px-1 text-[10px] font-semibold ${index === 0 ? 'text-[#16704a]' : 'text-[#616161]'}`}>{index === 0 ? 'Cover' : 'Set cover'}</button><button type="button" title="Remove image" aria-label="Remove image" onClick={() => removeImage(index)} className="p-1 text-[#a44a4a]"><Trash2 size={14} /></button></div></div>)}</div>
@@ -626,7 +626,7 @@ function PhotosEditor({ category, form, imageUrl, setImageUrl, uploadMessage, se
 function FacilitiesEditor({ form, setForm }: { form: ListingForm; setForm: Dispatch<SetStateAction<ListingForm>> }) {
   return (
     <SectionPanel title="Stay facilities" note="Choose the facilities guests can expect. New stays start with all facilities selected.">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{stayFacilityGroups.map((group) => { const Icon = facilityIcons[group.title as keyof typeof facilityIcons] || Info; return <fieldset key={group.title} className="rounded-xl border border-[#e1e4dc] bg-white p-3"><legend className="px-1 text-[12px] font-bold text-[#173f35]"><span className="inline-flex items-center gap-2"><Icon size={16} strokeWidth={1.8} />{group.title}</span></legend><div className="grid gap-2">{group.items.map((item) => <label key={`${group.title}-${item.key}`} className="flex items-start gap-2 text-[12px] font-normal text-[#526057]"><input type="checkbox" checked={form.stayFacilities[item.key] ?? true} onChange={(event) => setForm((current) => ({ ...current, stayFacilities: { ...current.stayFacilities, [item.key]: event.target.checked } }))} className="mt-0.5 accent-[#24584a]" /><span>{item.label}</span></label>)}</div></fieldset>; })}</div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{stayFacilityGroups.map((group) => { const Icon = facilityIcons[group.title as keyof typeof facilityIcons] || Info; return <fieldset key={group.title} className="rounded-xl border border-[#e1e4dc] bg-white p-3"><legend className="px-1 text-[12px] font-bold text-[#065f46]"><span className="inline-flex items-center gap-2"><Icon size={16} strokeWidth={1.8} />{group.title}</span></legend><div className="grid gap-2">{group.items.map((item) => <label key={`${group.title}-${item.key}`} className="flex items-start gap-2 text-[12px] font-normal text-[#526057]"><input type="checkbox" checked={form.stayFacilities[item.key] ?? true} onChange={(event) => setForm((current) => ({ ...current, stayFacilities: { ...current.stayFacilities, [item.key]: event.target.checked } }))} className="mt-0.5 accent-[#047857]" /><span>{item.label}</span></label>)}</div></fieldset>; })}</div>
     </SectionPanel>
   );
 }
@@ -634,10 +634,10 @@ function FacilitiesEditor({ form, setForm }: { form: ListingForm; setForm: Dispa
 function FaqEditor({ form, setForm, editingId }: { form: ListingForm; setForm: Dispatch<SetStateAction<ListingForm>>; editingId?: string | null }) {
   return (
     <SectionPanel title="Frequently Asked Questions" note="Shown on the public stay page under Travelers are asking. Saved together with this stay.">
-      <div className="mb-3 flex justify-end"><span className="rounded-full bg-[#eef4ef] px-2 py-1 text-[11px] font-bold text-[#24584a]">{form.faqs.length} added</span></div>
+      <div className="mb-3 flex justify-end"><span className="rounded-full bg-[#eef4ef] px-2 py-1 text-[11px] font-bold text-[#047857]">{form.faqs.length} added</span></div>
       {form.faqs.length === 0 && <p className="rounded-xl border border-dashed border-[#c9c9cc] bg-white p-4 text-center text-xs text-[#777]">No FAQs yet. Add one below.</p>}
       <div className="grid gap-3">{form.faqs.map((faq, index) => <FaqRow key={faq.id ?? `new-${index}`} faq={faq} index={index} total={form.faqs.length} onChange={(next) => setForm((current) => ({ ...current, faqs: current.faqs.map((row, rowIndex) => rowIndex === index ? next : row) }))} onMove={(direction) => setForm((current) => ({ ...current, faqs: reorder(current.faqs, index, direction) }))} onRemove={() => setForm((current) => ({ ...current, faqs: current.faqs.filter((_, rowIndex) => rowIndex !== index) }))} />)}</div>
-      <button type="button" onClick={() => setForm((current) => ({ ...current, faqs: [...current.faqs, { question: '', answer: '' }] }))} className="mt-3 inline-flex items-center gap-2 rounded-xl border border-[#173f35] px-4 py-2 text-xs font-bold text-[#173f35] hover:bg-[#eef4ef]"><Plus size={14} /> Add FAQ</button>
+      <button type="button" onClick={() => setForm((current) => ({ ...current, faqs: [...current.faqs, { question: '', answer: '' }] }))} className="mt-3 inline-flex items-center gap-2 rounded-xl border border-[#065f46] px-4 py-2 text-xs font-bold text-[#065f46] hover:bg-[#eef4ef]"><Plus size={14} /> Add FAQ</button>
       {!editingId && form.faqs.length > 0 && <p className="mt-2 text-[11px] text-[#6c7770]">FAQs are saved when you save this new stay.</p>}
     </SectionPanel>
   );
@@ -646,10 +646,10 @@ function FaqEditor({ form, setForm, editingId }: { form: ListingForm; setForm: D
 function HouseRulesEditor({ form, setForm, resetHouseRules, clearHouseRules }: { form: ListingForm; setForm: Dispatch<SetStateAction<ListingForm>>; resetHouseRules: () => void; clearHouseRules: () => void }) {
   return (
     <SectionPanel title="House rules" note="Saved per listing. Reset to the standard template, then edit to taste.">
-      <div className="mb-3 flex justify-end"><button type="button" onClick={resetHouseRules} className="rounded-full bg-[#eef4ef] px-2.5 py-1 text-[11px] font-bold text-[#24584a] hover:bg-[#dcefe2]">Reset to template</button></div>
+      <div className="mb-3 flex justify-end"><button type="button" onClick={resetHouseRules} className="rounded-full bg-[#eef4ef] px-2.5 py-1 text-[11px] font-bold text-[#047857] hover:bg-[#dcefe2]">Reset to template</button></div>
       {form.houseRules.length === 0 && <p className="rounded-xl border border-dashed border-[#c9c9cc] bg-white p-4 text-center text-xs text-[#777]">No house rules yet. Use the template below.</p>}
       <div className="grid gap-3">{form.houseRules.map((rule, index) => <HouseRulesRow key={rule.id ?? `new-${index}`} rule={rule} index={index} total={form.houseRules.length} onChange={(next) => setForm((current) => ({ ...current, houseRules: current.houseRules.map((row, rowIndex) => rowIndex === index ? next : row) }))} onMove={(direction) => setForm((current) => ({ ...current, houseRules: reorder(current.houseRules, index, direction) }))} onRemove={() => setForm((current) => ({ ...current, houseRules: current.houseRules.filter((_, rowIndex) => rowIndex !== index) }))} />)}</div>
-      <div className="mt-3 flex gap-2"><button type="button" onClick={() => setForm((current) => ({ ...current, houseRules: [...current.houseRules, { title: '', text: '' }] }))} className="inline-flex items-center gap-2 rounded-xl border border-[#173f35] px-4 py-2 text-xs font-bold text-[#173f35] hover:bg-[#eef4ef]"><Plus size={14} /> Add rule</button><button type="button" onClick={clearHouseRules} className="inline-flex items-center gap-2 rounded-xl border border-[#d9d9dc] px-4 py-2 text-xs font-bold text-[#6c7770] hover:bg-white"><Trash2 size={14} /> Clear all</button></div>
+      <div className="mt-3 flex gap-2"><button type="button" onClick={() => setForm((current) => ({ ...current, houseRules: [...current.houseRules, { title: '', text: '' }] }))} className="inline-flex items-center gap-2 rounded-xl border border-[#065f46] px-4 py-2 text-xs font-bold text-[#065f46] hover:bg-[#eef4ef]"><Plus size={14} /> Add rule</button><button type="button" onClick={clearHouseRules} className="inline-flex items-center gap-2 rounded-xl border border-[#d9d9dc] px-4 py-2 text-xs font-bold text-[#6c7770] hover:bg-white"><Trash2 size={14} /> Clear all</button></div>
     </SectionPanel>
   );
 }
@@ -659,7 +659,7 @@ function ReviewPanel({ editingId, title, reviewCount, open }: { editingId?: stri
     <SectionPanel title="Guest reviews" note="Approve, reject, edit, or add reviews for this stay. Each action saves immediately.">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-xs text-[#6c7770]">{editingId ? title : 'Save this stay once to unlock review management.'}</p>
-        <button type="button" disabled={!editingId} onClick={open} className="inline-flex items-center gap-2 rounded-xl bg-[#173f35] px-4 py-2 text-xs font-bold text-white hover:bg-[#0d241d] disabled:opacity-40"><Star size={14} /> Manage reviews{reviewCount !== null ? ` (${reviewCount})` : ''}</button>
+        <button type="button" disabled={!editingId} onClick={open} className="inline-flex items-center gap-2 rounded-xl bg-[#065f46] px-4 py-2 text-xs font-bold text-white hover:bg-[#0d241d] disabled:opacity-40"><Star size={14} /> Manage reviews{reviewCount !== null ? ` (${reviewCount})` : ''}</button>
       </div>
     </SectionPanel>
   );
@@ -668,7 +668,7 @@ function ReviewPanel({ editingId, title, reviewCount, open }: { editingId?: stri
 function StatusField({ form, setForm }: { form: ListingForm; setForm: Dispatch<SetStateAction<ListingForm>> }) {
   return (
     <>
-      <label className="grid gap-1 text-[12px] font-semibold text-[#173f35] md:col-span-2">
+      <label className="grid gap-1 text-[12px] font-semibold text-[#065f46] md:col-span-2">
         <span>Status</span>
         <select value={form.status} onChange={(event) => setForm((current) => ({ ...current, status: event.target.value }))} className="h-10 rounded-xl border border-[#d6d9d1] px-3 font-normal">
           <option value="DRAFT">Draft</option>

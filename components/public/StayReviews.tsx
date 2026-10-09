@@ -49,7 +49,7 @@ export function StayReviews({ initial }: { initial: StayReviewData | null }) {
           )
         )}
         {done && (
-          <p role="status" className="rounded border border-[#b9d5c5] bg-[#f1f8f3] p-4 text-sm font-semibold text-[#24584a]">
+          <p role="status" className="rounded border border-[#b9d5c5] bg-[#f1f8f3] p-4 text-sm font-semibold text-[#047857]">
             Thanks — your review is pending approval and will appear here once a moderator approves it.
           </p>
         )}
@@ -107,7 +107,7 @@ function Card({ review }: { review: ApprovedReview }) {
   return (
     <div className="rounded-2xl border border-[#e5e7eb] bg-white p-4 text-sm text-[#536274] shadow-[0_8px_20px_rgba(15,40,70,.06)] sm:p-5">
       <p className="flex flex-wrap items-center gap-1.5 font-bold text-[#23332e]">
-        <span className="grid h-7 w-7 place-items-center rounded-full bg-[#eef3ef] text-xs text-[#24584a]">{review.guestName.charAt(0).toUpperCase()}</span>
+        <span className="grid h-7 w-7 place-items-center rounded-full bg-[#eef3ef] text-xs text-[#047857]">{review.guestName.charAt(0).toUpperCase()}</span>
         {review.guestName}
         {review.isVerified && <span className="inline-flex items-center gap-1 rounded-full bg-[#eef7ee] px-2 py-0.5 text-[11px] font-bold text-[#16704a]"><ShieldCheck size={12} />Verified guest</span>}
       </p>

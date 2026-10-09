@@ -21,13 +21,13 @@ export default async function PackageDetail({ params }: { params: { slug: string
 	let packageItem: PublicPackage | null = null;
 	if (params.slug !== bhimtalPackage.slug) packageItem = (await getPublicPackage(params.slug)).data;
 	if (params.slug !== bhimtalPackage.slug && !packageItem) notFound();
-	if (packageItem) return <div className="pb-20"><section className="relative flex min-h-[560px] items-end overflow-hidden bg-[#173f35] px-5 pb-12 pt-32 text-white md:min-h-[680px] md:pb-16"><Image src={packageItem.image} alt={packageItem.title} fill priority sizes="100vw" className="object-cover opacity-60" /><div className="absolute inset-0 bg-gradient-to-t from-[#102f27] via-[#173f35]/45 to-[#173f35]/20" /><div className="relative mx-auto w-full max-w-7xl"><Breadcrumbs variant="dark" className="mb-8" items={[{ label: 'Home', href: '/' }, { label: 'Packages', href: '/packages' }, { label: packageItem.title }]} /><p className="sans text-xs font-bold uppercase tracking-[.2em] text-[#e6b17e]">{packageItem.location} · Travel package</p><h1 className="mt-4 max-w-4xl text-5xl leading-[.98] md:text-7xl">{packageItem.title}</h1></div></section><main className="mx-auto max-w-5xl px-5 py-14 md:py-20"><div className="rounded-2xl border border-[#e4e3da] bg-white p-7 shadow-[0_18px_50px_rgba(23,63,53,.08)] md:p-10"><p className="sans text-xs font-bold uppercase tracking-[.16em] text-[#7c877d]">Per person price</p><p className="mt-2 text-5xl text-[#173f35]">₹{packageItem.price.toLocaleString('en-IN')}</p><div className="mt-6"><StoredPackageBody html={packageItem.description} title={packageItem.title} /></div><PackageInclusions inclusions={packageItem.inclusions} /><Button href="/contact">Enquire about this trip</Button></div><PackageItinerary stops={packageItem.itinerary} /></main></div>;
+	if (packageItem) return <div className="pb-20"><section className="relative flex min-h-[560px] items-end overflow-hidden bg-[#065f46] px-5 pb-12 pt-32 text-white md:min-h-[680px] md:pb-16"><Image src={packageItem.image} alt={packageItem.title} fill priority sizes="100vw" className="object-cover opacity-60" /><div className="absolute inset-0 bg-gradient-to-t from-[#102f27] via-[#065f46]/45 to-[#065f46]/20" /><div className="relative mx-auto w-full max-w-7xl"><Breadcrumbs variant="dark" className="mb-8" items={[{ label: 'Home', href: '/' }, { label: 'Packages', href: '/packages' }, { label: packageItem.title }]} /><p className="sans text-xs font-bold uppercase tracking-[.2em] text-[#e6b17e]">{packageItem.location} · Travel package</p><h1 className="mt-4 max-w-4xl text-5xl leading-[.98] md:text-7xl">{packageItem.title}</h1></div></section><main className="mx-auto max-w-5xl px-5 py-14 md:py-20"><div className="rounded-2xl border border-[#e4e3da] bg-white p-7 shadow-[0_18px_50px_rgba(6,95,70,.08)] md:p-10"><p className="sans text-xs font-bold uppercase tracking-[.16em] text-[#7c877d]">Per person price</p><p className="mt-2 text-5xl text-[#065f46]">₹{packageItem.price.toLocaleString('en-IN')}</p><div className="mt-6"><StoredPackageBody html={packageItem.description} title={packageItem.title} /></div><PackageInclusions inclusions={packageItem.inclusions} /><Button href="/contact">Enquire about this trip</Button></div><PackageItinerary stops={packageItem.itinerary} /></main></div>;
 
 	return (
 		<div className="pb-20">
-			<section className="relative flex min-h-[560px] items-end overflow-hidden bg-[#173f35] px-5 pb-12 pt-32 text-white md:min-h-[680px] md:pb-16">
+			<section className="relative flex min-h-[560px] items-end overflow-hidden bg-[#065f46] px-5 pb-12 pt-32 text-white md:min-h-[680px] md:pb-16">
 				<Image src={bhimtalPackage.image} alt="Misty mountains and a lake in Kumaon" fill priority sizes="100vw" className="object-cover opacity-60" />
-				<div className="absolute inset-0 bg-gradient-to-t from-[#102f27] via-[#173f35]/45 to-[#173f35]/20" />
+				<div className="absolute inset-0 bg-gradient-to-t from-[#102f27] via-[#065f46]/45 to-[#065f46]/20" />
 				<div className="relative mx-auto w-full max-w-7xl">
 					<Breadcrumbs variant="dark" className="mb-8" items={[{ label: 'Home', href: '/' }, { label: 'Packages', href: '/packages' }, { label: bhimtalPackage.title }]} />
 					<p className="sans text-xs font-bold uppercase tracking-[.2em] text-[#e6b17e]">{bhimtalPackage.eyebrow} · {bhimtalPackage.duration}</p>
@@ -59,9 +59,9 @@ export default async function PackageDetail({ params }: { params: { slug: string
 				</main>
 
 				<aside className="h-fit md:sticky md:top-8">
-					<div className="rounded-2xl border border-[#e4e3da] bg-white p-6 shadow-[0_18px_50px_rgba(23,63,53,.08)]">
+					<div className="rounded-2xl border border-[#e4e3da] bg-white p-6 shadow-[0_18px_50px_rgba(6,95,70,.08)]">
 						<p className="sans text-xs font-bold uppercase tracking-[.16em] text-[#7c877d]">Total package price</p>
-						<p className="mt-2 text-4xl text-[#173f35]">{bhimtalPackage.price}</p>
+						<p className="mt-2 text-4xl text-[#065f46]">{bhimtalPackage.price}</p>
 						<p className="sans mt-1 text-sm text-[#526057]">{bhimtalPackage.perPerson}</p>
 						<div className="sans my-6 space-y-3 border-y border-[#e4e3da] py-5 text-sm"><p className="flex justify-between"><span className="text-[#7c877d]">Duration</span><span className="font-semibold">{bhimtalPackage.duration}</span></p><p className="flex justify-between"><span className="text-[#7c877d]">Plan</span><span className="font-semibold">EP · room only</span></p></div>
 						<Button href="/contact">Enquire about this trip</Button>

@@ -30,7 +30,7 @@ export function RideSearch({ query }: { query: string }) {
       onSubmit={submit}
       role="search"
       aria-label="Search rides by pickup or destination"
-      className="sans flex items-center gap-2.5 rounded-full bg-white py-2 pl-4 pr-2 shadow-[0_14px_34px_rgba(23,63,53,.16)] ring-1 ring-[#e4e3da] transition focus-within:ring-2 focus-within:ring-[#24584a]/35"
+      className="sans flex items-center gap-2.5 rounded-full bg-white py-2 pl-4 pr-2 shadow-[0_14px_34px_rgba(6,95,70,.16)] ring-1 ring-[#e4e3da] transition focus-within:ring-2 focus-within:ring-[#047857]/35"
     >
       <MapPin size={16} className="shrink-0 text-[#c47a4e]" />
       <input
@@ -55,7 +55,7 @@ export function RideSearch({ query }: { query: string }) {
             router.push('/rides');
           }}
           aria-label="Clear ride search"
-          className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[#6c7770] transition hover:bg-[#f2f4ed] hover:text-[#173f35]"
+          className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[#6c7770] transition hover:bg-[#f2f4ed] hover:text-[#065f46]"
         >
           <X size={15} />
         </button>
@@ -63,7 +63,7 @@ export function RideSearch({ query }: { query: string }) {
       <button
         type="submit"
         aria-label="Search rides"
-        className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-b from-[#1e5044] to-[#173f35] text-white shadow-[0_8px_18px_rgba(23,63,53,.35)] ring-1 ring-white/15 transition hover:from-[#266254] hover:to-[#1e5044] active:scale-95"
+        className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-b from-[#1e5044] to-[#065f46] text-white shadow-[0_8px_18px_rgba(6,95,70,.35)] ring-1 ring-white/15 transition hover:from-[#266254] hover:to-[#1e5044] active:scale-95"
       >
         <Search size={15} />
       </button>

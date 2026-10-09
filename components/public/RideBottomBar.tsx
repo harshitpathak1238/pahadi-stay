@@ -32,9 +32,9 @@ export function RideBottomBar({ price, slug, onEnquire }: { price: number; slug:
     <div
       aria-hidden={!visible}
       style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(100%)' }}
-      className="pointer-events-none fixed bottom-0 left-0 right-0 z-40 bg-[#24584a] px-4 transition-[opacity,transform] duration-300 md:hidden sm:hidden"
+      className="pointer-events-none fixed bottom-0 left-0 right-0 z-40 bg-[#047857] px-4 transition-[opacity,transform] duration-300 md:hidden sm:hidden"
     >
-      <div className="mx-auto max-w-[1180px] flex items-center gap-3 rounded-t-2xl bg-[#24584a] py-3.5 shadow-[0_-10px_24px_rgba(0,0,0,.22)]">
+      <div className="mx-auto max-w-[1180px] flex items-center gap-3 rounded-t-2xl bg-[#047857] py-3.5 shadow-[0_-10px_24px_rgba(0,0,0,.22)]">
         <div className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
           <span className="sans text-[11px] font-bold uppercase tracking-[.14em] text-[#d9e8df]">From</span>
           <span className="text-2xl font-bold leading-7 text-white">
@@ -59,7 +59,7 @@ export function RideBottomBar({ price, slug, onEnquire }: { price: number; slug:
             type="button"
             onClick={openTripBuilder}
             title="Add to your trip"
-            className="pointer-events-auto flex h-9 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-[#f7f4ec] px-3 text-[11px] font-bold text-[#173f35] shadow-[0_6px_14px_rgba(23,63,53,.22)] active:scale-[.97]"
+            className="pointer-events-auto flex h-9 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-[#f4f8f4] px-3 text-[11px] font-bold text-[#065f46] shadow-[0_6px_14px_rgba(6,95,70,.22)] active:scale-[.97]"
           >
             <Sparkles size={13} className="shrink-0" />
             Add to your trip

@@ -28,7 +28,7 @@ export function SessionMenu() {
   const user = session?.user;
   if (!user) {
     return (
-      <Link href="/login" className="shrink-0 rounded-full bg-[#173f35] px-4 py-2 text-sm font-bold text-white transition active:scale-95 md:border md:border-[#d6d9d1] md:bg-transparent md:font-semibold md:text-[#173f35] md:hover:border-[#173f35] md:hover:bg-[#f4f6f1] md:dark:border-white/15 md:dark:text-[#e8e8e8] md:dark:hover:bg-white/10">
+      <Link href="/login" className="shrink-0 rounded-full bg-[#065f46] px-4 py-2 text-sm font-bold text-white transition active:scale-95 md:border md:border-[#d6d9d1] md:bg-transparent md:font-semibold md:text-[#065f46] md:hover:border-[#065f46] md:hover:bg-[#f4f6f1] md:dark:border-white/15 md:dark:text-[#e8e8e8] md:dark:hover:bg-white/10">
         Sign in
       </Link>
     );
@@ -37,7 +37,7 @@ export function SessionMenu() {
   return (
     <>
       {isAdmin && (
-        <Link href="/admin" className="hidden rounded-full bg-[#173f35] px-3.5 py-1.5 text-xs font-bold text-white transition hover:bg-[#24584a] md:block">Admin</Link>
+        <Link href="/admin" className="hidden rounded-full bg-[#065f46] px-3.5 py-1.5 text-xs font-bold text-white transition hover:bg-[#047857] md:block">Admin</Link>
       )}
       <span className="shrink-0 [&_summary]:!grid [&_summary]:!h-10 [&_summary]:!w-10">
         <AccountMenu name={user.name} email={user.email} isAdmin={isAdmin} />

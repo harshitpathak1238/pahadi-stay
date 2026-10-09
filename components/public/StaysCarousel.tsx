@@ -34,21 +34,21 @@ export function StaysCarousel({ stays }: { stays: Listing[] }) {
               key={stay.slug}
               href={`/stays/${stay.slug}`}
               data-stay-card
-              className="group w-[260px] shrink-0 snap-start overflow-hidden rounded-[1.5rem] bg-white ring-1 ring-[#e4e3da] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_44px_rgba(23,63,53,.14)] hover:ring-[#d6d5c9] sm:w-[300px] md:w-[340px]"
+              className="group w-[260px] shrink-0 snap-start overflow-hidden rounded-[1.5rem] bg-white ring-1 ring-[#e4e3da] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_44px_rgba(6,95,70,.14)] hover:ring-[#d6d5c9] sm:w-[300px] md:w-[340px]"
             >
               <div className="relative aspect-[4/3] overflow-hidden bg-[#eef3f0]">
                 {stay.image ? (
                   <Image src={stay.image} alt={stay.title} fill loading="lazy" sizes="(max-width: 640px) 260px, (max-width: 768px) 300px, 340px" className="object-cover transition duration-500 group-hover:scale-[1.05]" />
                 ) : (
-                  <div className="flex h-full items-center justify-center text-[#173f35]"><Star size={30} /></div>
+                  <div className="flex h-full items-center justify-center text-[#065f46]"><Star size={30} /></div>
                 )}
                 {discount !== null && (
                   <span className="sans absolute left-3 top-3 inline-flex items-center rounded-full bg-[#b66b45] px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">{discount}% off</span>
                 )}
-                {stay.reviewCount ? <span className="sans absolute bottom-3 right-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-xs font-bold text-[#173f35] shadow-sm"><Star size={12} fill="currentColor" /> {stay.rating}</span> : null}
+                {stay.reviewCount ? <span className="sans absolute bottom-3 right-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-xs font-bold text-[#065f46] shadow-sm"><Star size={12} fill="currentColor" /> {stay.rating}</span> : null}
               </div>
               <div className="flex flex-col p-5">
-                <h3 className="text-lg font-bold leading-snug text-[#173f35]">{stay.title}</h3>
+                <h3 className="text-lg font-bold leading-snug text-[#065f46]">{stay.title}</h3>
                 <p className="sans mt-1.5 flex min-w-0 items-center gap-1.5 text-xs text-[#526057]">
                   <MapPin size={13} className="shrink-0 text-[#b66b45]" />
                   <span className="truncate">{stay.location}</span>
@@ -64,10 +64,10 @@ export function StaysCarousel({ stays }: { stays: Listing[] }) {
                     {stay.basePrice !== undefined && stay.basePrice > stay.price && (
                       <span className="mr-1.5 text-xs text-[#9aa39f] line-through">{inr(stay.basePrice)}</span>
                     )}
-                    <span className="text-base font-bold text-[#173f35]">{inr(stay.price)}</span>
+                    <span className="text-base font-bold text-[#065f46]">{inr(stay.price)}</span>
                     <span className="text-xs text-[#6c7770]"> / night</span>
                   </p>
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-[#d6d9d1] text-[#173f35] transition group-hover:bg-[#173f35] group-hover:text-white"><ArrowRight size={15} /></span>
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-[#d6d9d1] text-[#065f46] transition group-hover:bg-[#065f46] group-hover:text-white"><ArrowRight size={15} /></span>
                 </div>
               </div>
             </Link>
@@ -82,7 +82,7 @@ export function StaysCarousel({ stays }: { stays: Listing[] }) {
             type="button"
             aria-label="Show previous stays"
             onClick={() => scroll(-1)}
-            className="absolute -left-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white text-[#173f35] shadow-[0_8px_22px_rgba(23,63,53,.18)] ring-1 ring-[#e4e3da] transition hover:bg-[#f7f4ec] md:grid"
+            className="absolute -left-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white text-[#065f46] shadow-[0_8px_22px_rgba(6,95,70,.18)] ring-1 ring-[#e4e3da] transition hover:bg-[#f4f8f4] md:grid"
           >
             <ChevronLeft size={18} />
           </button>
@@ -90,7 +90,7 @@ export function StaysCarousel({ stays }: { stays: Listing[] }) {
             type="button"
             aria-label="Show more stays"
             onClick={() => scroll(1)}
-            className="absolute -right-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white text-[#173f35] shadow-[0_8px_22px_rgba(23,63,53,.18)] ring-1 ring-[#e4e3da] transition hover:bg-[#f7f4ec] md:grid"
+            className="absolute -right-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white text-[#065f46] shadow-[0_8px_22px_rgba(6,95,70,.18)] ring-1 ring-[#e4e3da] transition hover:bg-[#f4f8f4] md:grid"
           >
             <ChevronRight size={18} />
           </button>

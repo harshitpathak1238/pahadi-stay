@@ -38,7 +38,7 @@ export default async function Rentals({
             <p className="sans text-xs font-bold uppercase tracking-[.2em] text-[#b66b45]">
               Choose your ride
             </p>
-            <h1 className="mt-3 text-4xl text-[#173f35] md:text-6xl">
+            <h1 className="mt-3 text-4xl text-[#065f46] md:text-6xl">
               Ready when you are.
             </h1>
           </div>
@@ -67,12 +67,12 @@ export default async function Rentals({
           </p>
         )}
       </section>
-      <div className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-3 border-t border-[#dfe3d8] bg-[#f7f4ec]/95 px-4 py-3 shadow-[0_-8px_24px_rgba(23,63,53,.12)] backdrop-blur md:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-3 border-t border-[#dfe3d8] bg-[#f4f8f4]/95 px-4 py-3 shadow-[0_-8px_24px_rgba(6,95,70,.12)] backdrop-blur md:hidden">
         <div>
           <p className="sans text-xs font-bold uppercase tracking-[.12em] text-[#6c7770]">
             Need help choosing?
           </p>
-          <p className="text-base text-[#173f35]">Talk to a local host</p>
+          <p className="text-base text-[#065f46]">Talk to a local host</p>
         </div>
         <WhatsAppButton
           message="Hello KainchiDarshan, I want to know more about your scooter and bike rentals in Kumaon."

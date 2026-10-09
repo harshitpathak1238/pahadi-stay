@@ -32,7 +32,7 @@ function ResizableImageView({ node, updateAttributes, selected }: ReactNodeViewP
   };
   return <NodeViewWrapper className={`relative inline-block max-w-full ${selected ? 'ring-2 ring-[#8db9a0]' : ''}`}>
     <img ref={imageRef} src={attrs.src} alt={attrs.alt || ''} title={attrs.title || ''} width={attrs.width || undefined} height={attrs.height || undefined} style={{ width: attrs.width ? `${attrs.width}px` : undefined, height: attrs.height ? `${attrs.height}px` : undefined }} className="max-w-full" />
-    {selected && <button type="button" aria-label="Resize image" onPointerDown={begin} className="absolute -bottom-2 -right-2 h-4 w-4 cursor-nwse-resize border-2 border-white bg-[#24584a] shadow" />}
+    {selected && <button type="button" aria-label="Resize image" onPointerDown={begin} className="absolute -bottom-2 -right-2 h-4 w-4 cursor-nwse-resize border-2 border-white bg-[#047857] shadow" />}
   </NodeViewWrapper>;
 }
 

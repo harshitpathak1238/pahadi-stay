@@ -39,7 +39,7 @@ export function FareBookingSection({ ride }: { ride: PublicRide }) {
         <p className="sans text-xs font-bold uppercase tracking-[.2em] text-[#b66b45]">Book this ride</p>
         {ride.minFare !== null && (
           <p className="sans mt-2 flex items-baseline gap-1.5">
-            <span className="text-2xl font-bold text-[#173f35] sm:text-3xl">{inr(ride.minFare)}</span>
+            <span className="text-2xl font-bold text-[#065f46] sm:text-3xl">{inr(ride.minFare)}</span>
             <span className="text-xs text-[#8a948c]">starting price</span>
           </p>
         )}
@@ -48,17 +48,17 @@ export function FareBookingSection({ ride }: { ride: PublicRide }) {
       <div className="p-6 sm:p-7">
         {/* Passengers stepper */}
         <div className="flex items-center justify-between gap-3">
-          <span className="sans flex items-center gap-2 text-sm font-semibold text-[#173f35]"><Users size={16} className="text-[#b66b45]" /> Passengers</span>
+          <span className="sans flex items-center gap-2 text-sm font-semibold text-[#065f46]"><Users size={16} className="text-[#b66b45]" /> Passengers</span>
           <div className="flex items-center gap-1 rounded-full bg-[#f3f2ea] p-1">
-            <button type="button" aria-label="Remove a passenger" disabled={passengers <= 1} onClick={() => setPassengers((c) => Math.max(1, c - 1))} className="grid h-8 w-8 place-items-center rounded-full bg-white text-[#173f35] shadow-sm transition hover:bg-[#eef3f0] disabled:opacity-40"><Minus size={14} /></button>
-            <span className="sans w-16 text-center text-sm font-bold text-[#173f35]">{passengers} {passengers === 1 ? 'guest' : 'guests'}</span>
-            <button type="button" aria-label="Add a passenger" disabled={passengers >= 12} onClick={() => setPassengers((c) => Math.min(12, c + 1))} className="grid h-8 w-8 place-items-center rounded-full bg-white text-[#173f35] shadow-sm transition hover:bg-[#eef3f0] disabled:opacity-40"><Plus size={14} /></button>
+            <button type="button" aria-label="Remove a passenger" disabled={passengers <= 1} onClick={() => setPassengers((c) => Math.max(1, c - 1))} className="grid h-8 w-8 place-items-center rounded-full bg-white text-[#065f46] shadow-sm transition hover:bg-[#eef3f0] disabled:opacity-40"><Minus size={14} /></button>
+            <span className="sans w-16 text-center text-sm font-bold text-[#065f46]">{passengers} {passengers === 1 ? 'guest' : 'guests'}</span>
+            <button type="button" aria-label="Add a passenger" disabled={passengers >= 12} onClick={() => setPassengers((c) => Math.min(12, c + 1))} className="grid h-8 w-8 place-items-center rounded-full bg-white text-[#065f46] shadow-sm transition hover:bg-[#eef3f0] disabled:opacity-40"><Plus size={14} /></button>
           </div>
         </div>
         {/* Vehicle selection */}
         <div className="mt-6">
           <div className="flex items-center justify-between">
-            <p className="sans flex items-center gap-2 text-sm font-semibold text-[#173f35]"><Car size={16} className="text-[#b66b45]" /> Choose your car</p>
+            <p className="sans flex items-center gap-2 text-sm font-semibold text-[#065f46]"><Car size={16} className="text-[#b66b45]" /> Choose your car</p>
             <span className="sans text-[11px] text-[#8a948c]">{availableFares.length} of {fares.length} available</span>
           </div>
           {availableFares.length === 0 ? (
@@ -72,7 +72,7 @@ export function FareBookingSection({ ride }: { ride: PublicRide }) {
                     key={fare.vehicleTypeId}
                     type="button"
                     onClick={() => setSelectedId(fare.vehicleTypeId)}
-                    className={`relative flex w-full items-center rounded-2xl p-3 text-left transition-all ${isSelected ? 'bg-[#eef3f0] ring-2 ring-[#173f35]' : 'bg-white ring-1 ring-[#e4e3da] hover:ring-[#b9c4ba]'}`}
+                    className={`relative flex w-full items-center rounded-2xl p-3 text-left transition-all ${isSelected ? 'bg-[#eef3f0] ring-2 ring-[#065f46]' : 'bg-white ring-1 ring-[#e4e3da] hover:ring-[#b9c4ba]'}`}
                   >
                     <div className="relative mr-3.5 h-16 w-24 shrink-0 overflow-hidden rounded-xl bg-[#eef3f0]">
                       {fare.vehicleImage ? (
@@ -82,11 +82,11 @@ export function FareBookingSection({ ride }: { ride: PublicRide }) {
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-semibold text-[#173f35]">{fare.vehicleName}</p>
+                      <p className="truncate font-semibold text-[#065f46]">{fare.vehicleName}</p>
                       <p className="sans mt-0.5 text-xs text-[#8a948c]">Up to {fare.vehicleCapacity} seats</p>
-                      <p className="sans mt-1 text-base font-bold text-[#173f35]">{inr(fare.price)}</p>
+                      <p className="sans mt-1 text-base font-bold text-[#065f46]">{inr(fare.price)}</p>
                     </div>
-                    {isSelected && <span className="absolute right-3 top-3 grid h-5 w-5 place-items-center rounded-full bg-[#173f35]"><Check size={12} className="text-white" /></span>}
+                    {isSelected && <span className="absolute right-3 top-3 grid h-5 w-5 place-items-center rounded-full bg-[#065f46]"><Check size={12} className="text-white" /></span>}
                   </button>
                 );
               })}
@@ -96,7 +96,7 @@ export function FareBookingSection({ ride }: { ride: PublicRide }) {
 
         {/* Summary + CTA */}
         {activeFare && (
-          <div className="mt-6 rounded-2xl bg-[#173f35] p-5">
+          <div className="mt-6 rounded-2xl bg-[#065f46] p-5">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <p className="sans text-[10px] font-bold uppercase tracking-[.16em] text-[#9fb9ac]">Total - {passengers} {passengers === 1 ? 'guest' : 'guests'}</p>

@@ -113,7 +113,7 @@ export function MobileMenu() {
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label="Close navigation menu"
-                className="grid h-10 w-10 place-items-center rounded-full border border-[#e2e4da] text-[#173f35] dark:border-white/15 dark:text-[#e8e8e8]"
+                className="grid h-10 w-10 place-items-center rounded-full border border-[#e2e4da] text-[#065f46] dark:border-white/15 dark:text-[#e8e8e8]"
               >
                 <X size={19} aria-hidden="true" />
               </button>
@@ -129,12 +129,12 @@ export function MobileMenu() {
                     aria-current={active ? 'page' : undefined}
                     className={`group flex items-center gap-3.5 rounded-2xl px-3.5 py-3 text-[15px] font-semibold transition active:scale-[.99] ${
                       active
-                        ? 'bg-[#173f35] text-white shadow-[0_10px_24px_rgba(23,63,53,.28)] dark:bg-[#e8e8e8] dark:text-[#173f35]'
+                        ? 'bg-[#065f46] text-white shadow-[0_10px_24px_rgba(6,95,70,.28)] dark:bg-[#e8e8e8] dark:text-[#065f46]'
                         : 'text-[#23332e] hover:bg-[#eef2eb] dark:text-[#e8e8e8] dark:hover:bg-white/10'
                     }`}
                   >
                     <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl transition ${
-                      active ? 'bg-white/15 dark:bg-[#173f35]/10' : 'bg-[#eef2eb] text-[#24584a] group-hover:bg-[#e2eae1] dark:bg-white/10 dark:text-[#d5eadb]'
+                      active ? 'bg-white/15 dark:bg-[#065f46]/10' : 'bg-[#eef2eb] text-[#047857] group-hover:bg-[#e2eae1] dark:bg-white/10 dark:text-[#d5eadb]'
                     }`}>
                       <Icon size={19} aria-hidden="true" />
                     </span>
@@ -150,11 +150,11 @@ export function MobileMenu() {
                 onClick={toggleTheme}
                 className="flex w-full items-center gap-3.5 rounded-2xl px-3.5 py-2.5 text-sm font-semibold text-[#23332e] transition hover:bg-[#eef2eb] dark:text-[#e8e8e8] dark:hover:bg-white/10"
               >
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#eef2eb] text-[#24584a] dark:bg-white/10 dark:text-[#d5eadb]">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#eef2eb] text-[#047857] dark:bg-white/10 dark:text-[#d5eadb]">
                   {isDark ? <Sun size={19} aria-hidden="true" /> : <Moon size={19} aria-hidden="true" />}
                 </span>
                 {isDark ? 'Light mode' : 'Dark mode'}
-                <span aria-hidden="true" className={`relative ml-auto h-6 w-11 shrink-0 rounded-full p-0.5 transition ${isDark ? 'bg-[#24584a]' : 'bg-[#d6d9d1]'}`}>
+                <span aria-hidden="true" className={`relative ml-auto h-6 w-11 shrink-0 rounded-full p-0.5 transition ${isDark ? 'bg-[#047857]' : 'bg-[#d6d9d1]'}`}>
                   <span className={`block h-5 w-5 rounded-full bg-white shadow transition-transform ${isDark ? 'translate-x-5' : 'translate-x-0'}`} />
                 </span>
               </button>
@@ -163,7 +163,7 @@ export function MobileMenu() {
                 onClick={() => setOpen(false)}
                 className="flex items-center gap-3.5 rounded-2xl px-3.5 py-2.5 text-sm font-semibold text-[#23332e] transition hover:bg-[#eef2eb] dark:text-[#e8e8e8] dark:hover:bg-white/10"
               >
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#eef2eb] text-[#24584a] dark:bg-white/10 dark:text-[#d5eadb]">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#eef2eb] text-[#047857] dark:bg-white/10 dark:text-[#d5eadb]">
                   <Handshake size={19} aria-hidden="true" />
                 </span>
                 List your place
@@ -174,7 +174,7 @@ export function MobileMenu() {
                   onClick={() => setOpen(false)}
                   className="flex items-center gap-3.5 rounded-2xl px-3.5 py-2.5 text-sm font-semibold text-[#23332e] transition hover:bg-[#eef2eb] dark:text-[#e8e8e8] dark:hover:bg-white/10"
                 >
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#eef2eb] text-[#24584a] dark:bg-white/10 dark:text-[#d5eadb]">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#eef2eb] text-[#047857] dark:bg-white/10 dark:text-[#d5eadb]">
                     <UserRound size={19} aria-hidden="true" />
                   </span>
                   My account
@@ -183,7 +183,7 @@ export function MobileMenu() {
                 <Link
                   href="/login"
                   onClick={() => setOpen(false)}
-                  className="mt-1 flex items-center justify-center gap-2 rounded-2xl bg-[#173f35] px-3.5 py-3.5 text-sm font-bold text-white shadow-[0_10px_24px_rgba(23,63,53,.28)] transition active:scale-[.99] dark:bg-[#e8e8e8] dark:text-[#173f35]"
+                  className="mt-1 flex items-center justify-center gap-2 rounded-2xl bg-[#065f46] px-3.5 py-3.5 text-sm font-bold text-white shadow-[0_10px_24px_rgba(6,95,70,.28)] transition active:scale-[.99] dark:bg-[#e8e8e8] dark:text-[#065f46]"
                 >
                   <LogIn size={17} aria-hidden="true" />
                   Sign in
@@ -195,7 +195,7 @@ export function MobileMenu() {
                   onClick={() => setOpen(false)}
                   className="flex items-center gap-3.5 rounded-2xl px-3.5 py-2.5 text-sm font-semibold text-[#23332e] transition hover:bg-[#eef2eb] dark:text-[#e8e8e8] dark:hover:bg-white/10"
                 >
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#eef2eb] text-[#24584a] dark:bg-white/10 dark:text-[#d5eadb]">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#eef2eb] text-[#047857] dark:bg-white/10 dark:text-[#d5eadb]">
                     <LayoutDashboard size={19} aria-hidden="true" />
                   </span>
                   Admin workspace
@@ -207,7 +207,7 @@ export function MobileMenu() {
                   href={`mailto:${SITE_EMAIL}`}
                   className="mt-2 flex items-center gap-3 rounded-xl px-2 py-2 text-sm font-semibold text-[#23332e] transition hover:bg-white dark:text-[#e8e8e8] dark:hover:bg-white/10"
                 >
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#173f35] text-white dark:bg-[#e8e8e8] dark:text-[#173f35]">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#065f46] text-white dark:bg-[#e8e8e8] dark:text-[#065f46]">
                     <Mail size={16} aria-hidden="true" />
                   </span>
                   <span className="break-all text-[13px]">{SITE_EMAIL}</span>
@@ -216,7 +216,7 @@ export function MobileMenu() {
                   href={`tel:${SITE_PHONE_TEL}`}
                   className="flex items-center gap-3 rounded-xl px-2 py-2 text-sm font-semibold text-[#23332e] transition hover:bg-white dark:text-[#e8e8e8] dark:hover:bg-white/10"
                 >
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-[#24584a] ring-1 ring-[#e4e3da] dark:bg-white/10 dark:text-[#d5eadb] dark:ring-white/10">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-[#047857] ring-1 ring-[#e4e3da] dark:bg-white/10 dark:text-[#d5eadb] dark:ring-white/10">
                     <Phone size={16} aria-hidden="true" />
                   </span>
                   {SITE_PHONE_DISPLAY}
@@ -245,7 +245,7 @@ export function MobileMenu() {
         aria-label="Open navigation menu"
         aria-expanded={open}
         data-testid="mobile-menu-button"
-        className="grid h-11 w-11 shrink-0 cursor-pointer touch-manipulation place-items-center text-[#173f35] transition hover:opacity-70 active:scale-95 dark:text-[#e8e8e8] md:hidden"
+        className="grid h-11 w-11 shrink-0 cursor-pointer touch-manipulation place-items-center text-[#065f46] transition hover:opacity-70 active:scale-95 dark:text-[#e8e8e8] md:hidden"
       >
         <span aria-hidden="true" className="pointer-events-none flex w-6 flex-col gap-[5px]">
           <span className="block h-[2.5px] w-full rounded-full bg-current" />

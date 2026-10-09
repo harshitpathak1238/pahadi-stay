@@ -210,28 +210,28 @@ export function StaysSearchPage({ stays, initialLocation, initialCheckIn, initia
                     value={sort}
                     onChange={(event) => setSort(event.target.value)}
                     aria-label="Sort results"
-                    className="min-w-0 appearance-none rounded-full border border-[#e4e8e2] bg-white py-2 pl-4 pr-10 text-sm font-semibold text-[#23332e] shadow-[0_2px_8px_rgba(23,63,53,.06)] transition hover:border-[#cdd6d0] focus:outline-none focus:ring-2 focus:ring-[#24584a]/30"
+                    className="min-w-0 appearance-none rounded-full border border-[#e4e8e2] bg-white py-2 pl-4 pr-10 text-sm font-semibold text-[#23332e] shadow-[0_2px_8px_rgba(6,95,70,.06)] transition hover:border-[#cdd6d0] focus:outline-none focus:ring-2 focus:ring-[#047857]/30"
                   >
                     <option>Recommended</option>
                     <option>Price: low to high</option>
                     <option>Guest rating</option>
                   </select>
-                  <ChevronDown size={15} className="pointer-events-none absolute right-4 text-[#173f35]" />
+                  <ChevronDown size={15} className="pointer-events-none absolute right-4 text-[#065f46]" />
                 </span>
 
                 {/* List/Grid toggle */}
-                <div className="hidden items-center overflow-hidden rounded-full border border-[#e4e8e2] bg-white shadow-[0_2px_8px_rgba(23,63,53,.06)] sm:flex">
+                <div className="hidden items-center overflow-hidden rounded-full border border-[#e4e8e2] bg-white shadow-[0_2px_8px_rgba(6,95,70,.06)] sm:flex">
                   <button
                     aria-label="List view"
                     onClick={() => setView('list')}
-                    className={`p-2 transition ${view === 'list' ? 'bg-[#e8f0ed] text-[#173f35]' : 'text-[#536274] hover:text-[#173f35]'}`}
+                    className={`p-2 transition ${view === 'list' ? 'bg-[#e8f0ed] text-[#065f46]' : 'text-[#536274] hover:text-[#065f46]'}`}
                   >
                     <List size={17} />
                   </button>
                   <button
                     aria-label="Grid view"
                     onClick={() => setView('grid')}
-                    className={`p-2 transition ${view === 'grid' ? 'bg-[#e8f0ed] text-[#173f35]' : 'text-[#536274] hover:text-[#173f35]'}`}
+                    className={`p-2 transition ${view === 'grid' ? 'bg-[#e8f0ed] text-[#065f46]' : 'text-[#536274] hover:text-[#065f46]'}`}
                   >
                     <LayoutGrid size={17} />
                   </button>

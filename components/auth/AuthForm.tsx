@@ -63,11 +63,11 @@ export function AuthForm({ initialMode = 'login', initialEmail = '' }: { initial
 
   return <div className="auth-panel">
     <div className="mb-7">
-      <span className="inline-flex rounded-2xl bg-[#e7eadf] p-3 text-[#24584a]"><KeyRound size={22} /></span>
-      <h1 className="mt-5 text-4xl leading-tight text-[#173f35] md:text-5xl">{copy[0]}</h1>
+      <span className="inline-flex rounded-2xl bg-[#e7eadf] p-3 text-[#047857]"><KeyRound size={22} /></span>
+      <h1 className="mt-5 text-4xl leading-tight text-[#065f46] md:text-5xl">{copy[0]}</h1>
       <p className="sans mt-3 text-base leading-7 text-[#607067]">{copy[1]}</p>
     </div>
-    {message && <p className="mb-4 flex items-center gap-2 rounded-xl bg-[#e2eee7] p-3 sans text-sm text-[#24584a]"><CheckCircle2 size={17} />{message}</p>}
+    {message && <p className="mb-4 flex items-center gap-2 rounded-xl bg-[#e2eee7] p-3 sans text-sm text-[#047857]"><CheckCircle2 size={17} />{message}</p>}
     {error && <p className="mb-4 rounded-xl bg-[#fff0e8] p-3 sans text-sm text-[#9f5938]">{error}</p>}
 
     {mode !== 'forgot' && <>
@@ -85,7 +85,7 @@ export function AuthForm({ initialMode = 'login', initialEmail = '' }: { initial
       <button disabled={loading} className="cta-depth mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-[#b66b45] px-5 py-3.5 font-bold text-white transition hover:bg-[#9f5938] disabled:opacity-60">{loading ? 'Please wait...' : mode === 'login' ? 'Sign in' : mode === 'signup' ? 'Create account' : 'Send reset link'} {!loading && <ArrowRight size={17} />}</button>
     </form>
 
-    {mode === 'login' && <button type="button" onClick={() => setMode('forgot')} className="mt-5 w-full text-center sans text-sm font-semibold text-[#24584a] hover:text-[#b66b45]">Forgot your password?</button>}
+    {mode === 'login' && <button type="button" onClick={() => setMode('forgot')} className="mt-5 w-full text-center sans text-sm font-semibold text-[#047857] hover:text-[#b66b45]">Forgot your password?</button>}
     {mode === 'login' ? <p className="mt-6 text-center sans text-sm text-[#607067]">New to Pahadi? <button type="button" onClick={() => setMode('signup')} className="font-bold text-[#b66b45]">Create an account</button></p> : <p className="mt-6 text-center sans text-sm text-[#607067]">Already have an account? <button type="button" onClick={() => setMode('login')} className="font-bold text-[#b66b45]">Sign in</button></p>}
   </div>;
 }

@@ -68,13 +68,13 @@ export function PropertyTypeStrip({ allStays, results, active, onChange }: Prope
                 aria-pressed={isActive}
                 title={chip.value ? `Show ${chip.label.toLowerCase()} stays only` : 'Show every property type'}
                 onClick={() => onChange(isActive && chip.value ? '' : chip.value)}
-                className={`group inline-flex shrink-0 items-center gap-2 rounded-full border py-2 pl-2 pr-3 text-[13px] font-semibold transition duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#24584a]/40 ${
+                className={`group inline-flex shrink-0 items-center gap-2 rounded-full border py-2 pl-2 pr-3 text-[13px] font-semibold transition duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#047857]/40 ${
                   isActive
-                    ? 'border-[#173f35] bg-[#173f35] text-white shadow-[0_8px_18px_rgba(23,63,53,0.22)]'
-                    : 'border-[#e4e8e2] bg-white text-[#23332e] shadow-[0_2px_8px_rgba(23,63,53,0.05)] hover:-translate-y-0.5 hover:border-[#c3d0c9] hover:shadow-[0_6px_14px_rgba(23,63,53,0.10)]'
+                    ? 'border-[#065f46] bg-[#065f46] text-white shadow-[0_8px_18px_rgba(6,95,70,0.22)]'
+                    : 'border-[#e4e8e2] bg-white text-[#23332e] shadow-[0_2px_8px_rgba(6,95,70,0.05)] hover:-translate-y-0.5 hover:border-[#c3d0c9] hover:shadow-[0_6px_14px_rgba(6,95,70,0.10)]'
                 }`}
               >
-                <span className={`grid h-7 w-7 place-items-center rounded-full transition ${isActive ? 'bg-white/15 text-white' : 'bg-[#eef4ef] text-[#24584a] group-hover:bg-[#e0efe5]'}`}>
+                <span className={`grid h-7 w-7 place-items-center rounded-full transition ${isActive ? 'bg-white/15 text-white' : 'bg-[#eef4ef] text-[#047857] group-hover:bg-[#e0efe5]'}`}>
                   <Icon size={15} strokeWidth={2} aria-hidden="true" />
                 </span>
                 <span>{chip.label}</span>
@@ -94,7 +94,7 @@ export function PropertyTypeStrip({ allStays, results, active, onChange }: Prope
           disabled={normalisePropertyType(active) === ''}
           title="Clear property type filter"
           aria-label="Clear property type filter"
-          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#f0d7d7] bg-white text-[#b04a4a] shadow-[0_2px_8px_rgba(23,63,53,0.05)] transition hover:border-[#e3b6b6] hover:bg-[#fdf1f1] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b04a4a]/40 disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#f0d7d7] bg-white text-[#b04a4a] shadow-[0_2px_8px_rgba(6,95,70,0.05)] transition hover:border-[#e3b6b6] hover:bg-[#fdf1f1] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b04a4a]/40 disabled:cursor-not-allowed disabled:opacity-40"
         >
           <Trash2 size={16} aria-hidden="true" />
         </button>

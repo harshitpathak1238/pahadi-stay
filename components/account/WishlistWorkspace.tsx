@@ -61,10 +61,10 @@ export function WishlistWorkspace() {
       <div className="flex flex-col gap-3 border-b border-[#dfe3d8] pb-8 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="sans text-xs font-bold uppercase tracking-[.2em] text-[#b66b45]">Saved with love</p>
-          <h1 className="mt-3 text-4xl text-[#173f35] md:text-6xl">Your wishlist</h1>
+          <h1 className="mt-3 text-4xl text-[#065f46] md:text-6xl">Your wishlist</h1>
           <p className="sans mt-3 text-sm text-[#6c7770]">{loading ? 'Loading your saved stays…' : saved.length ? `${saved.length} ${saved.length === 1 ? 'stay' : 'stays'} waiting for your next trip into the hills.` : 'Tap the heart on any stay to keep it here.'}</p>
         </div>
-        <Link href="/stays" className="sans inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#173f35] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#24584a]">
+        <Link href="/stays" className="sans inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#065f46] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#047857]">
           Discover stays
           <ArrowRight size={15} />
         </Link>
@@ -75,9 +75,9 @@ export function WishlistWorkspace() {
       {!loading && saved.length === 0 && (
         <div className="mt-12 flex flex-col items-center rounded-3xl bg-white p-12 text-center ring-1 ring-[#e4e3da]">
           <span className="grid h-20 w-20 place-items-center rounded-full bg-[#fbeeef] text-[#e11d48]"><Heart size={34} /></span>
-          <h2 className="mt-6 text-2xl font-semibold text-[#173f35]">Nothing saved yet</h2>
+          <h2 className="mt-6 text-2xl font-semibold text-[#065f46]">Nothing saved yet</h2>
           <p className="sans mt-2 max-w-sm text-sm leading-6 text-[#6c7770]">Tap the heart on any stay you love and it will wait for you here — ready when you are.</p>
-          <Link href="/stays" className="sans mt-6 inline-flex items-center gap-2 rounded-full bg-[#173f35] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#24584a]">
+          <Link href="/stays" className="sans mt-6 inline-flex items-center gap-2 rounded-full bg-[#065f46] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#047857]">
             Browse stays
             <ArrowRight size={15} />
           </Link>
@@ -87,17 +87,17 @@ export function WishlistWorkspace() {
       {!loading && saved.length > 0 && (
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {saved.map((card) => (
-            <article key={card.slug} className={`group relative overflow-hidden rounded-3xl bg-white ring-1 ring-[#e4e3da] transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(23,63,53,.12)] ${removing === card.slug ? 'scale-95 opacity-0' : ''}`}>
+            <article key={card.slug} className={`group relative overflow-hidden rounded-3xl bg-white ring-1 ring-[#e4e3da] transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(6,95,70,.12)] ${removing === card.slug ? 'scale-95 opacity-0' : ''}`}>
               <div className="relative h-44 overflow-hidden bg-[#eef3f0]">
                 <Link href={`/stays/${card.slug}`} aria-label={card.title}>
                   <Image src={card.image} alt={card.title} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" unoptimized className="object-cover transition duration-500 group-hover:scale-[1.05]" />
                 </Link>
-                <button type="button" aria-label={`Remove ${card.title} from wishlist`} onClick={() => remove(card.slug)} className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-white/95 shadow-[0_2px_10px_rgba(23,63,53,.18)] transition hover:bg-white">
+                <button type="button" aria-label={`Remove ${card.title} from wishlist`} onClick={() => remove(card.slug)} className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-white/95 shadow-[0_2px_10px_rgba(6,95,70,.18)] transition hover:bg-white">
                   <Heart size={16} fill="#e11d48" className="text-rose-600" />
                 </button>
               </div>
               <div className="p-5">
-                <Link href={`/stays/${card.slug}`} className="line-clamp-1 text-lg font-bold text-[#173f35] transition hover:text-[#24584a]">
+                <Link href={`/stays/${card.slug}`} className="line-clamp-1 text-lg font-bold text-[#065f46] transition hover:text-[#047857]">
                   {card.title}
                 </Link>
                 <p className="sans mt-1.5 flex items-center gap-1.5 text-xs text-[#6c7770]">
@@ -107,7 +107,7 @@ export function WishlistWorkspace() {
                 <div className="mt-4 flex items-center justify-between border-t border-[#eef1ec] pt-3">
                   <p className="sans">
                     <span className="text-[10px] uppercase tracking-[.16em] text-[#8a948c]">From </span>
-                    <span className="font-bold text-[#173f35]">{inr(card.price)}</span>
+                    <span className="font-bold text-[#065f46]">{inr(card.price)}</span>
                     {typeof card.basePrice === 'number' && card.basePrice > 0 && card.basePrice > card.price && (
                       <>
                         <span className="ml-1 text-xs font-semibold text-[#8a948c] line-through">{inr(card.basePrice)}</span>

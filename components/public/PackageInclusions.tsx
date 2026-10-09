@@ -14,7 +14,7 @@ import type { PackageInclusion } from '@/lib/packages';
  */
 
 const KIND_META = {
-  stay: { label: 'Stay', Icon: BedDouble, tint: 'text-[#24584a] bg-[#e8f3ec] ring-[#cbe4d5]' },
+  stay: { label: 'Stay', Icon: BedDouble, tint: 'text-[#047857] bg-[#e8f3ec] ring-[#cbe4d5]' },
   ride: { label: 'Ride', Icon: Car, tint: 'text-[#8a5a00] bg-[#fdf3e7] ring-[#f0dcc0]' },
   rental: { label: 'Transport', Icon: Car, tint: 'text-[#1f5f6b] bg-[#e6f2f4] ring-[#c2dde2]' },
   activity: { label: 'Experience', Icon: Sparkles, tint: 'text-[#6b3f8f] bg-[#f3ecfa] ring-[#ded0ef]' },
@@ -73,7 +73,7 @@ export function PackageInclusions({ inclusions }: { inclusions: PackageInclusion
 function InclusionCard({ item, featured = false }: { item: PackageInclusion; featured?: boolean }) {
   const { label, Icon, tint } = KIND_META[inclusionKind(item.category)];
 
-  const shell = 'group flex h-full flex-col overflow-hidden rounded-2xl bg-white text-left ring-1 ring-[#e4e3da] transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(23,63,53,.13)]';
+  const shell = 'group flex h-full flex-col overflow-hidden rounded-2xl bg-white text-left ring-1 ring-[#e4e3da] transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(6,95,70,.13)]';
 
   const body = (
     <>
@@ -94,7 +94,7 @@ function InclusionCard({ item, featured = false }: { item: PackageInclusion; fea
       </div>
 
       <div className="flex flex-1 flex-col p-5">
-        <h4 className="text-[17px] font-semibold leading-snug text-[#173f35]">{item.title}</h4>
+        <h4 className="text-[17px] font-semibold leading-snug text-[#065f46]">{item.title}</h4>
         {item.location && (
           <p className="sans mt-1.5 flex items-center gap-1.5 text-[13px] text-[#6c7770]">
             <MapPin size={13} aria-hidden="true" className="shrink-0" />
@@ -103,11 +103,11 @@ function InclusionCard({ item, featured = false }: { item: PackageInclusion; fea
         )}
         {item.price > 0 && showsInclusionPrice(item.category) && (
           <p className="sans mt-3 text-[13px] text-[#526057]">
-            <span className="text-[17px] font-bold text-[#173f35]">₹{item.price.toLocaleString('en-IN')}</span>
+            <span className="text-[17px] font-bold text-[#065f46]">₹{item.price.toLocaleString('en-IN')}</span>
             <span className="text-[#8b948c]"> / night</span>
           </p>
         )}
-        <span className="sans mt-4 inline-flex items-center gap-1.5 pt-1 text-[13px] font-bold text-[#24584a]">
+        <span className="sans mt-4 inline-flex items-center gap-1.5 pt-1 text-[13px] font-bold text-[#047857]">
           {item.href ? 'View details' : 'Included in this package'}
           {item.href && <ArrowUpRight size={15} aria-hidden="true" className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />}
         </span>

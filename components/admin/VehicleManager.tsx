@@ -147,7 +147,7 @@ export function VehicleManager() {
 
       <div className="flex items-center justify-between">
         <p className="text-xs text-[#888]">Drag to reorder</p>
-        <button onClick={() => start()} className="inline-flex items-center gap-2 rounded-[4px] bg-[#24584a] px-3 py-1.5 text-sm font-semibold text-white hover:bg-[#173f35]"><Plus size={15} /> Add vehicle type</button>
+        <button onClick={() => start()} className="inline-flex items-center gap-2 rounded-[4px] bg-[#047857] px-3 py-1.5 text-sm font-semibold text-white hover:bg-[#065f46]"><Plus size={15} /> Add vehicle type</button>
       </div>
 
       <div className="overflow-x-auto rounded-[6px] border border-[#e1e1e3] bg-white">
@@ -164,7 +164,7 @@ export function VehicleManager() {
                 className={`border-t border-[#eee] cursor-move transition-colors ${dragOverId === v.id ? 'bg-[#e8f5ed]' : ''} ${draggedId === v.id ? 'opacity-50' : ''}`}
               >
                 <td className="px-3 py-2"><div className="flex items-center gap-1 text-[#999] cursor-grab active:cursor-grabbing"><GripVertical size={14} /><span className="text-xs font-mono">{v.order}</span></div></td>
-                <td className="px-3 py-2 font-medium text-[#173f35]">{v.name}</td>
+                <td className="px-3 py-2 font-medium text-[#065f46]">{v.name}</td>
                 <td className="px-3 py-2 text-[#616161]">{v.capacity} seats</td>
                 <td className="px-3 py-2">{v.image ? <img src={v.image} alt={v.name} className="h-8 w-8 rounded object-cover" /> : <span className="text-xs text-[#ccc]">—</span>}</td>
                 <td className="px-3 py-2 text-right">
@@ -177,7 +177,7 @@ export function VehicleManager() {
           </tbody>
         </table>
       </div>
-      {reordering && <p className="text-xs text-[#24584a]">Updating order...</p>}
+      {reordering && <p className="text-xs text-[#047857]">Updating order...</p>}
 
       {showForm && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/40 p-4" role="dialog" aria-modal="true">
@@ -206,7 +206,7 @@ export function VehicleManager() {
             )}
             <div className="flex justify-end gap-2 pt-2">
               <button type="button" onClick={() => setShowForm(false)} className="rounded border border-[#e1e1e3] px-4 py-2 text-sm font-semibold">Cancel</button>
-              <button disabled={busy} className="inline-flex items-center gap-2 rounded-[4px] bg-[#24584a] px-4 py-2 text-sm font-semibold text-white disabled:opacity-60 hover:bg-[#173f35]">
+              <button disabled={busy} className="inline-flex items-center gap-2 rounded-[4px] bg-[#047857] px-4 py-2 text-sm font-semibold text-white disabled:opacity-60 hover:bg-[#065f46]">
                 {busy ? 'Saving...' : <><Check size={15} /> {editing ? 'Update' : 'Create'}</>}
               </button>
             </div>

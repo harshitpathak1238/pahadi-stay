@@ -320,7 +320,7 @@ export function RideManager() {
         <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} aria-label="Filter by type" className="rounded-[4px] border border-[#e1e1e3] bg-white px-3 py-2 text-sm"><option value="ALL">All types</option><option value="SIGHTSEEING">Sightseeing</option><option value="TRANSFER">Transfer</option></select>
         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} aria-label="Filter by status" className="rounded-[4px] border border-[#e1e1e3] bg-white px-3 py-2 text-sm"><option value="ALL">All statuses</option><option value="DRAFT">Draft</option><option value="LIVE">Live</option><option value="PAUSED">Paused</option></select>
         <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search title, slug, from/to..." aria-label="Search rides" className="min-w-[200px] flex-1 rounded-[4px] border border-[#e1e1e3] bg-white px-3 py-2 text-sm" />
-        <button onClick={() => start()} className="inline-flex items-center gap-2 rounded-[4px] bg-[#24584a] px-4 py-2 text-sm font-semibold text-white hover:bg-[#173f35]"><Plus size={15} /> New ride route</button>
+        <button onClick={() => start()} className="inline-flex items-center gap-2 rounded-[4px] bg-[#047857] px-4 py-2 text-sm font-semibold text-white hover:bg-[#065f46]"><Plus size={15} /> New ride route</button>
       </div>
       {message && <p role="status" className="rounded-[4px] border border-[#b7d8c6] bg-[#e8f5ed] px-3 py-2 text-sm font-semibold text-[#17633e]">{message}</p>}
       {error && <p role="alert" className="rounded-[4px] border border-[#f0c9c0] bg-[#fdf0ec] px-3 py-2 text-sm font-semibold text-[#a13d2c]">{error}</p>}
@@ -358,7 +358,7 @@ export function RideManager() {
           </tbody>
         </table>
       </div>
-      {reordering && <p className="text-sm text-[#24584a]">Updating order...</p>}
+      {reordering && <p className="text-sm text-[#047857]">Updating order...</p>}
       {showForm && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/40 p-4" role="dialog" aria-modal="true">
           <form onSubmit={save} className="mx-auto w-full max-w-3xl space-y-5 rounded-[8px] bg-white p-6">
@@ -390,11 +390,11 @@ export function RideManager() {
                       <Link2 size={13} className="text-[#888]" />
                       <input value={urlInput} onChange={(e) => { setUrlInput(e.target.value); setUrlError(''); }} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addMediaUrl(); } }} placeholder="Add image or video URL" className="w-48 bg-transparent text-sm font-normal outline-none" />
                     </span>
-                    <button type="button" onClick={addMediaUrl} className="rounded border border-[#24584a] px-3 py-1.5 text-sm font-semibold text-[#24584a] hover:bg-[#eef3f0]">Add</button>
+                    <button type="button" onClick={addMediaUrl} className="rounded border border-[#047857] px-3 py-1.5 text-sm font-semibold text-[#047857] hover:bg-[#eef3f0]">Add</button>
                   </span>
                 </div>
                 {urlError && <p className="mt-1 text-xs text-[#a13d2c]">{urlError}</p>}
-                {uploading && <p className="mt-1 text-xs text-[#24584a]">Uploading media...</p>}
+                {uploading && <p className="mt-1 text-xs text-[#047857]">Uploading media...</p>}
                 {form.images.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-2">
                     {form.images.map((img, i) => (
@@ -404,7 +404,7 @@ export function RideManager() {
                         onDragStart={() => setMediaDragIndex(i)}
                         onDragOver={(e) => { e.preventDefault(); if (mediaDragIndex !== null && mediaDragIndex !== i) moveImage(mediaDragIndex, i); }}
                         onDragEnd={() => setMediaDragIndex(null)}
-                        className={`group relative h-20 w-28 cursor-grab overflow-hidden rounded-lg ring-1 ${mediaDragIndex === i ? 'opacity-50 ring-2 ring-[#24584a]' : 'ring-[#e1e1e3]'}`}
+                        className={`group relative h-20 w-28 cursor-grab overflow-hidden rounded-lg ring-1 ${mediaDragIndex === i ? 'opacity-50 ring-2 ring-[#047857]' : 'ring-[#e1e1e3]'}`}
                         title="Drag to reorder"
                       >
                         {isVideoMedia(img) ? (
@@ -412,7 +412,7 @@ export function RideManager() {
                         ) : (
                           <img src={img} alt="" className="h-full w-full object-cover" />
                         )}
-                        {i === 0 && <span className="absolute left-1 top-1 inline-flex items-center gap-0.5 rounded bg-[#173f35] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white"><Star size={9} /> Cover</span>}
+                        {i === 0 && <span className="absolute left-1 top-1 inline-flex items-center gap-0.5 rounded bg-[#065f46] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white"><Star size={9} /> Cover</span>}
                         {isVideoMedia(img) && i !== 0 && <span className="absolute left-1 top-1 rounded bg-black/60 px-1 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white"><Video size={9} className="inline" /> Video</span>}
                         <span className="absolute inset-x-0 bottom-0 flex justify-between bg-black/45 px-1 py-0.5 opacity-0 transition group-hover:opacity-100">
                           {i !== 0 && (
@@ -468,7 +468,7 @@ export function RideManager() {
                         setForm({ ...form, vehicles: [...form.vehicles, { vehicleTypeId: addVehicleId, price: '' }] });
                         setAddVehicleId('');
                       }}
-                      className="rounded-[4px] border border-[#24584a] px-3 py-2 text-sm font-semibold text-[#24584a] disabled:opacity-50 hover:bg-[#eef3f0]"
+                      className="rounded-[4px] border border-[#047857] px-3 py-2 text-sm font-semibold text-[#047857] disabled:opacity-50 hover:bg-[#eef3f0]"
                     >
                       + Add vehicle
                     </button>
@@ -479,7 +479,7 @@ export function RideManager() {
                         const vt = vehicles.find((v) => v.id === fv.vehicleTypeId);
                         return (
                           <div key={i} className="flex flex-wrap items-center gap-2 rounded border border-[#e1e1e3] bg-[#fafafa] px-3 py-2">
-                            <span className="flex-1 text-sm font-medium text-[#173f35]">{vt ? `${vt.name} (up to ${vt.capacity})` : fv.vehicleTypeId}</span>
+                            <span className="flex-1 text-sm font-medium text-[#065f46]">{vt ? `${vt.name} (up to ${vt.capacity})` : fv.vehicleTypeId}</span>
                             <label className="flex items-center gap-1 text-sm font-semibold">
                               ₹
                               <input
@@ -507,7 +507,7 @@ export function RideManager() {
                 </>
               )}
             </div>
-            <button disabled={busy} className="w-full rounded-[4px] bg-[#24584a] px-4 py-2.5 font-semibold text-white disabled:opacity-60">{busy ? 'Saving...' : 'Save ride route'}</button>
+            <button disabled={busy} className="w-full rounded-[4px] bg-[#047857] px-4 py-2.5 font-semibold text-white disabled:opacity-60">{busy ? 'Saving...' : 'Save ride route'}</button>
           </form>
         </div>
       )}
@@ -519,7 +519,7 @@ export function RideManager() {
               <h3 className="text-lg font-bold">Choose media</h3>
               <button type="button" onClick={() => setShowMediaPicker(false)} aria-label="Close"><X size={18} /></button>
             </div>
-            {uploading && <p className="mt-2 text-sm text-[#24584a]">Uploading...</p>}
+            {uploading && <p className="mt-2 text-sm text-[#047857]">Uploading...</p>}
             {mediaLoading ? (
               <p className="mt-4 text-center text-sm text-[#616161]">Loading media...</p>
             ) : mediaAssets.length === 0 ? (
@@ -527,7 +527,7 @@ export function RideManager() {
             ) : (
               <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-4">
                 {mediaAssets.map((asset) => (
-                  <button key={asset.id} type="button" onClick={() => selectMediaUrl(asset.url)} className="relative aspect-square overflow-hidden rounded border border-[#e1e1e3] hover:ring-2 hover:ring-[#24584a]">
+                  <button key={asset.id} type="button" onClick={() => selectMediaUrl(asset.url)} className="relative aspect-square overflow-hidden rounded border border-[#e1e1e3] hover:ring-2 hover:ring-[#047857]">
                     <img src={asset.thumbnailUrl || asset.url} alt={asset.filename} className="h-full w-full object-cover" />
                   </button>
                 ))}

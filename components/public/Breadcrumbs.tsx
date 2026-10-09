@@ -33,12 +33,12 @@ export function Breadcrumbs({ items, className = '', variant = 'light' }: Breadc
               {isLast || !item.href ? (
                 <span
                   aria-current={isLast ? 'page' : undefined}
-                  className={`truncate ${isLast ? (dark ? 'font-semibold text-white' : 'font-semibold text-[#173f35]') : ''}`}
+                  className={`truncate ${isLast ? (dark ? 'font-semibold text-white' : 'font-semibold text-[#065f46]') : ''}`}
                 >
                   {item.label}
                 </span>
               ) : (
-                <Link href={item.href} className={`shrink-0 transition ${dark ? 'hover:text-white hover:underline' : 'hover:text-[#173f35] hover:underline'}`}>
+                <Link href={item.href} className={`shrink-0 transition ${dark ? 'hover:text-white hover:underline' : 'hover:text-[#065f46] hover:underline'}`}>
                   {item.label}
                 </Link>
               )}

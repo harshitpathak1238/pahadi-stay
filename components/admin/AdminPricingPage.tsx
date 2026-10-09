@@ -301,7 +301,7 @@ export function AdminPricingPage() {
         </p>
 
         {error && <p role="alert" className="mt-4 rounded-[4px] border border-[#e0b4b4] bg-[#fdf0f0] px-3 py-2 text-[12px] font-semibold text-[#8a3a3a]">{error}</p>}
-        {message && <p role="status" className="mt-4 inline-flex items-center gap-2 rounded-[4px] border border-[#b9d5c5] bg-[#f1f8f3] px-3 py-2 text-[12px] font-semibold text-[#24584a]"><Check size={14} /> {message}</p>}
+        {message && <p role="status" className="mt-4 inline-flex items-center gap-2 rounded-[4px] border border-[#b9d5c5] bg-[#f1f8f3] px-3 py-2 text-[12px] font-semibold text-[#047857]"><Check size={14} /> {message}</p>}
 
         <section className="mt-6 rounded-[4px] border border-[#e1e1e3] bg-white p-5">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -334,7 +334,7 @@ export function AdminPricingPage() {
                 const active = checked && mode?.peakModeEnabled;
                 return (
                   <label key={value} className={`flex cursor-pointer items-start gap-2 rounded-[4px] border px-3 py-2 ${checked ? 'border-[#b9d5c5] bg-[#f6fbf8]' : 'border-[#e1e1e3] bg-white'}`}>
-                    <input type="checkbox" checked={checked} disabled={busy} onChange={() => toggleCategory(value)} className="mt-0.5 accent-[#24584a]" />
+                    <input type="checkbox" checked={checked} disabled={busy} onChange={() => toggleCategory(value)} className="mt-0.5 accent-[#047857]" />
                     <span className="min-w-0">
                       <span className="block text-[12px] font-semibold">{PRICING_CATEGORY_LABELS[value]}</span>
                       <span className="block text-[11px] text-[#8a8a8a]">{count ? `${count.listings} listings${count.fares ? ` · ${count.fares} fares` : ''}` : 'No items yet'}</span>

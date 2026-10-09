@@ -119,19 +119,19 @@ export function StayWhatsAppEnquiryModal({ stay, open, onClose, pickupRoutes = [
           onClick={(event) => event.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-start justify-between gap-3 border-b border-[#e2e6df] bg-[#f7f4ec] px-4 py-4 sm:px-5">
+          <div className="flex items-start justify-between gap-3 border-b border-[#e2e6df] bg-[#f4f8f4] px-4 py-4 sm:px-5">
             <div className="min-w-0">
               <p className="sans inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[.14em] text-[#1d7a4f]">
                 <WhatsAppMark size={13} /> Enquire on WhatsApp
               </p>
-              <h3 className="mt-1 text-lg font-bold leading-snug text-[#173f35] sm:text-xl">Choose your bedroom</h3>
+              <h3 className="mt-1 text-lg font-bold leading-snug text-[#065f46] sm:text-xl">Choose your bedroom</h3>
               <p className="sans mt-0.5 truncate text-xs text-[#6c7770] sm:text-[13px]">{stay.title} · {stay.location}</p>
             </div>
             <button
               type="button"
               onClick={onClose}
               aria-label="Close enquiry"
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white text-[#173f35] ring-1 ring-[#e2e6df] transition hover:bg-[#eef3ed]"
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white text-[#065f46] ring-1 ring-[#e2e6df] transition hover:bg-[#eef3ed]"
             >
               <X size={18} />
             </button>
@@ -160,13 +160,13 @@ export function StayWhatsAppEnquiryModal({ stay, open, onClose, pickupRoutes = [
           <div className="border-t border-[#e2e6df] bg-white px-4 pb-[max(0.875rem,env(safe-area-inset-bottom))] pt-3.5 sm:px-5">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
-                <p className="sans text-sm font-bold text-[#173f35]">
+                <p className="sans text-sm font-bold text-[#065f46]">
                   {selected.length ? `${selected.length} bedroom${selected.length > 1 ? 's' : ''} selected` : 'No bedroom selected yet'}
                 </p>
                 <p className="sans mt-0.5 text-xs text-[#6c7770]">
                   {selected.length
                     ? totalPerNight > 0
-                      ? <>Estimated <span className="font-bold text-[#173f35]">₹{totalPerNight.toLocaleString('en-IN')}</span> / night</>
+                      ? <>Estimated <span className="font-bold text-[#065f46]">₹{totalPerNight.toLocaleString('en-IN')}</span> / night</>
                       : 'Price on request'
                     : 'Tap one or more bedrooms above'}
                 </p>
@@ -177,7 +177,7 @@ export function StayWhatsAppEnquiryModal({ stay, open, onClose, pickupRoutes = [
                 </button>
               )}
             </div>
-            {pickup && <p className="sans mt-2 text-xs font-semibold text-[#24584a]">+ ₹{pickup.price.toLocaleString('en-IN')} one-way pickup · {pickup.vehicleName}</p>}
+            {pickup && <p className="sans mt-2 text-xs font-semibold text-[#047857]">+ ₹{pickup.price.toLocaleString('en-IN')} one-way pickup · {pickup.vehicleName}</p>}
             <button
               type="button"
               onClick={sendEnquiry}
@@ -303,7 +303,7 @@ function BedroomCard({ bedroom, selected, onToggle, onOpenPhoto }: { bedroom: En
             <Image src={photos[photoIndex]} alt={bedroom.title} fill sizes="(max-width: 640px) 46vw, 300px" unoptimized className="object-cover" />
           </button>
         ) : (
-          <div className="flex h-full items-center justify-center text-[#24584a]">
+          <div className="flex h-full items-center justify-center text-[#047857]">
             <BedDouble size={26} strokeWidth={1.6} />
           </div>
         )}
@@ -319,11 +319,11 @@ function BedroomCard({ bedroom, selected, onToggle, onOpenPhoto }: { bedroom: En
         </span>
 
         {bedroom.price != null ? (
-          <span className="pointer-events-none absolute right-1.5 top-1.5 rounded-full bg-[#173f35] px-2 py-0.5 text-[10px] font-bold text-white shadow-[0_4px_10px_rgba(7,26,21,.35)] sm:text-[11px]">
+          <span className="pointer-events-none absolute right-1.5 top-1.5 rounded-full bg-[#065f46] px-2 py-0.5 text-[10px] font-bold text-white shadow-[0_4px_10px_rgba(7,26,21,.35)] sm:text-[11px]">
             ₹{bedroom.price.toLocaleString('en-IN')} <span className="font-medium text-white/80">/ night</span>
           </span>
         ) : (
-          <span className="pointer-events-none absolute right-1.5 top-1.5 rounded-full bg-[#173f35] px-2 py-0.5 text-[10px] font-bold text-white shadow-[0_4px_10px_rgba(7,26,21,.35)] sm:text-[11px]">
+          <span className="pointer-events-none absolute right-1.5 top-1.5 rounded-full bg-[#065f46] px-2 py-0.5 text-[10px] font-bold text-white shadow-[0_4px_10px_rgba(7,26,21,.35)] sm:text-[11px]">
             Price on request
           </span>
         )}
@@ -356,10 +356,10 @@ function BedroomCard({ bedroom, selected, onToggle, onOpenPhoto }: { bedroom: En
 
       {/* Title + details */}
       <div className="flex min-w-0 flex-1 flex-col gap-1 p-2.5">
-        <p className="text-[13px] font-bold leading-tight text-[#173f35] sm:text-sm">{bedroom.title}</p>
+        <p className="text-[13px] font-bold leading-tight text-[#065f46] sm:text-sm">{bedroom.title}</p>
         {bedroom.description.trim() && <p className="text-[11px] leading-[1.15rem] text-[#6c7770] sm:text-xs sm:leading-[1.25rem]">{bedroom.description.trim()}</p>}
         {meta && (
-          <p className={`mt-auto inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold transition sm:text-[11px] ${selected ? 'bg-[#dcf7e6] text-[#0d7a43]' : 'bg-[#eef3ef] text-[#24584a]'}`}>
+          <p className={`mt-auto inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold transition sm:text-[11px] ${selected ? 'bg-[#dcf7e6] text-[#0d7a43]' : 'bg-[#eef3ef] text-[#047857]'}`}>
             <BedDouble size={11} /> {meta}
           </p>
         )}

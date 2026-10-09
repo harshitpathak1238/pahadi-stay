@@ -27,13 +27,13 @@ export default async function Rides({ searchParams }: { searchParams: { where?: 
         <RideCategoryToggle sightseeingCount={sightseeing.length} transfersCount={transfers.length} />
 
         <div id="rides-sightseeing" className="mt-8 scroll-mt-28">
-          <h2 className="text-3xl text-[#173f35]">Sightseeing packages</h2>
+          <h2 className="text-3xl text-[#065f46]">Sightseeing packages</h2>
           {sightseeing.length ? <div className="mt-6"><RideCardList rides={sightseeing} /></div>
             : <p className="sans mt-6 rounded-2xl border border-dashed p-10 text-center">Sightseeing packages are being added soon.</p>}
         </div>
 
         <div id="rides-transfers" className="mt-12 scroll-mt-28">
-          <h2 className="text-3xl text-[#173f35]">Point-to-point transfers</h2>
+          <h2 className="text-3xl text-[#065f46]">Point-to-point transfers</h2>
           {transfers.length ? <div className="mt-6"><RideCardList rides={transfers} /></div>
             : <p className="sans mt-6 rounded-2xl border border-dashed p-10 text-center">Transfer routes are being added soon.</p>}
         </div>

@@ -74,7 +74,7 @@ export default async function Home() {
 
   return (
     <>
-      <section className="hero-wash px-4 text-[#f7f4ec]">
+      <section className="hero-wash px-4 text-[#f4f8f4]">
         {/* LCP image: priority + fetchPriority so the hero photo is discovered
             in HTML, not late CSS — this is what fixes the NO_LCP failure. */}
         <div className="hero-wash-media" aria-hidden="true">
@@ -102,8 +102,16 @@ export default async function Home() {
       </section>
 
       <section className="relative z-10 mt-2 px-4">
-        <div className="mx-auto grid max-w-6xl gap-px overflow-hidden rounded-2xl border border-[#e0e6e0] bg-[#e0e6e0] shadow-[0_14px_35px_rgba(23,63,53,.1)] sm:grid-cols-3">
-          {values.map(({ icon: Icon, title, text }) => <div key={title} className="bg-white px-4 py-4 sm:px-6"><Icon size={20} strokeWidth={1.8} className="text-[#b66b45]" /><h3 className="mt-2.5 text-[15px] font-semibold text-[#173f35]">{title}</h3><p className="sans mt-1 text-xs leading-5 text-[#6c7770]">{text}</p></div>)}
+        <div className="mx-auto grid max-w-6xl gap-px overflow-hidden rounded-2xl border border-[#e0e6e0] bg-[#e0e6e0] shadow-[0_14px_35px_rgba(6,95,70,.1)] sm:grid-cols-3">
+          {values.map(({ icon: Icon, title, text }) => (
+            <div key={title} className="flex items-start gap-3 bg-white px-4 py-4 sm:gap-3.5 sm:px-6">
+              <Icon size={20} strokeWidth={1.8} className="mt-0.5 shrink-0 text-[#b66b45]" />
+              <div className="min-w-0">
+                <h3 className="min-h-[2.6rem] text-[15px] font-semibold leading-snug text-[#065f46]">{title}</h3>
+                <p className="sans mt-1 text-xs leading-5 text-[#6c7770]">{text}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -114,7 +122,7 @@ export default async function Home() {
             <h2 className="mt-3 max-w-xl text-2xl leading-snug md:text-5xl">Explore the best hotels &amp; <i>homestays.</i></h2>
             <p className="sans mt-4 max-w-xl text-sm leading-7 text-[#6c7770]">Handpicked stays around Bhimtal, Bhowali and the Kainchi hills — each one chosen for warmth, views and a genuine Kumaoni welcome.</p>
           </div>
-          <Button href="/stays" variant="quiet">See all stays <ArrowRight size={16} /></Button>
+          <Button href="/stays" variant="cta">See all stays <ArrowRight size={16} /></Button>
         </div>
         <FeaturedStaysRail stays={liveStays.slice(0, MAX_FEATURED_STAYS)} />
       </section>
@@ -127,30 +135,30 @@ export default async function Home() {
               <p className="sans text-xs font-bold uppercase tracking-[.2em] text-[#b66b45]">Curated escapes</p>
               <h2 className="mt-3 max-w-2xl text-2xl leading-snug md:text-5xl">Explore our most popular <i>packages.</i></h2>
             </div>
-            <Button href="/packages" variant="quiet">Browse all packages <ArrowRight size={16} /></Button>
+            <Button href="/packages" variant="cta">Browse all packages <ArrowRight size={16} /></Button>
           </div>
           <div className="mt-10 grid gap-6 lg:grid-cols-2">
             {packageResult.length > 0 ? packageResult.slice(0, MAX_FEATURED_PACKAGES).map((item) => (
-              <Link key={item.id} href={`/packages/${item.id}`} className="group grid grid-cols-[128px_minmax(0,1fr)] overflow-hidden rounded-2xl bg-[#24584a] text-white ring-1 ring-[#1d4a3e] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_60px_rgba(23,63,53,.24)] sm:grid-cols-[190px_minmax(0,1fr)] md:grid-cols-[230px_minmax(0,1fr)]">
-                <div className="relative min-h-[148px] overflow-hidden bg-[#173f35] sm:min-h-[168px] md:min-h-[188px]">
+              <Link key={item.id} href={`/packages/${item.id}`} className="group grid grid-cols-[128px_minmax(0,1fr)] overflow-hidden rounded-2xl border border-[#e4e3da] bg-white shadow-[0_14px_35px_rgba(6,95,70,.08)] transition duration-300 hover:-translate-y-0.5 hover:border-[#c9d6ce] hover:shadow-[0_20px_46px_rgba(6,95,70,.14)] sm:grid-cols-[190px_minmax(0,1fr)] md:grid-cols-[230px_minmax(0,1fr)]">
+                <div className="relative min-h-[148px] overflow-hidden bg-[#eef1e8] sm:min-h-[168px] md:min-h-[188px]">
                   {item.image ? (
                     <Image src={item.image} alt={item.title} fill loading="lazy" sizes="(max-width: 640px) 128px, (max-width: 768px) 190px, 230px" className="object-cover transition duration-500 group-hover:scale-[1.04]" />
                   ) : (
-                    <div className="flex h-full items-center justify-center text-white/70"><Sparkles size={30} /></div>
+                    <div className="flex h-full items-center justify-center text-[#6c7770]"><Sparkles size={30} /></div>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#102f28]/70 via-transparent to-transparent" />
-                  <span className="sans absolute left-2.5 top-2.5 rounded-full border border-white/35 bg-[#173f35]/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.12em] text-white backdrop-blur-sm">{item.location}</span>
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#102f28]/55 via-transparent to-transparent" />
+                  <span className="sans absolute left-2.5 top-2.5 rounded-full border border-white/40 bg-white/85 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.12em] text-[#065f46] backdrop-blur-sm">{item.location}</span>
                 </div>
                 <div className="flex min-w-0 flex-col p-4 sm:p-5">
-                  <p className="sans text-[10px] font-bold uppercase tracking-[.18em] text-[#e6b17e]">Travel package</p>
-                  <h3 className="mt-1.5 text-base font-semibold leading-snug text-white sm:text-lg md:text-xl">{item.title}</h3>
-                  {item.description && <p className="sans mt-1.5 hidden line-clamp-2 text-xs leading-5 text-white/70 sm:block">{packageExcerpt(item.description)}</p>}
-                  <div className="mt-auto flex min-w-0 items-end justify-between gap-3 border-t border-white/15 pt-3 sm:pt-3.5">
+                  <p className="sans text-[10px] font-bold uppercase tracking-[.18em] text-[#b66b45]">Travel package</p>
+                  <h3 className="mt-1.5 text-base font-semibold leading-snug text-[#065f46] sm:text-lg md:text-xl">{item.title}</h3>
+                  {item.description && <p className="sans mt-1.5 hidden line-clamp-2 text-xs leading-5 text-[#6c7770] sm:block">{packageExcerpt(item.description)}</p>}
+                  <div className="mt-auto flex min-w-0 items-end justify-between gap-3 border-t border-[#e4e3da] pt-3 sm:pt-3.5">
                     <p className="sans min-w-0">
-                      <span className="block text-[10px] uppercase tracking-[.16em] text-white/55">Per package</span>
-                      <span className="text-base font-bold text-[#e6b17e]">₹{item.price.toLocaleString('en-IN')}</span>
+                      <span className="block text-[10px] uppercase tracking-[.16em] text-[#8a948c]">Per package</span>
+                      <span className="text-base font-bold text-[#065f46]">₹{item.price.toLocaleString('en-IN')}</span>
                     </p>
-                    <span className="sans inline-flex shrink-0 items-center gap-1.5 text-sm font-bold text-[#f0c28f]">View package <ArrowRight size={15} /></span>
+                    <span className="sans inline-flex shrink-0 items-center gap-1.5 text-sm font-bold text-[#047857] transition group-hover:gap-2.5">View package <ArrowRight size={15} /></span>
                   </div>
                 </div>
               </Link>
@@ -163,10 +171,10 @@ export default async function Home() {
       </section>
 {/* Reviews & about us */}
       <section className="relative z-10 px-4">
-        <div className="mx-auto grid max-w-7xl gap-10 overflow-hidden rounded-[2rem] border border-[#dfe2d8] bg-[#fdfaf3] shadow-[0_18px_44px_rgba(23,63,53,.08)] lg:grid-cols-2">
+        <div className="mx-auto grid max-w-7xl gap-10 overflow-hidden rounded-[2rem] border border-[#dfe2d8] bg-[#fdfaf3] shadow-[0_18px_44px_rgba(6,95,70,.08)] lg:grid-cols-2">
           <div className="flex flex-col p-6 md:p-10">
             <p className="sans text-xs font-bold uppercase tracking-[.2em] text-[#b66b45]">The Pahadi way</p>
-            <h2 className="mt-3 text-[1.8rem] leading-snug text-[#173f35] md:text-4xl">Built for the hills, <i>by the people who live there.</i></h2>
+            <h2 className="mt-3 text-[1.8rem] leading-snug text-[#065f46] md:text-4xl">Built for the hills, <i>by the people who live there.</i></h2>
             <p className="sans mt-5 text-sm leading-7 text-[#6c7770]">Pahadi Stay exists to make the good parts of Kumaon easier to find, while keeping the value with the people who make this place worth visiting. Thoughtful stays, easy rides and small adventures — arranged with care, priced with honesty.</p>
             <div className="mt-6 grid grid-cols-3 gap-3 border-t border-[#dfe2d8] pt-4 md:gap-4">
               {[
@@ -175,12 +183,12 @@ export default async function Home() {
                 { value: reviewAverage ? `${reviewAverage.toFixed(1)}★` : '4.9★', label: 'guest rating' },
               ].map((stat) => (
                 <div key={stat.label}>
-                  <p className="sans text-2xl font-bold text-[#173f35]">{stat.value}</p>
+                  <p className="sans text-2xl font-bold text-[#065f46]">{stat.value}</p>
                   <p className="sans mt-1 text-[10px] uppercase tracking-[.14em] text-[#8a948c]">{stat.label}</p>
                 </div>
               ))}
             </div>
-            <Button href="/about" variant="outline">Our story <ArrowRight size={16} /></Button>
+            <Button href="/about" variant="cta">Our story <ArrowRight size={16} /></Button>
           </div>
 
           <div className="flex flex-col p-6 md:p-10">
@@ -188,11 +196,11 @@ export default async function Home() {
             {recentReviews.length > 0 ? (
               <div className="mt-5 space-y-4">
                 {recentReviews.map((review) => (
-                  <figure key={review.id} className="rounded-[1.25rem] border border-[#e3e7df] bg-white p-4 shadow-[0_10px_26px_rgba(23,63,53,.06)]">
+                  <figure key={review.id} className="rounded-[1.25rem] border border-[#e3e7df] bg-white p-4 shadow-[0_10px_26px_rgba(6,95,70,.06)]">
                     <blockquote className="sans text-sm leading-6 text-[#526057]">“{review.comment}”</blockquote>
                     <figcaption className="sans mt-3 flex items-center gap-2 text-xs text-[#6c7770]">
-                      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#e7eadf] text-[11px] font-bold text-[#173f35]">{review.guest.charAt(0).toUpperCase()}</span>
-                      <span className="font-semibold text-[#173f35]">{review.guest}</span>
+                      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#e7eadf] text-[11px] font-bold text-[#065f46]">{review.guest.charAt(0).toUpperCase()}</span>
+                      <span className="font-semibold text-[#065f46]">{review.guest}</span>
                       <span aria-hidden="true">·</span>
                       <span className="truncate">{review.stay}</span>
                       <span aria-hidden="true">·</span>
@@ -203,11 +211,11 @@ export default async function Home() {
               </div>
             ) : (
               <div className="mt-5 rounded-[1.25rem] border border-dashed border-[#d3d8d1] bg-[#f6f7f3] p-7 text-center">
-                <p className="text-sm font-semibold text-[#24584a]">Stories from the hills, soon.</p>
+                <p className="text-sm font-semibold text-[#047857]">Stories from the hills, soon.</p>
                 <p className="sans mt-2 text-xs leading-5 text-[#607067]">Guest reviews will appear here as travellers share their stays. Until then, explore a stay and be among the first to leave one.</p>
               </div>
             )}
-            <Link href="/about" className="sans mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#173f35] underline decoration-[#b66b45]/50 underline-offset-8">Why travellers choose us <ArrowRight size={15} /></Link>
+            <Link href="/about" className="sans mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#065f46] underline decoration-[#b66b45]/50 underline-offset-8">Why travellers choose us <ArrowRight size={15} /></Link>
           </div>
         </div>
       </section>
@@ -224,7 +232,7 @@ export default async function Home() {
                 <div className="absolute inset-0 bg-gradient-to-t from-[#102f28]/85 via-[#102f28]/10 to-transparent" />
                 <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between text-white md:bottom-7 md:left-7 md:right-7">
                   <div><h3 className="text-2xl md:text-4xl">{destination.title}</h3><p className="sans mt-1 text-sm text-white/75">{destination.sub}</p></div>
-                  <span className="grid h-10 w-10 place-items-center rounded-full border border-white/40 transition group-hover:bg-white group-hover:text-[#173f35]"><ArrowRight size={17} /></span>
+                  <span className="grid h-10 w-10 place-items-center rounded-full border border-white/40 transition group-hover:bg-white group-hover:text-[#065f46]"><ArrowRight size={17} /></span>
                 </div>
               </Link>
             ))}
@@ -238,7 +246,7 @@ export default async function Home() {
             <p className="sans text-xs font-bold uppercase tracking-[.2em] text-[#b66b45]">Travel journal</p>
             <h2 className="mt-3 text-2xl leading-snug md:text-5xl">Stories for slower mornings and better plans.</h2>
           </div>
-          <Link href="/blog" className="inline-flex items-center gap-2 text-sm font-bold text-[#173f35] underline decoration-[#b66b45]/50 underline-offset-8">Browse all stories <ArrowRight size={16} /></Link>
+          <Link href="/blog" className="inline-flex items-center gap-2 text-sm font-bold text-[#065f46] underline decoration-[#b66b45]/50 underline-offset-8">Browse all stories <ArrowRight size={16} /></Link>
         </div>
 
         {blogs.length > 0 ? (

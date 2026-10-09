@@ -27,18 +27,18 @@ export function PackageItinerary({ stops }: { stops: ItineraryStop[] }) {
             {/* Offsets keep the numbered badge centred on the rail at every breakpoint. */}
             <span
               aria-hidden="true"
-              className="absolute -left-[31px] grid h-7 w-7 place-items-center rounded-full bg-[#173f35] text-[11px] font-bold text-white ring-4 ring-[#fff] sm:-left-[45px] sm:h-8 sm:w-8 sm:text-[12px]"
+              className="absolute -left-[31px] grid h-7 w-7 place-items-center rounded-full bg-[#065f46] text-[11px] font-bold text-white ring-4 ring-[#fff] sm:-left-[45px] sm:h-8 sm:w-8 sm:text-[12px]"
             >
               {index + 1}
             </span>
-            <div className="rounded-2xl border border-[#e4e3da] bg-white p-4 shadow-[0_6px_18px_rgba(23,63,53,.05)] transition hover:shadow-[0_12px_28px_rgba(23,63,53,.1)] sm:p-5">
+            <div className="rounded-2xl border border-[#e4e3da] bg-white p-4 shadow-[0_6px_18px_rgba(6,95,70,.05)] transition hover:shadow-[0_12px_28px_rgba(6,95,70,.1)] sm:p-5">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="sans inline-flex items-center gap-1.5 rounded-full bg-[#eef1ee] px-2.5 py-1 text-[11px] font-bold text-[#526057]">
                   {index === 0 ? <Sunrise size={12} aria-hidden="true" /> : <Footprints size={12} aria-hidden="true" />}
                   {index === 0 ? 'Start' : `Stop ${index + 1}`}
                 </span>
               </div>
-              <h3 className="mt-2.5 text-[17px] font-semibold leading-snug text-[#173f35] sm:text-lg">{stop.label}</h3>
+              <h3 className="mt-2.5 text-[17px] font-semibold leading-snug text-[#065f46] sm:text-lg">{stop.label}</h3>
               {stop.note && <p className="sans mt-1.5 text-[14px] leading-6 text-[#6c7770] sm:text-[15px]">{stop.note}</p>}
             </div>
           </li>

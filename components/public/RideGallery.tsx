@@ -33,10 +33,10 @@ export function RideGallery({ media, title }: { media: string[]; title: string }
 
         {items.length > 1 && (
           <>
-            <button type="button" aria-label="Previous media" onClick={() => step(-1)} className="absolute left-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-[#173f35] shadow-md backdrop-blur-sm transition hover:bg-white">
+            <button type="button" aria-label="Previous media" onClick={() => step(-1)} className="absolute left-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-[#065f46] shadow-md backdrop-blur-sm transition hover:bg-white">
               <ChevronLeft size={18} />
             </button>
-            <button type="button" aria-label="Next media" onClick={() => step(1)} className="absolute right-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-[#173f35] shadow-md backdrop-blur-sm transition hover:bg-white">
+            <button type="button" aria-label="Next media" onClick={() => step(1)} className="absolute right-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-[#065f46] shadow-md backdrop-blur-sm transition hover:bg-white">
               <ChevronRight size={18} />
             </button>
             <span className="sans absolute bottom-4 right-4 rounded-full bg-black/55 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm">{index + 1} / {items.length}</span>
@@ -55,7 +55,7 @@ export function RideGallery({ media, title }: { media: string[]; title: string }
               type="button"
               aria-label={`Show media ${i + 1}`}
               onClick={() => setIndex(i)}
-              className={`relative h-16 w-24 shrink-0 overflow-hidden rounded-xl transition sm:h-[72px] sm:w-28 ${i === index ? 'ring-2 ring-[#173f35] ring-offset-2 ring-offset-[#faf6ec]' : 'opacity-70 hover:opacity-100'}`}
+              className={`relative h-16 w-24 shrink-0 overflow-hidden rounded-xl transition sm:h-[72px] sm:w-28 ${i === index ? 'ring-2 ring-[#065f46] ring-offset-2 ring-offset-[#faf6ec]' : 'opacity-70 hover:opacity-100'}`}
             >
               {item.kind === 'image' ? (
                 <Image src={item.url} alt="" fill sizes="112px" unoptimized className="object-cover" />
