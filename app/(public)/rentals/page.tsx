@@ -79,22 +79,6 @@ export default async function Rentals({
           className="shrink-0"
         />
       </div>
-      <section className="border-t border-[#e4e3da] py-10">
-        <div className="grid gap-5 text-center sm:grid-cols-3">
-          <div>
-            <p className="text-2xl text-[#b66b45]">₹500</p>
-            <p className="sans mt-1 text-sm text-[#6c7770]">Scooty per day</p>
-          </div>
-          <div>
-            <p className="text-2xl text-[#b66b45]">₹800</p>
-            <p className="sans mt-1 text-sm text-[#6c7770]">Bike per day</p>
-          </div>
-          <div>
-            <p className="text-2xl text-[#b66b45]">0</p>
-            <p className="sans mt-1 text-sm text-[#6c7770]">Hidden charges</p>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }
