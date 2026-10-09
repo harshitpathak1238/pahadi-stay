@@ -8,10 +8,16 @@ import { WhatsAppButton } from "./WhatsAppButton";
 import { AddToTrip } from "@/components/trip/TripCart";
 
 export function RentalCard({ rental }: { rental: Rental }) {
-  const isScooty = rental.scootyQuantity !== undefined && rental.scootyQuantity > 0;
+  // The vehicle name decides the type first: live rental rows can carry
+  // scootyQuantity = 0, which used to label a Scooty card (and its quantity
+  // dropdown) as a bike.
+  const isScooty =
+    (rental.scootyQuantity ?? 0) > 0 || /scooty|scooter/i.test(`${rental.title} ${rental.type}`);
   const [quantity, setQuantity] = useState(1);
   const available = isScooty ? rental.scootyQuantity || 0 : rental.bikeQuantity || 0;
-  const currentQuantity = Math.min(Math.max(quantity, 1), Math.max(available, 1));
+  // Scooty cards offer a fixed 1-6 picker; admin stock still caps it once set.
+  const optionCount = isScooty ? (available > 0 ? Math.min(available, 6) : 6) : Math.max(available, 1);
+  const currentQuantity = Math.min(Math.max(quantity, 1), optionCount);
   const whatsappMessage = `Hello KainchiDarshan, I want to know more about the ${rental.title} rental (${rental.type}) at ₹${rental.price} per day. Please share availability and pickup details.`;
   return (
     <article className="rental-card overflow-hidden rounded-[1.25rem] border border-[#dfe3d8] bg-white shadow-[0_14px_40px_rgba(6,95,70,.08)]">
@@ -67,7 +73,7 @@ export function RentalCard({ rental }: { rental: Rental }) {
           </p>
           <div className="grid gap-2 sm:flex sm:items-end">
             <WhatsAppButton message={whatsappMessage} />
-            <label className="grid gap-1 sans text-xs font-bold text-[#065f46]">{isScooty ? 'Scooty quantity' : 'Bike quantity'}<select value={currentQuantity} onChange={(event) => setQuantity(Number(event.target.value))} className="rounded-xl border border-[#d6d9d1] bg-white p-2.5 text-sm" disabled={!available}>{Array.from({ length: Math.max(available, 1) }, (_, index) => index + 1).map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
+            <label className="grid gap-1 sans text-xs font-bold text-[#065f46]">{isScooty ? 'Scooty quantity' : 'Bike quantity'}<select value={currentQuantity} onChange={(event) => setQuantity(Number(event.target.value))} className="rounded-xl border border-[#d6d9d1] bg-white p-2.5 text-sm" disabled={!isScooty && !available}>{Array.from({ length: optionCount }, (_, index) => index + 1).map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
             <AddToTrip item={{ slug: rental.slug, title: rental.title, category: 'RENTAL', price: rental.price * currentQuantity, startDate: new Date().toISOString().slice(0, 10), rentalType: isScooty ? 'SCOOTY' : 'BIKE', quantity: currentQuantity, addonBreakdown: [{ id: 'RENTAL', label: `${isScooty ? 'Scooty' : 'Bike'} rental`, amount: rental.price * currentQuantity }] }} />
           </div>
         </div>

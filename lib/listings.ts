@@ -152,7 +152,7 @@ export async function getPublicRentals(): Promise<PublicResult<Rental[]>> {
         // Rentals are quoted per day, so they follow the same seasonal switch as
         // stays — otherwise a peak-season site would still advertise cheap bikes.
         const pricing = await getPricingMode();
-        return { data: records.map((record) => ({ slug: record.slug, title: record.title, type: record.scootyQuantity > 0 ? 'Scooty rent' : 'Bike rent', price: resolveDisplayPrice({ price: record.sellPrice, seasonPrice: record.seasonPrice, offSeasonPrice: record.offSeasonPrice }, pricing, 'RENTAL'), image: strings(record.images)[0] || '/images/Logo.png', description: record.description, features: strings(record.amenities), pickup: record.location, bikeQuantity: record.bikeQuantity, scootyQuantity: record.scootyQuantity })), degraded: false };
+        return { data: records.map((record) => ({ slug: record.slug, title: record.title, type: (record.scootyQuantity > 0 || /scooty|scooter/i.test(record.title)) ? 'Scooty rent' : 'Bike rent', price: resolveDisplayPrice({ price: record.sellPrice, seasonPrice: record.seasonPrice, offSeasonPrice: record.offSeasonPrice }, pricing, 'RENTAL'), image: strings(record.images)[0] || '/images/Logo.png', description: record.description, features: strings(record.amenities), pickup: record.location, bikeQuantity: record.bikeQuantity, scootyQuantity: record.scootyQuantity })), degraded: false };
       }
     } catch { /* fall through to the degraded fallback below */ }
     if (process.env.NODE_ENV === 'production') return { data: [], degraded: true };
