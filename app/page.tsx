@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, Compass, HeartHandshake, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowRight, Compass, HandHeart, ShieldCheck, Sparkles } from 'lucide-react';
 import { SearchBox } from '@/components/SearchBox';
 import { FeaturedStaysRail } from '@/components/public/FeaturedStaysRail';
 import { JournalRail } from '@/components/public/JournalRail';
@@ -23,7 +23,7 @@ const packageExcerpt = (html: string) => html.replace(/<style[\s\S]*?<\/style>/g
 const values = [
   { icon: Sparkles, title: 'Thoughtfully chosen', text: 'Stays and experiences we would recommend to friends.' },
   { icon: ShieldCheck, title: 'Clear from the start', text: 'Straightforward details, honest prices, no surprises.' },
-  { icon: HeartHandshake, title: 'Local when it matters', text: 'A real person to help before and during your trip.' },
+  { icon: HandHeart, title: 'Local when it matters', text: 'A real person to help before and during your trip.' },
 ];
 
 export default async function Home() {
