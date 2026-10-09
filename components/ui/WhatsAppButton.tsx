@@ -1,6 +1,5 @@
 'use client';
 
-import { FaWhatsapp } from 'react-icons/fa';
 import { whatsappLink } from '@/lib/contact';
 
 /**
@@ -15,7 +14,14 @@ export const defaultWhatsAppMessage =
   'Namaste! I am planning a trip to Kumaon and would like help with stays, rides, rentals, or packages. Please share the best options, availability, and pricing. Thank you!';
 
 export function WhatsAppMark({ size = 18 }: { size?: number }) {
-  return <FaWhatsapp aria-hidden="true" size={size} />;
+  // Inline brand glyph instead of `react-icons/fa`: importing the whole icon
+  // font chunk for one mark added ~100kB to every page that renders a
+  // WhatsApp button (PageSpeed "legacy JavaScript / unused JavaScript").
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+      <path d="M12.04 2a9.87 9.87 0 0 0-8.5 14.74L2 22l5.4-1.5A9.87 9.87 0 1 0 12.04 2Zm0 1.8a8.07 8.07 0 1 1-4.12 15.03l-.31-.18-3.11.86.87-3.03-.2-.31a8.07 8.07 0 0 1 6.87-12.37Zm-3.5 3.97c-.19 0-.49.07-.75.35-.26.28-1 .97-1 2.37s1.02 2.75 1.17 2.94c.14.19 2.02 3.18 5 4.3 2.48.93 2.98.74 3.52.7.54-.05 1.75-.72 2-1.41.25-.7.25-1.29.17-1.41-.07-.13-.26-.2-.55-.35-.29-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.64.07-.29-.14-1.23-.45-2.34-1.44-.87-.77-1.45-1.73-1.62-2.02-.17-.3-.02-.46.13-.6.13-.13.29-.35.44-.52.14-.17.19-.3.29-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.58Z" />
+    </svg>
+  );
 }
 
 /**

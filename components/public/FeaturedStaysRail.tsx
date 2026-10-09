@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRef } from 'react';
 import { ArrowRight, ChevronLeft, ChevronRight, MapPin, Star } from 'lucide-react';
@@ -26,7 +27,7 @@ export function FeaturedStaysRail({ stays }: { stays: Listing[] }) {
           return (
             <Link key={stay.slug} href={`/stays/${stay.slug}`} data-featured-stay aria-disabled={fullyBooked || undefined} className={`group grid w-[86vw] max-w-[420px] shrink-0 snap-start grid-cols-[126px_minmax(0,1fr)] overflow-hidden rounded-[1.1rem] bg-white text-left ring-1 ring-[#e4e3da] transition duration-300 ${fullyBooked ? 'opacity-75 grayscale-[45%]' : 'hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(23,63,53,.14)]'} sm:w-[400px] sm:grid-cols-[150px_minmax(0,1fr)]`}>
               <div className="relative min-h-[186px] overflow-hidden bg-[#eef3f0] sm:min-h-[198px]">
-                {stay.image ? (<img src={stay.image} alt={stay.title} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.05]" />) : (<div className="absolute inset-0 grid place-items-center text-[#173f35]"><Star size={28} /></div>)}
+                {stay.image ? (<Image src={stay.image} alt={stay.title} fill loading="lazy" sizes="(max-width: 640px) 40vw, 150px" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.05]" />) : (<div className="absolute inset-0 grid place-items-center text-[#173f35]"><Star size={28} /></div>)}
                 {fullyBooked ? (
                   <span className="sans absolute left-2 top-2 rounded-[0.55rem] bg-[#171717]/85 px-2 py-1 text-[11px] font-bold leading-none text-white shadow-sm">Fully booked</span>
                 ) : discount !== null && (<span className="sans absolute left-2 top-2 rounded-[0.55rem] bg-[#c46a3a] px-2 py-1 text-[11px] font-bold leading-none text-white shadow-sm">{discount}% off</span>)}

@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRef } from 'react';
 import { ArrowRight, ChevronLeft, ChevronRight, MapPin, Star } from 'lucide-react';
@@ -37,7 +38,7 @@ export function StaysCarousel({ stays }: { stays: Listing[] }) {
             >
               <div className="relative aspect-[4/3] overflow-hidden bg-[#eef3f0]">
                 {stay.image ? (
-                  <img src={stay.image} alt={stay.title} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.05]" />
+                  <Image src={stay.image} alt={stay.title} fill loading="lazy" sizes="(max-width: 640px) 260px, (max-width: 768px) 300px, 340px" className="object-cover transition duration-500 group-hover:scale-[1.05]" />
                 ) : (
                   <div className="flex h-full items-center justify-center text-[#173f35]"><Star size={30} /></div>
                 )}

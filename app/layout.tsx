@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { Inter } from 'next/font/google';
 import './globals.css';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -13,6 +14,11 @@ import { TripCartProvider, TripSummary } from '@/components/trip/TripCart';
 import { ThemeProvider } from '@/components/ui/ThemeProvider';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { RouteProgressLoader } from '@/components/ui/RouteProgressLoader';
+
+// Self-hosted via next/font so the browser never waits on a render-blocking
+// Google Fonts stylesheet (the old `@import` in globals.css showed up in
+// PageSpeed as a render-blocking request with FCP/LCP chained behind it).
+const inter = Inter({ subsets: ['latin'], display: 'swap', variable: '--font-inter' });
 
 const display = { variable: '' };
 const sans = { variable: '' };
@@ -36,7 +42,14 @@ export const viewport: Viewport = { colorScheme: 'light' };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${display.variable} ${sans.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${display.variable} ${sans.variable} ${inter.variable}`}>
+      <head>
+        {/* Early connection to the image CDN: the LCP hero photo lives on
+            Unsplash, so resolving DNS/TLS before the <img> keeps it off the
+            critical path (PageSpeed "render-blocking requests"). */}
+        <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+      </head>
       <body><ThemeProvider><AuthProvider><TripCartProvider>
         <SiteHeader>
             <Link href="/" aria-label="KainchiDarshan home" className="shrink-0"><Image src="/images/Logo.png" alt="Kainchi Darshan" width={210} height={80} priority className="h-8 w-auto object-contain sm:h-9 md:h-11" /></Link>

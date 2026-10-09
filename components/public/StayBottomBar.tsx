@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Ban, Sparkles } from 'lucide-react';
-import { FaWhatsapp } from 'react-icons/fa';
+import { WhatsAppMark } from '@/components/ui/WhatsAppButton';
 
 export function StayBottomBar({ price, basePrice, slug, fullyBooked = false, onEnquire }: { price: number; basePrice?: number | null; slug: string; fullyBooked?: boolean; onEnquire?: () => void }) {
   const [visible, setVisible] = useState(false);
@@ -60,7 +60,7 @@ export function StayBottomBar({ price, basePrice, slug, fullyBooked = false, onE
               title="WhatsApp inquiry"
               className="pointer-events-auto flex h-9 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-[#25D366] px-3 text-[11px] font-bold text-white shadow-[0_6px_14px_rgba(18,120,64,.3)] transition active:scale-95"
             >
-              <FaWhatsapp size={15} />
+              <WhatsAppMark size={15} />
               WhatsApp inquiry
             </button>
           )}

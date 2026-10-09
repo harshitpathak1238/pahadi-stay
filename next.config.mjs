@@ -3,10 +3,14 @@ const nextConfig = {
   // gzip/br for HTML, CSS and JS payloads.
   compress: true,
   poweredByHeader: false,
-  // ioredis is server-only and pulls in Node built-ins; keep it out of any
-  // client chunk even if a shared module imports the cache helpers.
+  // Keep admin-only weight out of the public bundle: recharts (~120kB) and
+  // tiptap (~200kB) live behind /admin route segments, so Next.js code-splits
+  // them away from public pages automatically. lucide-react is ESM and
+  // tree-shaken by the bundler; react-icons was dropped entirely (replaced by
+  // one inline WhatsApp SVG) since it dragged a font chunk into every page.
   experimental: {
     serverComponentsExternalPackages: ['ioredis'],
+    optimizePackageImports: ['lucide-react'],
   },
   images: {
     remotePatterns: [
@@ -18,6 +22,9 @@ const nextConfig = {
     loader: 'custom',
     loaderFile: './lib/image-loader.ts',
     formats: ['image/avif', 'image/webp'],
+    // Serve small variants so phones never download desktop-sized files.
+    deviceSizes: [360, 640, 828, 1080, 1200, 1600],
+    imageSizes: [64, 96, 128, 256, 384],
     // Long-lived caching for the optimised image pipeline. Bump the version
     // path when the loader's output format changes.
     minimumCacheTTL: 60 * 60 * 24 * 30,

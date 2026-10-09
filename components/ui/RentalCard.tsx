@@ -20,6 +20,7 @@ export function RentalCard({ rental }: { rental: Rental }) {
           src={rental.image}
           alt={rental.title}
           fill
+          loading="lazy"
           sizes="(max-width: 768px) 92vw, 50vw"
           className="rental-image object-cover"
         />

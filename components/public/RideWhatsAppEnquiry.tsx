@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Car, Check, ChevronLeft, ChevronRight, Users, X } from 'lucide-react';
-import { FaWhatsapp } from 'react-icons/fa';
+import { WhatsAppMark } from '@/components/ui/WhatsAppButton';
 import {
   buildRideEnquiryMessage,
   enquiryTotal,
@@ -33,7 +33,7 @@ export function RideEnquireButton({ onClick, className = '', label = 'Enquire on
       onClick={onClick}
       className={`inline-flex items-center justify-center gap-2.5 rounded-xl bg-[#25D366] px-4 py-3 sans text-sm font-bold text-white shadow-[0_10px_22px_rgba(18,120,64,.28)] transition hover:bg-[#1fbf5b] active:scale-[.98] ${className}`}
     >
-      <FaWhatsapp aria-hidden="true" size={19} />
+      <WhatsAppMark size={19} />
       {label}
     </button>
   );
@@ -114,7 +114,7 @@ export function RideWhatsAppEnquiryModal({ ride, open, onClose }: { ride: RideLi
           <div className="flex items-start justify-between gap-3 border-b border-[#e2e6df] bg-[#f7f4ec] px-4 py-4 sm:px-5">
             <div className="min-w-0">
               <p className="sans inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[.14em] text-[#1d7a4f]">
-                <FaWhatsapp aria-hidden="true" size={13} /> Enquire on WhatsApp
+                <WhatsAppMark size={13} /> Enquire on WhatsApp
               </p>
               <h3 className="mt-1 text-lg font-bold leading-snug text-[#173f35] sm:text-xl">Choose your vehicle</h3>
               <p className="sans mt-0.5 truncate text-xs text-[#6c7770] sm:text-[13px]">{ride.title} · {routeLine}</p>
@@ -174,7 +174,7 @@ export function RideWhatsAppEnquiryModal({ ride, open, onClose }: { ride: RideLi
               disabled={!selected.length}
               className="sans mt-3 flex w-full items-center justify-center gap-2.5 rounded-xl bg-[#25D366] px-4 py-3.5 text-sm font-bold text-white shadow-[0_10px_22px_rgba(18,120,64,.28)] transition hover:bg-[#1fbf5b] active:scale-[.98] disabled:cursor-not-allowed disabled:bg-[#c9d3cc] disabled:text-[#6d7a72] disabled:shadow-none"
             >
-              <FaWhatsapp aria-hidden="true" size={19} />
+              <WhatsAppMark size={19} />
               Send WhatsApp inquiry
             </button>
           </div>

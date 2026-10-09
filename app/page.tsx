@@ -27,43 +27,66 @@ const values = [
 ];
 
 export default async function Home() {
-  // The journal is a horizontal rail, so fetch enough posts for it to scroll
-  // rather than stopping at one screenful.
-  const blogs = (await getPublishedBlogs()).slice(0, MAX_FEATURED_STORIES);
-  // Live catalogue when the database is reachable; static fallback otherwise.
-  const { data: stayResult } = await getPublicListings('STAY');
-  const liveStays = stayResult.length ? stayResult : mockStays;
-  const { data: packageResult } = await getPublicPackages();
   type HomeReview = { id: string; guest: string; comment: string; rating: number; stay: string; ago: string };
-  let recentReviews: HomeReview[] = [];
-  let reviewCount = 0;
-  let reviewAverage: number | null = null;
   // Cached: the home page renders on every visit but this aggregate is slow
   // (join + aggregate) and changes only when a review is approved.
-  const reviews = await cached('home:reviews', 300, async () => {
-    try {
-      const rows = await db.review.findMany({ where: { status: 'APPROVED' }, include: { listing: { select: { title: true } } }, orderBy: { createdAt: 'desc' }, take: 3 });
-      const recent: HomeReview[] = rows.map((row) => ({ id: row.id, guest: row.guestName || 'Guest', comment: row.comment, rating: row.overallRating, stay: row.listing.title, ago: relativeTime(row.createdAt.toISOString()) }));
-      let count = 0;
-      let average: number | null = null;
-      if (rows.length) {
-        const aggregate = await db.review.aggregate({ where: { status: 'APPROVED' }, _count: true, _avg: { overallRating: true } });
-        count = aggregate._count;
-        average = Math.round((aggregate._avg.overallRating ?? 0) * 10) / 10;
+  const fetchReviews = (): Promise<{ recent: HomeReview[]; count: number; average: number | null }> =>
+    cached('home:reviews', 300, async () => {
+      try {
+        const rows = await db.review.findMany({ where: { status: 'APPROVED' }, include: { listing: { select: { title: true } } }, orderBy: { createdAt: 'desc' }, take: 3 });
+        const recent: HomeReview[] = rows.map((row) => ({ id: row.id, guest: row.guestName || 'Guest', comment: row.comment, rating: row.overallRating, stay: row.listing.title, ago: relativeTime(row.createdAt.toISOString()) }));
+        let count = 0;
+        let average: number | null = null;
+        if (rows.length) {
+          const aggregate = await db.review.aggregate({ where: { status: 'APPROVED' }, _count: true, _avg: { overallRating: true } });
+          count = aggregate._count;
+          average = Math.round((aggregate._avg.overallRating ?? 0) * 10) / 10;
+        }
+        return { recent, count, average };
+      } catch {
+        /* reviews are best-effort on the home page */
+        return { recent: [] as HomeReview[], count: 0, average: null as number | null };
       }
-      return { recent, count, average };
-    } catch {
-      /* reviews are best-effort on the home page */
-      return { recent: [] as HomeReview[], count: 0, average: null as number | null };
-    }
-  });
-  recentReviews = reviews.recent;
-  reviewCount = reviews.count;
-  reviewAverage = reviews.average;
+    });
+  // Sequential awaits summed every cache miss into TTFB. These four reads are
+  // independent, so fire them together — wall time becomes the slowest one.
+  const [blogsResult, staysResult, packagesResult, reviews]: [
+    Awaited<ReturnType<typeof getPublishedBlogs>>,
+    Awaited<ReturnType<typeof getPublicListings>>,
+    Awaited<ReturnType<typeof getPublicPackages>>,
+    { recent: HomeReview[]; count: number; average: number | null },
+  ] = await Promise.all([
+    getPublishedBlogs(),
+    getPublicListings('STAY'),
+    getPublicPackages(),
+    fetchReviews(),
+  ]);
+  // The journal is a horizontal rail, so fetch enough posts for it to scroll
+  // rather than stopping at one screenful.
+  const blogs = blogsResult.slice(0, MAX_FEATURED_STORIES);
+  // Live catalogue when the database is reachable; static fallback otherwise.
+  const stayResult = staysResult.data;
+  const liveStays = stayResult.length ? stayResult : mockStays;
+  const packageResult = packagesResult.data;
+  const recentReviews: HomeReview[] = reviews.recent;
+  const reviewCount = reviews.count;
+  const reviewAverage = reviews.average;
 
   return (
     <>
       <section className="hero-wash px-4 text-[#f7f4ec]">
+        {/* LCP image: priority + fetchPriority so the hero photo is discovered
+            in HTML, not late CSS — this is what fixes the NO_LCP failure. */}
+        <div className="hero-wash-media" aria-hidden="true">
+          <Image
+            src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1600&q=70"
+            alt=""
+            fill
+            priority
+            fetchPriority="high"
+            sizes="100vw"
+          />
+        </div>
         <div className="mx-auto w-full max-w-7xl">
           <div className="hero-copy max-w-3xl">
             <p className="sans rise text-xs font-bold uppercase tracking-[.24em] text-[#e5b785]">Your next Kumaon escape</p>
@@ -111,7 +134,7 @@ export default async function Home() {
               <Link key={item.id} href={`/packages/${item.id}`} className="group grid grid-cols-[128px_minmax(0,1fr)] overflow-hidden rounded-2xl bg-[#24584a] text-white ring-1 ring-[#1d4a3e] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_60px_rgba(23,63,53,.24)] sm:grid-cols-[190px_minmax(0,1fr)] md:grid-cols-[230px_minmax(0,1fr)]">
                 <div className="relative min-h-[148px] overflow-hidden bg-[#173f35] sm:min-h-[168px] md:min-h-[188px]">
                   {item.image ? (
-                    <img src={item.image} alt={item.title} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]" />
+                    <Image src={item.image} alt={item.title} fill loading="lazy" sizes="(max-width: 640px) 128px, (max-width: 768px) 190px, 230px" className="object-cover transition duration-500 group-hover:scale-[1.04]" />
                   ) : (
                     <div className="flex h-full items-center justify-center text-white/70"><Sparkles size={30} /></div>
                   )}
@@ -197,7 +220,7 @@ export default async function Home() {
           <div className="mt-9 grid gap-5 md:grid-cols-2">
             {destinations.map((destination) => (
               <Link href={`/destinations/${destination.slug}`} key={destination.slug} className="image-card group relative aspect-[16/9] overflow-hidden rounded-xl">
-                <Image src={destination.image} alt={destination.title} fill sizes="(max-width: 768px) 92vw, 50vw" className="card-image object-cover" />
+                <Image src={destination.image} alt={destination.title} fill loading="lazy" sizes="(max-width: 768px) 92vw, 50vw" className="card-image object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#102f28]/85 via-[#102f28]/10 to-transparent" />
                 <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between text-white md:bottom-7 md:left-7 md:right-7">
                   <div><h3 className="text-2xl md:text-4xl">{destination.title}</h3><p className="sans mt-1 text-sm text-white/75">{destination.sub}</p></div>
