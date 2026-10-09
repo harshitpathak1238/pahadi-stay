@@ -279,7 +279,7 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
       location: form.location,
       basePrice: Number(form.basePrice),
       sellPrice: Number(form.sellPrice),
-      // Blank means "no seasonal rate" — the site then falls back to sellPrice.
+      // Blank means "no seasonal rate" â€” the site then falls back to sellPrice.
       seasonPrice: form.seasonPrice === '' ? null : Number(form.seasonPrice),
       offSeasonPrice: form.offSeasonPrice === '' ? null : Number(form.offSeasonPrice),
       images: form.images,
@@ -455,8 +455,8 @@ export function ContentManager({ initialSection = 'STAY' }: { initialSection?: S
               </h3>
               <p className="mt-1 sans text-sm text-[#6c7770]">
                 {section === 'PACKAGE'
-                  ? `?${Number((item as TravelPackage).price).toLocaleString('en-IN')} · ${(item as TravelPackage).listingIds?.length || 0} included listings`
-                  : `${(item as Listing).location} · ?${Number((item as Listing).sellPrice).toLocaleString('en-IN')} · ${(item as Listing).status}`}
+                  ? `â‚¹${Number((item as TravelPackage).price).toLocaleString('en-IN')} Â· ${(item as TravelPackage).listingIds?.length || 0} included listings`
+                  : `${(item as Listing).location} Â· â‚¹${Number((item as Listing).sellPrice).toLocaleString('en-IN')} Â· ${(item as Listing).status}`}
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -675,7 +675,7 @@ function PackageInclusionPicker({ allListings, selected, onToggle }: { allListin
           type="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search stays and cars…"
+          placeholder="Search stays and carsâ€¦"
           aria-label="Search stays and cars"
           className="w-full rounded-xl border border-[#e2e3e0] bg-white py-2 pl-9 pr-3 text-[12px] text-[#2d4037] placeholder:text-[#a3aca4] focus:border-[#8db9a0] focus:outline-none focus:ring-2 focus:ring-[#dcefe2]"
         />
@@ -714,7 +714,7 @@ function PackageInclusionPicker({ allListings, selected, onToggle }: { allListin
                           <span className="min-w-0 flex-1">
                             <span className="block truncate text-[12px] font-semibold text-[#2d4037]">{listing.title}</span>
                             <span className="block truncate text-[11px] text-[#7d847c]">
-                              {listing.location || '—'}
+                              {listing.location || 'â€”'}
                               {listing.status !== 'LIVE' && <span className="ml-1 rounded bg-[#f0f0ee] px-1 py-px text-[10px] font-bold uppercase tracking-wide text-[#8a8f88]">{listing.status}</span>}
                             </span>
                           </span>
